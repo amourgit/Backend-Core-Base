@@ -1,0 +1,2 @@
+WARNING 2025-09-12 10:45:25,614 middleware [MultiTenant] Aucun tenant trouvé pour : oi.localhost (sous-domaine: oi)
+WARNING 2025-09-12 10:45:25,615 log Not Found: /api/token/v1/obten/

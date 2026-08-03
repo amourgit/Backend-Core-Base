@@ -1,0 +1,8 @@
+# Ignorer le dossier media (uploads, fichiers utilisateurs)
+media/
+
+# Ignorer l'environnement virtuel Python
+venv/ 
+# Fichiers compilés Python (générés localement, jamais à committer)
+__pycache__/
+*.pyc

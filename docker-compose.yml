@@ -1,0 +1,20 @@
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: educ-postgres
+    environment:
+      POSTGRES_DB: db_educ
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+
+
