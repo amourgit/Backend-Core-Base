@@ -4,6 +4,33 @@ from django.utils.translation import gettext_lazy as _
 import re
 from django.core.exceptions import ValidationError
 
+
+class RoleUtilisateur(models.TextChoices):
+    """Rôle applicatif de l'utilisateur — pilote les permissions frontend
+    fines (voir src/lib/permissions/ côté frontend) et backend
+    (voir common/permissions.py). 'anonyme' n'est jamais stocké : il ne
+    s'applique qu'aux requêtes non authentifiées, côté frontend."""
+    ETUDIANT = 'etudiant', _('Étudiant')
+    MODERATEUR = 'moderateur', _('Modérateur')
+    ADMINISTRATEUR = 'administrateur', _('Administrateur')
+    ORGANISATION = 'organisation', _('Organisation')
+
+
+class Badge(models.Model):
+    """Distinction attribuée à un utilisateur (référentiel simple, peu volatil)."""
+    nom = models.CharField(_('Nom'), max_length=100, unique=True)
+    icone = models.CharField(_('Icône'), max_length=10, default='🏅', help_text=_('Emoji ou code icône court.'))
+    description = models.CharField(_('Description'), max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = _('Badge')
+        verbose_name_plural = _('Badges')
+        ordering = ['nom']
+
+    def __str__(self):
+        return self.nom
+
+
 class User(AbstractUser):
     """
     Custom user model.
@@ -18,11 +45,27 @@ class User(AbstractUser):
     language_preference = models.CharField(_('Preferred language'), max_length=10, default='en')
     timezone = models.CharField(_('Timezone'), max_length=50, default='UTC')
 
+    # --- Champs applicatifs CIVITAS NEWS ---
+    role = models.CharField(
+        _('Rôle'), max_length=20, choices=RoleUtilisateur.choices, default=RoleUtilisateur.ETUDIANT, db_index=True,
+    )
+    etablissement = models.ForeignKey(
+        'referentiels.Etablissement', verbose_name=_('Établissement'),
+        null=True, blank=True, on_delete=models.SET_NULL, related_name='utilisateurs',
+    )
+    organisation = models.ForeignKey(
+        'referentiels.Organisation', verbose_name=_('Organisation'),
+        null=True, blank=True, on_delete=models.SET_NULL, related_name='membres',
+        help_text=_('Renseigné si le compte représente/gère une organisation publiante.'),
+    )
+    badges = models.ManyToManyField(Badge, verbose_name=_('Badges'), blank=True, related_name='utilisateurs')
+
     class Meta:
         indexes = [
            models.Index(fields=['username']),
            models.Index(fields=['email']),
            models.Index(fields=['is_active']),
+           models.Index(fields=['role']),
         ]
         verbose_name = _('User')
         verbose_name_plural = _('Users')

@@ -64,6 +64,17 @@ TENANT_APPS = (
 
     # Niveau 0
     "users",
+
+    # Niveau 1 — CIVITAS NEWS (domaines métier de contenu)
+    "referentiels",
+    "news",
+    "commentaires",
+    "sondages",
+    "liens",
+    "notifications",
+    "journal",
+    "moderation",
+    "statistiques",
 )
 
 # Assure que django_tenants n'est pas dupliqué dans INSTALLED_APPS.
@@ -289,11 +300,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
+        'common.camel_case.CamelCaseJSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
     'DEFAULT_PARSER_CLASSES': [
-        'rest_framework.parsers.JSONParser',
+        'common.camel_case.CamelCaseJSONParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser'
     ],
@@ -396,6 +407,11 @@ TENANT_DOMAIN_MODEL = 'domain.Domain'
 
 # Main domain setting
 MAIN_DOMAIN = 'localhost'
+
+# URL de base du frontend CIVITAS NEWS (SPA Vite), utilisée pour construire
+# les URLs publiques des liens de partage (liens/models.py) quand le
+# frontend ne fournit pas explicitement `urlPublique`.
+FRONTEND_BASE_URL = 'http://localhost:5173'
 
 # Clé de chiffrement pour les mots de passe de base de données
 ENCRYPTION_KEY = 'ozQujKHvSUZE11J-JDcCi1CgvnJ4x3aDJOdclCxxhHI='

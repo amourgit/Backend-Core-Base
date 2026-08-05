@@ -23,6 +23,13 @@ from drf_yasg import openapi
 from django.conf import settings
 from django.conf.urls.static import static 
 
+# Personnalisation de l'espace admin (identique dans chaque schéma tenant) :
+# permet de retrouver clairement toutes les apps CIVITAS NEWS, bien
+# regroupées et étiquetées, dans une interface cohérente.
+admin.site.site_header = 'Administration CIVITAS NEWS'
+admin.site.site_title = 'CIVITAS NEWS'
+admin.site.index_title = "Gestion de la plateforme"
+
 schema_view = get_schema_view(
     openapi.Info(
         title="API Documentation",
@@ -49,5 +56,16 @@ urlpatterns = [
     path('api/tenants/', include('tenants.urls')),
     path('api/users/', include('users.urls')),
     path('api/domain/', include('domain.urls')),
+
+    # API endpoints CIVITAS NEWS (domaines métier, isolés par tenant)
+    path('api/referentiels/', include('referentiels.urls')),
+    path('api/news/', include('news.urls')),
+    path('api/commentaires/', include('commentaires.urls')),
+    path('api/sondages/', include('sondages.urls')),
+    path('api/liens/', include('liens.urls')),
+    path('api/notifications/', include('notifications.urls')),
+    path('api/journal/', include('journal.urls')),
+    path('api/moderation/', include('moderation.urls')),
+    path('api/statistiques/', include('statistiques.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

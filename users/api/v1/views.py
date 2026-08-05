@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from .serializers import (
     UserSerializer,
+    UtilisateurPublicSerializer,
     UserCreateSerializer,
     UserUpdateSerializer,
     ChangePasswordSerializer
@@ -58,5 +59,5 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data) 
+        serializer = UtilisateurPublicSerializer(request.user, context={'request': request})
+        return Response(serializer.data)

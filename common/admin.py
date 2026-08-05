@@ -63,6 +63,22 @@ SOCLE_FIELDSET = (_('Socle de Traçabilité'), {
     ),
 })
 
+# Variante pour les entités qui redéfinissent `statut` avec leur propre
+# cycle de vie métier (ex: News, Sondage, Signalement — voir le
+# docstring de SocleTracabilite dans common/models.py) : `statut` est
+# alors affiché dans la section métier plutôt qu'ici, pour rester bien
+# visible plutôt que noyé dans une section technique repliée.
+SOCLE_FIELDSET_SANS_STATUT = (_('Socle de Traçabilité'), {
+    'classes': ('collapse',),
+    'fields': (
+        ('cree_le', 'cree_par', 'cree_par_systeme'),
+        ('modifie_le', 'modifie_par', 'modifie_par_systeme'),
+        ('version', 'origine_donnee'),
+        'motif_derniere_modification',
+        ('supprime_le', 'supprime_par'),
+    ),
+})
+
 
 class TracabiliteAdminMixin(admin.ModelAdmin):
     """Mixin à utiliser sur tout ModelAdmin d'une entité héritant de

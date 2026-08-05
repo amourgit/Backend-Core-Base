@@ -16,6 +16,8 @@ class SocleModelViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = self.queryset if self.queryset is not None else self.serializer_class.Meta.model.objects.all()
+        if getattr(self, 'swagger_fake_view', False):
+            return qs.none()
         if self.request.query_params.get('inclure_supprimes') == 'true':
             return qs
         return qs.filter(supprime_le__isnull=True)
