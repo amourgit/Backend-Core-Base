@@ -77,6 +77,43 @@ BASE_VERSIONED_TENANT_PUBLIC_ROUTES = [
     # étaient classées ailleurs, le TenantJWTMiddleware validerait le
     # Bearer token AVANT la vue et rejetterait en 401 un token expiré —
     # cassant précisément le cas d'usage que ces routes existent pour gérer.
+
+    # --- Domaines métier CIVITAS NEWS à lecture publique --------------------
+    # Ces 6 apps ont toutes le même contrat d'autorisation, déjà implémenté
+    # au niveau des `permission_classes` DRF de chaque vue (SAFE_METHODS
+    # -> True pour tout le monde, écriture -> IsAuthenticated / rôle précis) :
+    # lecture publique (y compris anonyme), écriture réservée aux comptes
+    # authentifiés (voir common/permissions.py : LectureLibreEcritureModerateur,
+    # LectureLibreEcritureAuthentifie, et les permissions dédiées de chaque
+    # app : NewsPermission, CommentairePermission, SondagePermission,
+    # LienPublicationPermission).
+    #
+    # Avant cet ajout, AUCUNE de ces 6 apps n'était classée nulle part dans
+    # ce fichier alors que leurs URLs sont bien montées dans config/urls.py
+    # -> tenants.middleware.TenantMiddleware.get_route_type() retournait
+    # None pour absolument toutes leurs routes -> 404 "Type de route non
+    # géré" systématique, AVANT même d'atteindre Django/DRF (qui les
+    # protège pourtant déjà correctement via permission_classes). 100% des
+    # endpoints de ces 6 apps étaient donc inaccessibles, authentifié ou non.
+    #
+    # Pourquoi TENANT_PUBLIC et pas AUTHENTICATED : la classification ici
+    # est PAR CHEMIN, pas par méthode HTTP. Un GET (lecture publique) et un
+    # POST (écriture protégée) sur `/api/news/v1/news/` partagent EXACTEMENT
+    # le même chemin -- impossible de les distinguer à ce niveau. Classer
+    # 'news' en AUTHENTICATED bloquerait donc aussi les lectures anonymes en
+    # 401 avant même que la vue ne s'exécute, ce qui casserait le contrat
+    # "lecture publique" explicitement voulu et déjà codé côté vues.
+    # TENANT_PUBLIC laisse TenantJWTMiddleware ne PAS exiger de token, et
+    # laisse DRF faire sa propre authentification (JWTAuthentication est
+    # dans DEFAULT_AUTHENTICATION_CLASSES, indépendante de ce middleware) :
+    # un token Bearer valide est donc quand même reconnu par la vue pour les
+    # écritures, exactement comme pour 'refresh'/'check-token' ci-dessus.
+    ('referentiels', None),   # /api/referentiels/vX  (categories, organisations, etablissements)
+    ('news', None),           # /api/news/vX          (news, {id}/reactions, {id}/partager)
+    ('commentaires', None),   # /api/commentaires/vX  (commentaires, {id}/vote, {id}/reactions, {id}/pin)
+    ('sondages', None),       # /api/sondages/vX      (sondages, {id}/vote)
+    ('liens', None),          # /api/liens/vX         (liens, {id}/acceder — tracking clic/scan 100% public)
+    ('statistiques', None),   # /api/statistiques/vX  (globales — AllowAny pur, aucune écriture)
 ]
 # Routes non versionnées (directement sous /api/)
 # Volontairement VIDE : l'ancienne entrée bare 'tenants' (-> /api/tenants)
@@ -120,6 +157,19 @@ BASE_VERSIONED_AUTHENTICATED_ROUTES = [
     # IsAccessTokenTenant) sur /api/domain/vX/domains, mais rien dans cette
     # config ne classait /api/domain/... -> 404 systématique là aussi.
     ('domain', ['domains']),          # /api/domain/vX/domains
+
+    # --- Domaines métier CIVITAS NEWS 100% privés ---------------------------
+    # Contrairement au groupe TENANT_PUBLIC ci-dessus, ces 3 apps n'ont
+    # AUCUN chemin public : chaque vue exige request.user authentifié pour
+    # TOUTES les méthodes, y compris GET (voir NotificationPermission,
+    # EstModerateurOuAdmin). Pas de conflit lecture/écriture sur un même
+    # chemin ici -> AUTHENTICATED est le classement correct, et fait aussi
+    # office de garde-fou en profondeur (échec rapide au niveau du
+    # middleware, avant même que la vue ne s'exécute), à l'identique du
+    # traitement déjà appliqué à 'domain' juste au-dessus.
+    'notifications',   # /api/notifications/vX  (notifications, {id}/read, read-all — propres à chaque utilisateur)
+    'journal',         # /api/journal/vX        (evenements — journal d'audit, lecture seule, modérateurs/admins)
+    'moderation',      # /api/moderation/vX     (signalements, {id}/traiter, utilisateurs — modérateurs/admins)
 ]
 # Configuration des routes Authentifiées non versionnées avec leurs sous-chemins
 BASE_NON_VERSIONED_AUTHENTICATED_ROUTES = [

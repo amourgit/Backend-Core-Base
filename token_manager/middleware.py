@@ -25,6 +25,65 @@ class TenantJWTMiddleware(MiddlewareMixin):
         super().__init__(get_response)
         self.jwt_auth = JWTAuthentication()
 
+    @staticmethod
+    def _match_length(path, route, loose):
+        """Longueur de `route` si elle correspond à `path` (égalité, ou
+        préfixe suivi de '/'), sinon None. `loose=True` accepte en plus un
+        préfixe SANS séparateur -- comportement historique un peu trop
+        permissif d'is_admin_route()/is_authenticated_route(), conservé
+        ici tel quel pour ne rien changer d'autre que l'ordre de
+        précédence entre catégories (voir _classify ci-dessous)."""
+        if path == route or path.startswith(f"{route}/"):
+            return len(route)
+        if loose and path.startswith(route):
+            return len(route)
+        return None
+
+    def _classify(self, path):
+        """
+        Résout la catégorie de route (GLOBAL_PUBLIC / TENANT_PUBLIC /
+        AUTHENTICATED / ADMIN) dont l'entrée enregistrée la PLUS SPÉCIFIQUE
+        (la plus longue) correspond à `path`, tous types confondus.
+
+        AVANT CE CORRECTIF : is_public_route(), is_admin_route() et
+        is_authenticated_route() étaient 3 vérifications indépendantes,
+        chacune ignorant totalement les listes des autres catégories. Une
+        entrée "nue" comme ('token', None) dans TENANT_PUBLIC_ROUTES
+        (-> '/api/token/vX') matche par préfixe TOUT ce qui se trouve
+        en dessous, y compris '/api/token/vX/logout' -- alors que
+        'logout' est explicitement (et plus précisément) listé dans
+        AUTHENTICATED_ROUTES. Comme is_public_route() est appelée en
+        premier dans process_request() et ne regardait QUE
+        GLOBAL_PUBLIC_ROUTES + TENANT_PUBLIC_ROUTES (sans savoir qu'une
+        entrée plus spécifique existait dans AUTHENTICATED_ROUTES), elle
+        retournait True et court-circuitait toute authentification pour
+        '/api/token/vX/logout' -- rendant le classement AUTHENTICATED de
+        'logout' totalement inopérant, quel que soit son ordre dans
+        config.py. (Sans impact concret aujourd'hui car les vues
+        concernées ont chacune leurs propres permission_classes DRF, mais
+        le garde-fou "défense en profondeur" au niveau middleware ne
+        servait à rien.)
+
+        Cette méthode centralise donc la résolution, à l'identique de
+        tenants.middleware.TenantMiddleware.get_route_type() : la route
+        enregistrée la plus longue gagne, tous types confondus, ce qui
+        fait toujours gagner la classification la plus spécifique.
+        """
+        path = path.rstrip('/')
+        buckets = (
+            ('GLOBAL_PUBLIC', GLOBAL_PUBLIC_ROUTES, False),
+            ('TENANT_PUBLIC', TENANT_PUBLIC_ROUTES, False),
+            ('AUTHENTICATED', AUTHENTICATED_ROUTES, True),
+            ('ADMIN', ADMIN_ROUTES, True),
+        )
+        meilleur_type, meilleure_longueur = None, -1
+        for route_type, routes, loose in buckets:
+            for route in routes:
+                longueur = self._match_length(path, route, loose)
+                if longueur is not None and longueur > meilleure_longueur:
+                    meilleure_longueur, meilleur_type = longueur, route_type
+        return meilleur_type
+
     def is_public_route(self, path):
         """
         Vérifie si la route est publique (pas d'authentification requise).
@@ -43,47 +102,21 @@ class TenantJWTMiddleware(MiddlewareMixin):
         d'atteindre la vue de refresh — cassant exactement le scénario
         que cette route existe pour gérer.
         """
-        path = path.rstrip('/')
-
-        public_routes = GLOBAL_PUBLIC_ROUTES + TENANT_PUBLIC_ROUTES
-
-        if path in public_routes:
-            return True
-
-        return any(
-            path.startswith(f"{route}/")
-            for route in public_routes
-        )
+        return self._classify(path) in ('GLOBAL_PUBLIC', 'TENANT_PUBLIC')
 
     def is_admin_route(self, path):
         """
         Vérifie si la route nécessite des privilèges administrateur
         Compatible avec la nouvelle structure de routes versionnées
         """
-        path = path.rstrip('/')
-        
-        if path in ADMIN_ROUTES:
-            return True
-            
-        return any(
-            path.startswith(f"{route}/") or path.startswith(route)
-            for route in ADMIN_ROUTES
-        )
+        return self._classify(path) == 'ADMIN'
 
     def is_authenticated_route(self, path):
         """
         Vérifie si la route nécessite une authentification
         Compatible avec la nouvelle structure de routes versionnées
         """
-        path = path.rstrip('/')
-        
-        if path in AUTHENTICATED_ROUTES:
-            return True
-            
-        return any(
-            path.startswith(f"{route}/") or path.startswith(route)
-            for route in AUTHENTICATED_ROUTES
-        )
+        return self._classify(path) == 'AUTHENTICATED'
 
     def is_api_route(self, path):
         """

@@ -87,14 +87,40 @@ class TenantMiddleware(TenantMainMiddleware):
         if path == '/admin' or path.startswith('/admin/'):
             return 'ADMIN'
         
-        # Vérifier les autres types de routes
+        # Vérifier les autres types de routes.
+        #
+        # IMPORTANT : on ne retourne PAS sur la première catégorie qui
+        # matche (ce que faisait l'ancienne implémentation, dans l'ordre
+        # d'itération GLOBAL_PUBLIC -> TENANT_PUBLIC -> AUTHENTICATED ->
+        # ADMIN). Une entrée "nue" comme ('token', None) dans TENANT_PUBLIC
+        # génère '/api/token/vX', et startswith('/api/token/vX/') matche
+        # AUSSI '/api/token/vX/logout' -- alors même que 'logout' est
+        # explicitement (et plus précisément) classé AUTHENTICATED juste
+        # après dans config.py. Avec l'ancien "premier match gagne",
+        # TENANT_PUBLIC étant vérifié en premier, 'logout' était donc
+        # TOUJOURS classé TENANT_PUBLIC, jamais AUTHENTICATED -- rendant
+        # la classification plus précise totalement inopérante, quel que
+        # soit l'ordre des entrées dans les listes de config.py.
+        #
+        # On choisit maintenant la correspondance la PLUS SPÉCIFIQUE
+        # (la route enregistrée la plus longue) tous types confondus :
+        # '/api/token/vX/logout' (21 caractères, AUTHENTICATED) l'emporte
+        # sur '/api/token/vX' (14 caractères, TENANT_PUBLIC). Deux routes
+        # de même longueur ne peuvent pas exister ensemble (une seule
+        # chaîne possible), donc pas d'ambiguïté possible.
+        meilleur_type, meilleure_longueur = None, -1
         for route_type, routes in self.ROUTE_TYPES.items():
-            if path in routes:
-                return route_type
-            if any(path.startswith(f"{route}/") for route in routes):
-                return route_type
-            
-        return None
+            for route in routes:
+                if path == route:
+                    longueur = len(route)
+                elif path.startswith(f"{route}/"):
+                    longueur = len(route)
+                else:
+                    continue
+                if longueur > meilleure_longueur:
+                    meilleure_longueur, meilleur_type = longueur, route_type
+
+        return meilleur_type
 
     def is_api_route(self, path):
         """Vérifie si le chemin correspond à une route API ou admin"""
