@@ -58,6 +58,96 @@ class TokenService:
         return None
 
     @staticmethod
+    def emettre_session(request, user, tenant, settings_token_actif):
+        """
+        Établit une nouvelle session complète pour `user` sur `tenant` :
+        - révoque l'éventuel token déjà actif pour ce même device (même
+          logique que CustomTokenObtainPairView, pour qu'un même device
+          n'accumule jamais plusieurs tokens actifs) ;
+        - génère la paire access/refresh avec les claims `tenant`/
+          `tenant_id` (PAS `tenant_schema` -- voir generate_tokens()
+          ci-dessus, une méthode plus ancienne avec un claim différent,
+          non branchée sur les vues actuelles, à ne pas utiliser ici) ;
+        - enregistre l'entrée TokenManager avec le détail du device
+          (parsing user-agent), pour que SessionManagementView /
+          get_device_info() fonctionnent identiquement quel que soit le
+          point d'entrée d'authentification.
+
+        Factorisé pour être appelé de façon identique par le login
+        classique (CustomTokenObtainPairView), l'inscription (RegisterView)
+        et l'authentification Google (GoogleAuthView) : les 3 flux doivent
+        produire des sessions strictement équivalentes.
+
+        Retourne {'access', 'refresh', 'device_info'} -- même forme que
+        la réponse actuelle de POST /token/v1/.
+        """
+        import hashlib
+        from user_agents import parse
+        from datetime import timedelta
+
+        user_agent_str = request.META.get('HTTP_USER_AGENT', '')
+        user_agent = parse(user_agent_str)
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        ip_address = x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
+        device_id = hashlib.md5(f"{ip_address}{user_agent_str}".encode()).hexdigest()
+
+        try:
+            TokenService.update_all_token_by_perform(
+                {
+                    'user_id': user.id,
+                    'tenant_id': tenant.id,
+                    'device_id': device_id,
+                    'is_revoked': False,
+                },
+                {
+                    'revoked_at': timezone.now(),
+                    'is_revoked': True,
+                    'is_current': False,
+                },
+            )
+        except Exception as e:
+            logger.error(f"Erreur lors de la révocation des tokens actifs du device {device_id}: {str(e)}")
+
+        refresh = RefreshToken.for_user(user)
+        refresh['tenant'] = tenant.schema_name
+        refresh['tenant_id'] = tenant.id
+        refresh.set_exp(lifetime=timedelta(minutes=int(settings_token_actif.refresh_token_lifetime)))
+        refresh.access_token.set_exp(lifetime=timedelta(minutes=int(settings_token_actif.access_token_lifetime)))
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        token_manager = TokenService.create_token({
+            'user_id': user.id,
+            'username': user.username,
+            'tenant_id': tenant.id,
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'expires_at': timezone.now() + timedelta(minutes=settings_token_actif.access_token_lifetime),
+            'ip_address': ip_address,
+            'device_id': device_id,
+            'device_family': user_agent.device.family,
+            'device_brand': user_agent.device.brand,
+            'device_model': user_agent.device.model,
+            'device_type': (
+                'mobile' if user_agent.is_mobile else
+                'tablet' if user_agent.is_tablet else
+                'desktop' if user_agent.is_pc else
+                'other'
+            ),
+            'os_family': user_agent.os.family,
+            'browser_family': user_agent.browser.family,
+            'user_agent': user_agent_str,
+            'is_current': True,
+        })
+        token_manager.mark_as_current()
+
+        return {
+            'access': access_token,
+            'refresh': refresh_token,
+            'device_info': token_manager.get_device_info(),
+        }
+
+    @staticmethod
     def generate_tokens(user, token_settings, request=None, tenant_schema=None):
         """
         Génère une paire de tokens (access + refresh) pour un utilisateur

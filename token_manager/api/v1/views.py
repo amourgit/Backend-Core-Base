@@ -30,6 +30,7 @@ from django.db import connection
 from tenants.api.v1.services import TenantService
 from domain.api.v1.services import DomainService
 from users.api.v1.services import UsersService
+from users.api.v1.serializers import UserCreateSerializer
 from .services import TokenService
 from django.core.exceptions import ObjectDoesNotExist
 logger = logging.getLogger(__name__)
@@ -83,77 +84,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             formatReponse['message'] = "Votre compte est hors service! Veuillez contacter votre administrateur."
             return Response(formatReponse,  formatReponse['status'])
         
-        ###### 3. Recuperations des Informations si Username et Password verifies
-        user_agent_str = request.META.get('HTTP_USER_AGENT', '')
-        user_agent = parse(user_agent_str)
-        ip_address = self._get_client_ip(request)
-        device_id = hashlib.md5(f"{ip_address}{user_agent_str}".encode()).hexdigest()
+        ###### 3. Émission de la session (device tracking, révocation, tokens) — factorisé
+        ###### dans TokenService.emettre_session, partagé avec RegisterView et GoogleAuthView.
+        session = TokenService.emettre_session(request, user, tenant, settings_token_actif)
 
-        ##### 4. Revoker tous les token actif du device courant (Eviter plusieurs token actif pour le meme device. sauf pour des devices differents)
-        try:
-            TokenService.update_all_token_by_perform(
-                {
-                    'user_id': user.id,
-                    'tenant_id': tenant.id,
-                    'device_id': device_id,
-                    'is_revoked': False
-                },
-                {
-                    'revoked_at': timezone.now(),
-                    'is_revoked': True,
-                    'is_current': False,
-                    # 'last_used': timezone.now()
-                }
-            )
-        except Exception as e:
-            logger.error(f"Erreur lors de la révocation des tokens actif du device {str(device_id)}: {str(e)}")
-
-        ##### 5. Creation du nouveau access_token actif et son refresh_token (token) pour ce device en rapport avec l'utilisateur courant
-        refresh = RefreshToken.for_user(user)
-        refresh['tenant'] = tenant.schema_name
-        refresh['tenant_id'] = tenant.id
-        # print(settings_token_actif.access_token_lifetime, settings_token_actif.refresh_token_lifetime)
-        refresh.set_exp(lifetime=timedelta(minutes=int(settings_token_actif.refresh_token_lifetime)))
-        refresh.access_token.set_exp(lifetime=timedelta(minutes=int(settings_token_actif.access_token_lifetime)))
-        access_token = str(refresh.access_token)
-        refresh_token = str(refresh)
-
-        ##### 6. Stockage du nouveau token dans la base de donnees
-        token_manager = TokenService.create_token(
-            {
-            'user_id': user.id,
-            'username': user.username,
-            'tenant_id': tenant.id,
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-            'expires_at': timezone.now() + timezone.timedelta(minutes=settings_token_actif.access_token_lifetime),
-            'ip_address': ip_address,
-            'device_id': device_id,
-            'device_family': user_agent.device.family,
-            'device_brand': user_agent.device.brand,
-            'device_model': user_agent.device.model,
-            'device_type': (
-                'mobile' if user_agent.is_mobile else
-                'tablet' if user_agent.is_tablet else
-                'desktop' if user_agent.is_pc else
-                'other'
-            ),
-            'os_family': user_agent.os.family,
-            'browser_family': user_agent.browser.family,
-            'user_agent': user_agent_str,
-            'is_current': True
-            }
-        )
-        
-        ##### 7. marquer ce token comme courant et actif pour ce device
-        token_manager.mark_as_current()
-
-        ##### 8. Renvoie de la reponse si toutes les actions effectuees sans erreurs
-        return Response({
-            'access': access_token,
-            'refresh': refresh_token,
-            'device_info': token_manager.get_device_info()
-        })
+        ##### 4. Renvoie de la reponse si toutes les actions effectuees sans erreurs
+        return Response(session)
 
     # Recuperation de l'adress IP du client lors de la requette
     def _get_client_ip(self, request):
@@ -163,6 +99,144 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
+
+
+class RegisterView(APIView):
+    """
+    Inscription self-service (POST /token/v1/register/).
+
+    Réutilise UserCreateSerializer (users/api/v1/serializers.py — déjà
+    utilisé par UserViewSet.create, mais réservé aux superusers via
+    IsSuperUser sur cette action) pour la validation/création, puis
+    TokenService.emettre_session (factorisée depuis
+    CustomTokenObtainPairView) pour auto-connecter l'utilisateur
+    immédiatement après création : même forme de réponse que le login
+    ({access, refresh, device_info}), pour que le frontend n'ait pas à
+    distinguer inscription et connexion après coup.
+
+    La validation d'unicité du username (UniqueValidator sur le champ,
+    hérité d'AbstractUser) ET la création doivent s'exécuter dans le
+    MÊME schema_context que le tenant cible, sinon l'unicité serait
+    vérifiée dans le mauvais schéma (généralement le schéma public).
+    """
+    permission_classes = []
+    authentication_classes = []
+
+    @method_decorator(csrf_exempt)
+    def post(self, request, *args, **kwargs):
+        formatReponse, stat, settings_token_actif = check_token_settings()
+        if not stat:
+            return Response(formatReponse, status=formatReponse['status'])
+
+        tenant, formatReponse_tenant = TenantService.get_tenant_by_sous_domaine_actif(request)
+        if tenant is None:
+            return Response(formatReponse_tenant, int(formatReponse_tenant['status']))
+
+        with schema_context(tenant.schema_name):
+            serializer = UserCreateSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+
+        session = TokenService.emettre_session(request, user, tenant, settings_token_actif)
+        return Response(session, status=status.HTTP_201_CREATED)
+
+
+class GoogleAuthView(APIView):
+    """
+    Connexion/inscription via Google (POST /token/v1/google/).
+
+    Reçoit { credential: <id_token JWT signé par Google> } — le champ
+    `credential` renvoyé tel quel par Google Identity Services côté
+    frontend (google.accounts.id.initialize({ callback })). Vérifie la
+    signature ET l'audience (GOOGLE_OAUTH_CLIENT_ID) auprès de Google
+    avant de faire confiance à quoi que ce soit du contenu du token —
+    ne JAMAIS décoder ce JWT sans vérification, son contenu est
+    entièrement contrôlé par l'appelant tant qu'il n'est pas vérifié.
+
+    Rattachement du compte Google à un utilisateur existant : par
+    email (get_user_model().email n'est PAS unique par défaut sur
+    AbstractUser côté Django — c'est un choix assumé, cohérent avec la
+    pratique standard, dans la continuité de la simplicité déjà
+    recherchée par common/camel_case.py). Si aucun utilisateur n'a cet
+    email dans ce tenant, un compte est créé avec un mot de passe
+    inutilisable (set_unusable_password) : ce compte ne pourra jamais
+    se connecter par mot de passe, uniquement via Google.
+    """
+    permission_classes = []
+    authentication_classes = []
+
+    @method_decorator(csrf_exempt)
+    def post(self, request, *args, **kwargs):
+        from django.conf import settings as django_settings
+        from google.oauth2 import id_token as google_id_token
+        from google.auth.transport import requests as google_requests
+        from google.auth.exceptions import GoogleAuthError
+
+        credential = request.data.get('credential')
+        if not credential:
+            return Response(
+                {'message': "Le champ 'credential' (id_token Google) est requis."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        client_id = getattr(django_settings, 'GOOGLE_OAUTH_CLIENT_ID', None)
+        if not client_id:
+            logger.error("GOOGLE_OAUTH_CLIENT_ID n'est pas configuré côté serveur.")
+            return Response(
+                {'message': "Connexion Google indisponible pour le moment. Veuillez contacter l'administrateur."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        try:
+            payload = google_id_token.verify_oauth2_token(credential, google_requests.Request(), client_id)
+        except (ValueError, GoogleAuthError) as e:
+            logger.warning(f"Échec de vérification du id_token Google: {str(e)}")
+            return Response({'message': 'Jeton Google invalide ou expiré.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        email = payload.get('email')
+        if not email:
+            return Response({'message': "Le compte Google ne fournit pas d'adresse email."}, status=status.HTTP_400_BAD_REQUEST)
+        if not payload.get('email_verified'):
+            return Response({'message': "L'adresse email de ce compte Google n'est pas vérifiée."}, status=status.HTTP_400_BAD_REQUEST)
+
+        formatReponse, stat, settings_token_actif = check_token_settings()
+        if not stat:
+            return Response(formatReponse, status=formatReponse['status'])
+
+        tenant, formatReponse_tenant = TenantService.get_tenant_by_sous_domaine_actif(request)
+        if tenant is None:
+            return Response(formatReponse_tenant, int(formatReponse_tenant['status']))
+
+        given_name = payload.get('given_name', '')
+        family_name = payload.get('family_name', '')
+
+        with schema_context(tenant.schema_name):
+            user = User.objects.filter(email=email).first()
+            if user is None:
+                base_username = email.split('@')[0]
+                username = base_username
+                suffixe = 1
+                while User.objects.filter(username=username).exists():
+                    suffixe += 1
+                    username = f"{base_username}{suffixe}"
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    first_name=given_name,
+                    last_name=family_name,
+                    is_verified=True,
+                )
+                user.set_unusable_password()
+                user.save(update_fields=['password'])
+            elif not user.is_active:
+                return Response(
+                    {'message': "Votre compte est hors service! Veuillez contacter votre administrateur."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        session = TokenService.emettre_session(request, user, tenant, settings_token_actif)
+        return Response(session)
+
 
 class CustomTokenRefreshView(TokenRefreshView):
     permission_classes = []

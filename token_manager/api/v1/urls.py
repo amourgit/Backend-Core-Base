@@ -4,6 +4,8 @@ from .views import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
     LogoutView,
+    RegisterView,
+    GoogleAuthView,
     TokenSettingsViewSet,
     TokenManagerViewSet,
     SessionManagementView,
@@ -17,6 +19,8 @@ router.register(r'tokens', TokenManagerViewSet, basename='token-manager')
 urlpatterns = [
     # Routes d'authentification
     path('', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('register/', RegisterView.as_view(), name='token_register'),
+    path('google/', GoogleAuthView.as_view(), name='token_google'),
     path('refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='token_logout'),
     

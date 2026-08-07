@@ -68,7 +68,7 @@ BASE_VERSIONED_TENANT_PUBLIC_ROUTES = [
     # 'obten' comme l'ancienne config le supposait, ce qui rendait le
     # login introuvable dans cette liste). Corrigé.
     ('token', None),                   # /api/token/vX          (login)
-    ('token', ['refresh', 'check-token']),  # /api/token/vX/refresh, /api/token/vX/check-token
+    ('token', ['refresh', 'check-token', 'register', 'google']),  # /api/token/vX/{refresh,check-token,register,google}
 
     # NB : 'refresh' et 'check-token' DOIVENT rester TENANT_PUBLIC, pas
     # seulement pour l'accès anonyme, mais parce que ces vues reçoivent
@@ -77,6 +77,11 @@ BASE_VERSIONED_TENANT_PUBLIC_ROUTES = [
     # étaient classées ailleurs, le TenantJWTMiddleware validerait le
     # Bearer token AVANT la vue et rejetterait en 401 un token expiré —
     # cassant précisément le cas d'usage que ces routes existent pour gérer.
+    #
+    # 'register' et 'google' sont publiques par nature : leur rôle est
+    # justement d'établir une session pour un visiteur qui n'en a AUCUNE
+    # encore (inscription, ou première connexion via Google) — exiger un
+    # Bearer token pour y accéder serait un non-sens fonctionnel complet.
 
     # --- Domaines métier CIVITAS NEWS à lecture publique --------------------
     # Ces 6 apps ont toutes le même contrat d'autorisation, déjà implémenté
