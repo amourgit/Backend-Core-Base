@@ -416,3 +416,13 @@ FRONTEND_BASE_URL = 'http://localhost:5173'
 
 # Clé de chiffrement pour les mots de passe de base de données
 ENCRYPTION_KEY = 'ozQujKHvSUZE11J-JDcCi1CgvnJ4x3aDJOdclCxxhHI='
+
+# Google Sign-In (token_manager/api/v1/views.py:GoogleAuthView) — OAuth Client
+# ID (type "Web application") créé dans Google Cloud Console. Doit être
+# IDENTIQUE à celui utilisé côté frontend (VITE_GOOGLE_CLIENT_ID) : c'est
+# l'audience vérifiée sur le id_token reçu, condition indispensable à la
+# sécurité du flux (sans quoi un id_token valide pour N'IMPORTE QUELLE
+# app Google serait accepté ici). Jamais de valeur par défaut en dur —
+# tant que la variable d'environnement n'est pas définie, GoogleAuthView
+# répond 503 plutôt que d'accepter des tokens sans vérifier l'audience.
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '')
