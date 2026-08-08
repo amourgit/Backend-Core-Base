@@ -1,6 +1,7 @@
 from django.db import connection
 from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
+from django.contrib.auth import get_user_model
 from django_tenants.utils import get_public_schema_name
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
@@ -8,6 +9,8 @@ from .api.v1.services import TokenService
 from django.conf import settings
 from config.config import GLOBAL_PUBLIC_ROUTES, TENANT_PUBLIC_ROUTES, AUTHENTICATED_ROUTES, ADMIN_ROUTES
 import logging
+
+User = get_user_model()
 
 logger = logging.getLogger(__name__)
 
@@ -278,10 +281,19 @@ class TenantJWTMiddleware(MiddlewareMixin):
                 logger.warning(f"[Auth] ⚠️ Token invalide pour la requête : {request.path}")
                 return None
 
-            # Récupération de l'utilisateur associé au token
+            # Récupération de l'utilisateur associé au token.
+            # TokenManager.user_id est un simple IntegerField (PAS une
+            # ForeignKey vers User -- volontairement, pour ne pas lier le
+            # schéma tenant à SHARED_APPS via une contrainte DB, users
+            # étant partagé entre plusieurs schémas). `token_obj.user`
+            # n'a donc jamais existé : on résout l'utilisateur nous-mêmes.
             token_obj = TokenService.get_token_from_string(token, request)
-            user = token_obj.user
-            
+            try:
+                user = User.objects.get(id=token_obj.user_id)
+            except User.DoesNotExist:
+                logger.warning(f"[Auth] ⚠️ Utilisateur introuvable pour le token (user_id={token_obj.user_id})")
+                return None
+
             # Vérifications supplémentaires sur l'utilisateur
             if not user.is_active:
                 logger.warning(f"[Auth] ⚠️ Utilisateur inactif : {user.username}")
@@ -292,9 +304,6 @@ class TenantJWTMiddleware(MiddlewareMixin):
 
         except TokenService.TokenNotFound:
             logger.warning(f"[Auth] ⚠️ Token non associé à un utilisateur : {request.path}")
-            return None
-        except TokenService.TokenExpired:
-            logger.warning(f"[Auth] ⚠️ Token expiré pour la requête : {request.path}")
             return None
         except Exception as e:
             logger.error(f"[Auth] ❌ Erreur lors de l'authentification : {str(e)}", exc_info=True)
