@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import re
 from pathlib import Path
 from datetime import timedelta
 
@@ -365,10 +366,27 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 
+# Domaine racine de la plateforme -- déplacé ici (avant CORS, qui en a
+# besoin) depuis son emplacement plus bas dans ce fichier ("Multi-tenant
+# settings"), où il reste aussi documenté/référencé pour le reste du
+# système de tenants (tenants/middleware.py, domain/api/v1/services.py).
+MAIN_DOMAIN = 'localhost'
+
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+]
+# En plus de la liste exacte ci-dessus : accepte tout sous-domaine de
+# MAIN_DOMAIN (n'importe quel tenant), avec ou sans port, http ou https.
+# Indispensable pour la résolution dynamique du tenant depuis l'URL du
+# frontend (voir config/fonction.py:resolve_request_hostname) : sans
+# cette regex, seule l'origine exacte "localhost:3000" était autorisée
+# -- le navigateur bloquait la requête AVANT même qu'elle atteigne
+# Django dès que le frontend était ouvert sur un sous-domaine comme
+# "civitas.localhost:3000".
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    rf'^https?://([a-zA-Z0-9-]+\.)?{re.escape(MAIN_DOMAIN)}(:\d+)?$',
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
@@ -389,6 +407,7 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'x-tenant-domain',
 ]
 
 # Swagger settings
@@ -405,9 +424,6 @@ SWAGGER_SETTINGS = {
 # Multi-tenant settings
 TENANT_MODEL = 'tenants.Tenant'
 TENANT_DOMAIN_MODEL = 'domain.Domain'
-
-# Main domain setting
-MAIN_DOMAIN = 'localhost'
 
 # URL de base du frontend CIVITAS NEWS (SPA Vite), utilisée pour construire
 # les URLs publiques des liens de partage (liens/models.py) quand le

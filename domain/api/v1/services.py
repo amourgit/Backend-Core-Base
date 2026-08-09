@@ -1,5 +1,6 @@
 from domain.models import Domain
 from django.conf import settings
+from config.fonction import resolve_request_hostname
 
 
 class DomainService:
@@ -13,13 +14,13 @@ class DomainService:
     
     @staticmethod
     def get_sous_domaine_by_request(request):
-        # Recherche du sous-domaine dans l'url
-        hostname = request.get_host().split(':')[0].lower()
+        # Résolution centralisée (en-tête X-Tenant-Domain en priorité,
+        # sinon Host) -- voir config/fonction.py:resolve_request_hostname.
+        hostname = resolve_request_hostname(request)
         main_domain = getattr(settings, 'MAIN_DOMAIN', None)
         sous_domaine = None
         if main_domain and hostname.endswith('.' + main_domain):
             sous_domaine = hostname.split('.')[0]
-            print(sous_domaine)
         return sous_domaine
     
     @staticmethod

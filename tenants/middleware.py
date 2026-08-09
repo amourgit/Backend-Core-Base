@@ -11,6 +11,7 @@ from config.config import (
     ADMIN_ROUTES,
     API_VERSIONS
 )
+from config.fonction import resolve_request_hostname
 import re
 import logging
 
@@ -70,8 +71,17 @@ class TenantMiddleware(TenantMainMiddleware):
     )
 
     def get_hostname_from_request(self, request):
-        """Extrait le hostname de la requête"""
-        return request.get_host().split(":")[0].lower()
+        """
+        Extrait le hostname de la requête -- résolution centralisée,
+        partagée avec DomainService.get_sous_domaine_by_request (voir
+        config/fonction.py:resolve_request_hostname). En-tête
+        X-Tenant-Domain prioritaire sur le Host HTTP standard : utile
+        quand frontend et backend ne partagent pas la même origine
+        (ports distincts en dev), le Host vu par Django n'étant alors
+        pas forcément celui affiché dans la barre d'adresse du
+        navigateur.
+        """
+        return resolve_request_hostname(request)
 
     def is_valid_domain(self, hostname):
         """
@@ -288,7 +298,22 @@ class TenantMiddleware(TenantMainMiddleware):
         }
 
     def process_request(self, request):
-        try:            
+        try:
+            # Les requêtes OPTIONS (preflight CORS) ne doivent JAMAIS être
+            # soumises à la validation de route/tenant ci-dessous : c'est
+            # CorsMiddleware (plus bas dans MIDDLEWARE, voir
+            # config/settings.py) qui doit y répondre, avec les en-têtes
+            # Access-Control-*. Ce middleware étant placé AVANT
+            # CorsMiddleware dans la pile (obligatoire : il doit pouvoir
+            # positionner le schema PostgreSQL avant que quoi que ce soit
+            # d'autre ne s'exécute), le laisser bloquer un preflight avec
+            # une erreur 400/404 (ex: tenant inexistant) priverait CETTE
+            # réponse des en-têtes CORS -- le navigateur ne verrait alors
+            # qu'une erreur CORS opaque et générique, jamais le message
+            # clair que la vraie requête aurait reçu.
+            if request.method == "OPTIONS":
+                return None
+
             # Debug logging pour le développement
             if settings.DEBUG:
                 route_type = self.get_route_type(request.path)
