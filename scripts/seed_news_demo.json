@@ -1,0 +1,178 @@
+{
+  "_comment": "Données de démonstration CIVITAS NEWS. Les champs 'ref' (categories, organisations, etablissements) sont des clés de référence LOCALES à ce fichier, utilisées pour lier les news à leurs référentiels sans connaître leurs futurs id numériques -- jamais stockées telles quelles en base. Toutes les entités sont créées de façon idempotente (get_or_create sur leur champ naturellement unique), le script est donc rejouable sans dupliquer.",
+
+  "categories": [
+    { "ref": "vie_academique", "nom": "Vie Académique", "couleur": "#5B4DFF", "icone": "GraduationCap", "description": "Cours, examens, calendrier universitaire, résultats." },
+    { "ref": "sport", "nom": "Sport", "couleur": "#22C55E", "icone": "Trophy", "description": "Compétitions inter-facultés, tournois, résultats sportifs." },
+    { "ref": "culture", "nom": "Culture", "couleur": "#F59E0B", "icone": "Music", "description": "Concerts, expositions, semaines culturelles, arts." },
+    { "ref": "administration", "nom": "Administration", "couleur": "#6B7280", "icone": "Building2", "description": "Communiqués officiels, procédures administratives." },
+    { "ref": "bourses_financement", "nom": "Bourses & Financement", "couleur": "#0EA5E9", "icone": "Wallet", "description": "Bourses d'études, aides financières, appels à candidature." },
+    { "ref": "securite", "nom": "Sécurité", "couleur": "#EF4444", "icone": "ShieldAlert", "description": "Alertes et consignes de sécurité sur le campus." }
+  ],
+
+  "organisations": [
+    { "ref": "administration_generale", "nom": "Administration Générale", "type": "administration", "description": "Rectorat et services administratifs centraux." },
+    { "ref": "aec", "nom": "Association des Étudiants de Civitas (AEC)", "type": "association_etudiante", "description": "Association étudiante représentative, organise la vie associative du campus." },
+    { "ref": "club_info", "nom": "Club Informatique & Innovation", "type": "club", "description": "Club étudiant dédié au numérique, à la robotique et aux hackathons." },
+    { "ref": "bureau_sports", "nom": "Bureau des Sports (BDS)", "type": "club", "description": "Organisation des compétitions et activités sportives inter-facultés." },
+    { "ref": "dept_informatique", "nom": "Département Informatique", "type": "departement", "description": "Département académique en charge des filières numériques." }
+  ],
+
+  "etablissements": [
+    { "ref": "usttl", "nom": "Université des Sciences et Techniques de Toungouma-Libreville", "province": "Estuaire" },
+    { "ref": "iset_franceville", "nom": "Institut Supérieur d'Enseignement Technologique de Franceville", "province": "Haut-Ogooué" },
+    { "ref": "issa_port_gentil", "nom": "Institut Supérieur des Sciences Appliquées de Port-Gentil", "province": "Ogooué-Maritime" }
+  ],
+
+  "news": [
+    {
+      "slug": "rentree-academique-2026-2027-dates-officielles",
+      "type": "annonce",
+      "titre": "Rentrée académique 2026-2027 : les dates officielles sont connues",
+      "description": "Le rectorat communique le calendrier officiel de la rentrée pour l'année académique 2026-2027, incluant les inscriptions, la reprise des cours et les périodes d'examens.",
+      "contenu": "L'Administration Générale annonce le calendrier académique officiel pour l'année 2026-2027.\n\nLes inscriptions administratives débuteront le 1er septembre 2026 et se poursuivront jusqu'au 20 septembre 2026. Les étudiants sont invités à régulariser leur dossier dans les meilleurs délais auprès du service de la scolarité, muni de leur relevé de notes du baccalauréat ou de l'année précédente.\n\nLa reprise effective des cours est fixée au lundi 28 septembre 2026 pour l'ensemble des filières, toutes années confondues. Un emploi du temps provisoire sera affiché sur les panneaux officiels et publié sur cette plateforme dès la première semaine de septembre.\n\nLe premier semestre s'achèvera par une session d'examens partiels prévue en décembre 2026, suivie des examens de fin de semestre en janvier 2027.\n\nToute question relative à cette rentrée peut être adressée au service de la scolarité, du lundi au vendredi de 8h à 16h.",
+      "categorie_ref": "administration",
+      "organisation_ref": "administration_generale",
+      "etablissement_ref": "usttl",
+      "tags": ["rentrée", "calendrier", "inscriptions"],
+      "province": "Estuaire",
+      "lieu": "Campus principal, Libreville",
+      "date_debut": "2026-09-01T08:00:00Z",
+      "date_fin": "2026-09-20T16:00:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "commentaires": [
+        {
+          "contenu": "Merci pour l'information ! Est-ce que les étudiants redoublants doivent aussi repasser par la même procédure d'inscription ?",
+          "reponses": [
+            { "contenu": "Oui, l'inscription administrative est obligatoire chaque année, y compris en cas de redoublement." }
+          ]
+        },
+        { "contenu": "Le calendrier des examens partiels sera-t-il publié séparément par filière ?" }
+      ],
+      "sondage": {
+        "titre": "Format de la rentrée",
+        "question": "Quel format préférez-vous pour la semaine d'accueil des nouveaux étudiants ?",
+        "description": "Vos retours aideront le bureau des sports et l'AEC à organiser au mieux la semaine d'intégration.",
+        "date_debut": "2026-08-15T00:00:00Z",
+        "date_fin": "2026-09-15T23:59:59Z",
+        "type_vote": "unique",
+        "choix": ["Journée d'accueil en présentiel", "Format hybride (présentiel + en ligne)", "Visite guidée du campus uniquement"]
+      },
+      "lien_partage": { "visibilite": "public" }
+    },
+    {
+      "slug": "tournoi-inter-facultes-football-2026",
+      "type": "evenement",
+      "titre": "Tournoi inter-facultés de football : les inscriptions sont ouvertes",
+      "description": "Le Bureau des Sports lance la 12e édition du tournoi inter-facultés de football. Les équipes ont jusqu'au 30 septembre pour s'inscrire.",
+      "contenu": "Le Bureau des Sports (BDS) a le plaisir d'annoncer le lancement de la 12e édition du tournoi inter-facultés de football, qui se tiendra sur le terrain omnisports du campus.\n\nChaque faculté peut inscrire une équipe de 18 joueurs maximum. Les inscriptions se font auprès du secrétariat du BDS, du lundi au vendredi, ou via le formulaire disponible dans le hall du bâtiment administratif.\n\nLe tournoi se déroulera sur trois semaines, à raison de deux matchs par semaine, avec une phase de poules suivie de quarts de finale, demi-finales et finale. La finale aura lieu lors de la journée sportive de fin d'année, en présence du recteur.\n\nUne équipe arbitrale certifiée sera mobilisée pour chaque rencontre, et un classement du fair-play sera tenu tout au long de la compétition, avec un prix spécial pour l'équipe la plus respectueuse.\n\nRendez-vous le samedi 3 octobre 2026 à 9h pour le coup d'envoi de la première journée.",
+      "categorie_ref": "sport",
+      "organisation_ref": "bureau_sports",
+      "etablissement_ref": "usttl",
+      "tags": ["football", "tournoi", "sport"],
+      "province": "Estuaire",
+      "lieu": "Terrain omnisports du campus",
+      "date_debut": "2026-10-03T09:00:00Z",
+      "date_fin": "2026-10-24T18:00:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "commentaires": [
+        { "contenu": "Est-ce que les étudiantes peuvent aussi former une équipe féminine cette année ?" },
+        { "contenu": "Hâte de voir la faculté d'informatique défendre son titre de l'an dernier 🔥" }
+      ],
+      "sondage": {
+        "titre": "Pronostic du tournoi",
+        "question": "Quelle faculté selon vous remportera le tournoi cette année ?",
+        "date_debut": "2026-09-20T00:00:00Z",
+        "date_fin": "2026-10-02T23:59:59Z",
+        "type_vote": "unique",
+        "choix": ["Faculté des Sciences", "Faculté de Droit", "Faculté de Médecine", "Institut d'Informatique"]
+      },
+      "lien_partage": { "visibilite": "public" }
+    },
+    {
+      "slug": "semaine-culturelle-2026-appel-a-participation",
+      "type": "appel_participation",
+      "titre": "Semaine culturelle 2026 : appel à participation pour les étudiants artistes",
+      "description": "L'AEC organise la semaine culturelle annuelle et invite tous les étudiants passionnés de musique, danse, théâtre ou arts visuels à proposer leur candidature.",
+      "contenu": "L'Association des Étudiants de Civitas (AEC) prépare la Semaine Culturelle 2026, un rendez-vous incontournable de la vie étudiante mêlant musique, danse, théâtre et arts visuels.\n\nCette année, la thématique retenue est « Racines et Modernité », en résonance avec la richesse du patrimoine culturel gabonais confronté aux dynamiques contemporaines.\n\nLes étudiants souhaitant présenter une performance (chant, danse, sketch, slam) ou exposer une œuvre (peinture, photographie, sculpture) sont invités à déposer leur dossier de candidature avant le 10 octobre 2026 auprès du bureau de l'AEC.\n\nUn comité de sélection composé d'étudiants et d'un représentant du département culturel évaluera les propositions sur la base de leur originalité et de leur adéquation avec la thématique.\n\nLa semaine culturelle se tiendra du 17 au 21 novembre 2026, avec une soirée de clôture ouverte à toute la communauté universitaire et aux familles.",
+      "categorie_ref": "culture",
+      "organisation_ref": "aec",
+      "etablissement_ref": "usttl",
+      "tags": ["culture", "événement", "arts"],
+      "province": "Estuaire",
+      "lieu": "Amphithéâtre central",
+      "date_debut": "2026-11-17T18:00:00Z",
+      "date_fin": "2026-11-21T22:00:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "commentaires": [
+        { "contenu": "Super initiative ! Le dossier de candidature est-il disponible en ligne ou uniquement au bureau de l'AEC ?" }
+      ],
+      "lien_partage": { "visibilite": "public" }
+    },
+    {
+      "slug": "appel-candidatures-bourses-excellence-2026",
+      "type": "annonce",
+      "titre": "Ouverture des candidatures pour les bourses d'excellence 2026",
+      "description": "Le rectorat lance la campagne annuelle de bourses d'excellence destinées aux étudiants ayant obtenu les meilleurs résultats académiques.",
+      "contenu": "Dans le cadre de sa politique de soutien à l'excellence académique, l'Administration Générale ouvre la campagne 2026 des bourses d'excellence.\n\nCes bourses, d'un montant couvrant les frais de scolarité et une allocation mensuelle, sont destinées aux étudiants ayant obtenu une moyenne générale supérieure à 15/20 lors de l'année académique précédente, toutes filières confondues.\n\nLes dossiers de candidature doivent comporter : une lettre de motivation, les relevés de notes certifiés, une attestation de scolarité et un justificatif de situation sociale. Le dépôt se fait exclusivement en ligne via le portail de la scolarité.\n\nLa date limite de dépôt des candidatures est fixée au 15 octobre 2026 à minuit. Aucun dossier incomplet ou déposé hors délai ne sera examiné.\n\nLes résultats seront communiqués individuellement par courrier électronique début décembre 2026, après délibération de la commission des bourses.",
+      "categorie_ref": "bourses_financement",
+      "organisation_ref": "administration_generale",
+      "etablissement_ref": "iset_franceville",
+      "tags": ["bourses", "financement", "candidature"],
+      "province": "Haut-Ogooué",
+      "lieu": "Service de la scolarité",
+      "date_debut": "2026-09-15T00:00:00Z",
+      "date_fin": "2026-10-15T23:59:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "commentaires": [
+        { "contenu": "Est-ce que les étudiants en première année sont éligibles ou faut-il justifier d'au moins une année complète ?" },
+        {
+          "contenu": "Le lien vers le portail de dépôt en ligne semble indisponible depuis ce matin, quelqu'un d'autre a le problème ?",
+          "reponses": [
+            { "contenu": "Le service informatique a été informé, une maintenance est en cours. Merci de réessayer en fin de journée." }
+          ]
+        }
+      ],
+      "lien_partage": { "visibilite": "limite", "scope_etablissement": "ISET Franceville" }
+    },
+    {
+      "slug": "consigne-securite-travaux-batiment-b",
+      "type": "information",
+      "titre": "Consignes de sécurité : travaux de rénovation du bâtiment B",
+      "description": "Des travaux de rénovation débutent la semaine prochaine dans le bâtiment B. Des consignes de circulation temporaires s'appliquent pour la sécurité de tous.",
+      "contenu": "L'Administration Générale informe l'ensemble de la communauté universitaire du démarrage de travaux de rénovation dans le bâtiment B à compter du 21 septembre 2026.\n\nCes travaux concernent la réfection de la toiture et la mise aux normes électriques des amphithéâtres B1, B2 et B3. Ils sont prévus pour une durée de six semaines.\n\nPendant toute la durée du chantier, l'accès à l'aile est du bâtiment B sera interdit au public. Les cours initialement prévus dans les amphithéâtres concernés seront redéployés vers le bâtiment C, selon un planning communiqué séparément par chaque scolarité de filière.\n\nDes barrières de sécurité et une signalétique temporaire seront installées dès le 19 septembre. Nous demandons à chacun de respecter scrupuleusement le périmètre balisé et de ne pas emprunter les zones de circulation réservées aux engins de chantier.\n\nPour toute urgence liée à ces travaux, le poste de sécurité du campus reste joignable 24h/24.",
+      "categorie_ref": "securite",
+      "organisation_ref": "administration_generale",
+      "etablissement_ref": "usttl",
+      "tags": ["sécurité", "travaux", "campus"],
+      "province": "Estuaire",
+      "lieu": "Bâtiment B",
+      "date_debut": "2026-09-21T00:00:00Z",
+      "date_fin": "2026-11-01T00:00:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "commentaires": [
+        { "contenu": "Les toilettes du bâtiment B restent-elles accessibles pendant les travaux ?" }
+      ]
+    },
+    {
+      "slug": "hackathon-club-info-edition-2026-brouillon",
+      "type": "evenement",
+      "titre": "Hackathon Club Info 2026 (brouillon en préparation)",
+      "description": "Brouillon interne : préparation du hackathon annuel du Club Informatique & Innovation, thème et règlement encore en discussion.",
+      "contenu": "Note interne du Club Informatique & Innovation : cette actualité est en cours de rédaction et n'est pas encore destinée à publication.\n\nÉléments encore à trancher avant publication : date définitive (entre le 5 et le 12 décembre 2026), thème du hackathon, composition du jury, et modalités d'inscription des équipes (2 à 4 personnes).\n\nÀ compléter avant passage en statut publié.",
+      "categorie_ref": "vie_academique",
+      "organisation_ref": "club_info",
+      "etablissement_ref": "usttl",
+      "tags": ["hackathon", "informatique"],
+      "province": "Estuaire",
+      "lieu": "À confirmer",
+      "statut": "brouillon",
+      "visibilite": "prive"
+    }
+  ]
+}
