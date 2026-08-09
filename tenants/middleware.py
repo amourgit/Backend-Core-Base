@@ -42,7 +42,33 @@ class TenantMiddleware(TenantMainMiddleware):
         '/api/admin/v2/tenant-settings',
         # Ajouter d'autres routes admin spécifiques au tenant
     ]
-    
+
+    # Apps dont les tables n'existent QUE dans les schémas tenant, JAMAIS
+    # dans le schéma public -- dérivé directement de
+    # config/settings.py:TENANT_APPS - SHARED_APPS (pas une liste blanche
+    # à maintenir séparément, c'est la source de vérité qui déciderait
+    # elle-même si une migration echouerait sur le schéma public).
+    #
+    # 'token', 'domain', 'tenants' sont SHARED_APPS uniquement (table
+    # accessible peu importe le schema actif). 'users' et 'referentiels'
+    # sont doublés (SHARED_APPS ET TENANT_APPS, volontairement -- voir le
+    # commentaire sur SHARED_APPS dans config/settings.py) : la table
+    # EXISTE dans le schéma public, mais contient un jeu de données
+    # DIFFÉRENT (les comptes de la plateforme, pas ceux du tenant) --
+    # risque résiduel de confusion si un token émis pour un tenant est
+    # utilisé sur le domaine racine, mais pas de crash SQL, donc non
+    # bloqué ici (voir discussion complète dans le message de commit).
+    #
+    # Utilisé pour les routes TENANT_PUBLIC ET AUTHENTICATED accédées
+    # depuis le domaine racine : sans vrai tenant positionné par ce
+    # middleware, une requête vers l'une de ces apps plante en 500 dès
+    # la première requête SQL (ex: relation "news_news" does not
+    # exist), au lieu d'un 400 clair et exploitable.
+    TENANT_ONLY_APPS = (
+        'news', 'commentaires', 'sondages', 'liens',
+        'notifications', 'journal', 'moderation', 'statistiques',
+    )
+
     def get_hostname_from_request(self, request):
         """Extrait le hostname de la requête"""
         return request.get_host().split(":")[0].lower()
@@ -233,6 +259,18 @@ class TenantMiddleware(TenantMainMiddleware):
         """
         return hostname == settings.MAIN_DOMAIN.lower()
 
+    def _get_app_prefix_from_path(self, path):
+        """
+        Extrait <app> depuis un chemin '/api/<app>/vX/...'. Retourne None
+        si le chemin ne suit pas ce schéma (ne devrait pas arriver pour
+        une route déjà classée TENANT_PUBLIC/AUTHENTICATED par
+        get_route_type(), mais on reste défensif).
+        """
+        parts = path.strip('/').split('/')
+        if len(parts) >= 2 and parts[0] == 'api':
+            return parts[1]
+        return None
+
     def _set_request_public(self, request, hostname):
         """
         Configure la requête pour le contexte PUBLIC (plateforme) : PAS de
@@ -313,8 +351,35 @@ class TenantMiddleware(TenantMainMiddleware):
                 self._set_request_public(request, hostname)
                 logger.debug(f"[MultiTenant] 🏛️ Domaine racine -> schéma public : {request.path}")
 
-                if route_type in ("ADMIN", "TENANT_PUBLIC", "AUTHENTICATED"):
+                if route_type == "ADMIN":
                     return None
+
+                if route_type in ("TENANT_PUBLIC", "AUTHENTICATED"):
+                    app_prefix = self._get_app_prefix_from_path(request.path)
+                    if app_prefix not in self.TENANT_ONLY_APPS:
+                        return None
+
+                    # Ex: /api/news/v1/news/ (TENANT_PUBLIC) ou
+                    # /api/notifications/v1/notifications/ (AUTHENTICATED)
+                    # appelée sur "localhost" au lieu de
+                    # "moncampus.localhost" -- la vue va planter en 500
+                    # (relation "news_news" does not exist : cette table
+                    # n'existe que dans les schémas tenant). On coupe court
+                    # avec une erreur explicite, exploitable par le client,
+                    # plutôt que de laisser remonter une ProgrammingError
+                    # psycopg2 brute.
+                    logger.warning(
+                        f"[MultiTenant] ⚠️ Route nécessitant un tenant réel "
+                        f"appelée sur le domaine racine : {request.path}"
+                    )
+                    return self._handle_error_response(
+                        request,
+                        "Cette ressource appartient à un établissement précis et doit être "
+                        "appelée depuis son sous-domaine (ex: moncampus.{}), pas depuis le "
+                        "domaine racine.".format(settings.MAIN_DOMAIN),
+                        "TENANT_REQUIRED",
+                        400
+                    )
 
                 logger.warning(f"[MultiTenant] ⚠️ Type de route non géré : {route_type} pour {request.path}")
                 return self._handle_error_response(
