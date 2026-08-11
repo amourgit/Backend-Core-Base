@@ -1,5 +1,21 @@
 {
-  "_comment": "Données de démonstration CIVITAS NEWS. Les champs 'ref' (categories, organisations, etablissements) sont des clés de référence LOCALES à ce fichier, utilisées pour lier les news à leurs référentiels sans connaître leurs futurs id numériques -- jamais stockées telles quelles en base. Toutes les entités sont créées de façon idempotente (get_or_create sur leur champ naturellement unique), le script est donc rejouable sans dupliquer.",
+  "_comment": "Données de démonstration CIVITAS NEWS. Les champs '*_ref' sont des clés de référence LOCALES à ce fichier (utilisateurs, catégories, organisations, établissements), jamais stockées telles quelles en base -- elles servent uniquement à lier les entités entre elles sans connaître leurs futurs id numériques. Tout est créé de façon idempotente, le script est donc rejouable sans dupliquer.",
+
+  "utilisateurs": [
+    { "ref": "amina", "username": "amina_k", "email": "amina.k@civitas-news.local", "first_name": "Amina", "last_name": "K.", "role": "etudiant", "badges": ["contributeur_actif"] },
+    { "ref": "jean", "username": "jean_d", "email": "jean.d@civitas-news.local", "first_name": "Jean", "last_name": "D.", "role": "etudiant", "badges": [] },
+    { "ref": "marie", "username": "marie_l", "email": "marie.l@civitas-news.local", "first_name": "Marie", "last_name": "L.", "role": "etudiant", "badges": ["contributeur_actif"] },
+    { "ref": "moderateur", "username": "diallo_mod", "email": "diallo@civitas-news.local", "first_name": "Fatou", "last_name": "Diallo", "role": "moderateur", "badges": ["moderateur_verifie"] },
+    { "ref": "admin", "username": "okemba_admin", "email": "okemba@civitas-news.local", "first_name": "Paul", "last_name": "Okemba", "role": "administrateur", "badges": ["membre_fondateur"] },
+    { "ref": "aec_orga", "username": "aec_officiel", "email": "contact@aec-civitas.local", "first_name": "AEC", "last_name": "Officiel", "role": "organisation", "badges": ["voix_associative"] }
+  ],
+
+  "badges": [
+    { "ref": "contributeur_actif", "nom": "Contributeur actif", "icone": "🌟", "description": "Participe régulièrement aux discussions et sondages du campus." },
+    { "ref": "moderateur_verifie", "nom": "Modérateur vérifié", "icone": "🛡️", "description": "Membre de l'équipe de modération de la plateforme." },
+    { "ref": "membre_fondateur", "nom": "Membre fondateur", "icone": "🏛️", "description": "Présent depuis le lancement de la plateforme CIVITAS NEWS." },
+    { "ref": "voix_associative", "nom": "Voix associative", "icone": "📣", "description": "Compte officiel d'une organisation ou association étudiante reconnue." }
+  ],
 
   "categories": [
     { "ref": "vie_academique", "nom": "Vie Académique", "couleur": "#5B4DFF", "icone": "GraduationCap", "description": "Cours, examens, calendrier universitaire, résultats." },
@@ -43,12 +59,19 @@
       "visibilite": "public",
       "commentaires": [
         {
+          "auteur_ref": "jean",
           "contenu": "Merci pour l'information ! Est-ce que les étudiants redoublants doivent aussi repasser par la même procédure d'inscription ?",
+          "votes": [{ "utilisateur_ref": "amina", "direction": "up" }, { "utilisateur_ref": "marie", "direction": "up" }],
+          "reactions": [{ "utilisateur_ref": "amina", "type_reaction": "jaime" }],
           "reponses": [
-            { "contenu": "Oui, l'inscription administrative est obligatoire chaque année, y compris en cas de redoublement." }
+            { "auteur_ref": "admin", "contenu": "Oui, l'inscription administrative est obligatoire chaque année, y compris en cas de redoublement." }
           ]
         },
-        { "contenu": "Le calendrier des examens partiels sera-t-il publié séparément par filière ?" }
+        {
+          "auteur_ref": "amina",
+          "contenu": "Le calendrier des examens partiels sera-t-il publié séparément par filière ?",
+          "votes": [{ "utilisateur_ref": "jean", "direction": "up" }]
+        }
       ],
       "sondage": {
         "titre": "Format de la rentrée",
@@ -57,9 +80,17 @@
         "date_debut": "2026-08-15T00:00:00Z",
         "date_fin": "2026-09-15T23:59:59Z",
         "type_vote": "unique",
-        "choix": ["Journée d'accueil en présentiel", "Format hybride (présentiel + en ligne)", "Visite guidée du campus uniquement"]
+        "choix": ["Journée d'accueil en présentiel", "Format hybride (présentiel + en ligne)", "Visite guidée du campus uniquement"],
+        "votes": [
+          { "choix_index": 0, "utilisateur_refs": ["amina", "jean", "moderateur"] },
+          { "choix_index": 1, "utilisateur_refs": ["marie"] },
+          { "choix_index": 2, "utilisateur_refs": [] }
+        ]
       },
-      "lien_partage": { "visibilite": "public" }
+      "lien_partage": { "visibilite": "public", "acces_clics": 8, "acces_scans": 2 },
+      "signalements": [
+        { "motif": "autre", "description": "Le lien vers le portail de scolarité mentionné semble erroné, à vérifier.", "auteur_ref": "jean" }
+      ]
     },
     {
       "slug": "tournoi-inter-facultes-football-2026",
@@ -78,8 +109,17 @@
       "statut": "publie",
       "visibilite": "public",
       "commentaires": [
-        { "contenu": "Est-ce que les étudiantes peuvent aussi former une équipe féminine cette année ?" },
-        { "contenu": "Hâte de voir la faculté d'informatique défendre son titre de l'an dernier 🔥" }
+        {
+          "auteur_ref": "marie",
+          "contenu": "Est-ce que les étudiantes peuvent aussi former une équipe féminine cette année ?",
+          "votes": [{ "utilisateur_ref": "amina", "direction": "up" }, { "utilisateur_ref": "jean", "direction": "up" }, { "utilisateur_ref": "aec_orga", "direction": "up" }],
+          "reactions": [{ "utilisateur_ref": "aec_orga", "type_reaction": "jaime" }, { "utilisateur_ref": "jean", "type_reaction": "bravo" }]
+        },
+        {
+          "auteur_ref": "jean",
+          "contenu": "Hâte de voir la faculté d'informatique défendre son titre de l'an dernier 🔥",
+          "reactions": [{ "utilisateur_ref": "amina", "type_reaction": "youpi" }]
+        }
       ],
       "sondage": {
         "titre": "Pronostic du tournoi",
@@ -87,9 +127,15 @@
         "date_debut": "2026-09-20T00:00:00Z",
         "date_fin": "2026-10-02T23:59:59Z",
         "type_vote": "unique",
-        "choix": ["Faculté des Sciences", "Faculté de Droit", "Faculté de Médecine", "Institut d'Informatique"]
+        "choix": ["Faculté des Sciences", "Faculté de Droit", "Faculté de Médecine", "Institut d'Informatique"],
+        "votes": [
+          { "choix_index": 0, "utilisateur_refs": ["jean"] },
+          { "choix_index": 1, "utilisateur_refs": [] },
+          { "choix_index": 2, "utilisateur_refs": ["marie"] },
+          { "choix_index": 3, "utilisateur_refs": ["amina", "moderateur", "admin"] }
+        ]
       },
-      "lien_partage": { "visibilite": "public" }
+      "lien_partage": { "visibilite": "public", "acces_clics": 15, "acces_scans": 6 }
     },
     {
       "slug": "semaine-culturelle-2026-appel-a-participation",
@@ -108,9 +154,15 @@
       "statut": "publie",
       "visibilite": "public",
       "commentaires": [
-        { "contenu": "Super initiative ! Le dossier de candidature est-il disponible en ligne ou uniquement au bureau de l'AEC ?" }
+        {
+          "auteur_ref": "amina",
+          "contenu": "Super initiative ! Le dossier de candidature est-il disponible en ligne ou uniquement au bureau de l'AEC ?",
+          "reponses": [
+            { "auteur_ref": "aec_orga", "contenu": "Les deux : vous pouvez le retirer au bureau ou le télécharger depuis le lien de partage de cette actualité." }
+          ]
+        }
       ],
-      "lien_partage": { "visibilite": "public" }
+      "lien_partage": { "visibilite": "public", "acces_clics": 4, "acces_scans": 0 }
     },
     {
       "slug": "appel-candidatures-bourses-excellence-2026",
@@ -129,15 +181,20 @@
       "statut": "publie",
       "visibilite": "public",
       "commentaires": [
-        { "contenu": "Est-ce que les étudiants en première année sont éligibles ou faut-il justifier d'au moins une année complète ?" },
+        { "auteur_ref": "jean", "contenu": "Est-ce que les étudiants en première année sont éligibles ou faut-il justifier d'au moins une année complète ?" },
         {
+          "auteur_ref": "marie",
           "contenu": "Le lien vers le portail de dépôt en ligne semble indisponible depuis ce matin, quelqu'un d'autre a le problème ?",
+          "votes": [{ "utilisateur_ref": "jean", "direction": "up" }, { "utilisateur_ref": "amina", "direction": "up" }],
           "reponses": [
-            { "contenu": "Le service informatique a été informé, une maintenance est en cours. Merci de réessayer en fin de journée." }
+            { "auteur_ref": "moderateur", "contenu": "Le service informatique a été informé, une maintenance est en cours. Merci de réessayer en fin de journée." }
           ]
         }
       ],
-      "lien_partage": { "visibilite": "limite", "scope_etablissement": "ISET Franceville" }
+      "lien_partage": { "visibilite": "limite", "scope_etablissement": "ISET Franceville", "acces_clics": 3, "acces_scans": 1 },
+      "signalements": [
+        { "motif": "desinformation", "description": "Un commentaire relaie une rumeur non confirmée sur le montant réel des bourses.", "auteur_ref": "admin", "statut": "traite" }
+      ]
     },
     {
       "slug": "consigne-securite-travaux-batiment-b",
@@ -156,7 +213,7 @@
       "statut": "publie",
       "visibilite": "public",
       "commentaires": [
-        { "contenu": "Les toilettes du bâtiment B restent-elles accessibles pendant les travaux ?" }
+        { "auteur_ref": "amina", "contenu": "Les toilettes du bâtiment B restent-elles accessibles pendant les travaux ?" }
       ]
     },
     {
