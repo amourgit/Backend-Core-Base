@@ -12,6 +12,21 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BadgeSerializer(serializers.ModelSerializer):
+    """
+    `id` explicitement forcé en chaîne (comme TOUS les autres serializers
+    du projet — CategorieNesteeSerializer, OrganisationNesteeSerializer,
+    UtilisateurPublicSerializer, CommentaireSerializer, etc. — voir la
+    convention documentée dans src/types/models/user.types.ts côté
+    frontend : "tous les identifiants sont traités comme des chaînes de
+    façon uniforme"). Sans ce override, DRF sérialise l'AutoField Django
+    en entier JSON natif -> BadgeSchema (id: z.string()) rejette la
+    valeur -> échec de validation Zod de TOUT utilisateur/commentaire/
+    news dont l'auteur possède au moins un badge, silencieusement avalé
+    par les `catch` des hooks appelants (ex: useComments) -> listes qui
+    semblent vides côté UI alors que les données existent bien en base.
+    """
+    id = serializers.CharField(source='pk', read_only=True)
+
     class Meta:
         from users.models import Badge
         model = Badge
