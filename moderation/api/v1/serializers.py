@@ -20,4 +20,7 @@ class SignalementSerializer(serializers.ModelSerializer):
 class SignalementEcritureSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Signalement
-        fields = ('type_contenu', 'contenu_id', 'titre_ou_apercu', 'motif', 'description')
+        # 'id' DOIT être listé : SignalementViewSet.create() (views.py)
+        # relit response.data['id'] juste après super().create() -- même
+        # bug que CommentaireEcritureSerializer, corrigé à l'identique.
+        fields = ('id', 'type_contenu', 'contenu_id', 'titre_ou_apercu', 'motif', 'description')

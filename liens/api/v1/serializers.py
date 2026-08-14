@@ -68,7 +68,10 @@ class LienPublicationEcritureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.LienPublication
-        fields = ('news', 'url_publique', 'visibilite', 'mot_de_passe', 'expiration', 'usage_unique', 'scope')
+        # 'id' DOIT être listé : LienPublicationViewSet.create() (views.py)
+        # relit response.data['id'] juste après super().create() -- même
+        # bug que CommentaireEcritureSerializer, corrigé à l'identique.
+        fields = ('id', 'news', 'url_publique', 'visibilite', 'mot_de_passe', 'expiration', 'usage_unique', 'scope')
 
     def create(self, validated_data):
         from django.conf import settings

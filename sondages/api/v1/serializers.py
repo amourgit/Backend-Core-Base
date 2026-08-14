@@ -78,8 +78,12 @@ class SondageEcritureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Sondage
+        # 'id' DOIT être listé : SondageViewSet.create() (views.py) relit
+        # response.data['id'] juste après super().create() -- même bug
+        # que CommentaireEcritureSerializer (voir commentaires/api/v1/
+        # serializers.py), corrigé à l'identique ici.
         fields = (
-            'news', 'titre', 'description', 'question', 'image', 'choix',
+            'id', 'news', 'titre', 'description', 'question', 'image', 'choix',
             'date_debut', 'date_fin', 'type_vote', 'anonymat', 'visibilite_resultat', 'statut',
         )
 

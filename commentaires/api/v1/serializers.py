@@ -90,5 +90,11 @@ class CommentaireEcritureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Commentaire
-        fields = ('contenu', 'type_contenu', 'audio_duration', 'reponse_a')
+        # 'id' DOIT être listé ici : CommentaireViewSet.create() (ci-dessous)
+        # relit response.data['id'] juste après super().create() pour
+        # renvoyer la représentation complète (CommentaireSerializer, avec
+        # auteur/reactions/etc.) -- sans 'id' dans ce serializer d'écriture,
+        # response.data ne contient jamais cette clé et la création plante
+        # systématiquement avec KeyError: 'id'.
+        fields = ('id', 'contenu', 'type_contenu', 'audio_duration', 'reponse_a')
         extra_kwargs = {'contenu': {'required': False, 'allow_blank': True}}
