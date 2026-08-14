@@ -36,7 +36,16 @@ class User(AbstractUser):
     Custom user model.
     Each instance is automatically isolated in the tenant's schema.
     """
-    phone_number = models.CharField(_('Phone number'), max_length=20, blank=True)
+    # `email`/`phone_number` doivent être uniques (nullable pour laisser
+    # les deux optionnels indépendamment l'un de l'autre : un compte créé
+    # avec un téléphone peut ne pas avoir d'email et vice-versa) -- ce
+    # sont les deux SEULS identifiants de connexion possibles côté
+    # frontend (voir LoginPage.tsx : un unique champ "identifiant"),
+    # donc une valeur non-unique casserait la garantie "au plus un
+    # compte par identifiant" sur laquelle repose toute la logique de
+    # recherche dans UsersService.get_user_by_identifiant().
+    email = models.EmailField(_('email address'), max_length=254, unique=True, null=True, blank=True)
+    phone_number = models.CharField(_('Phone number'), max_length=20, unique=True, null=True, blank=True)
     address = models.TextField(_('Address'), blank=True)
     profile_picture = models.ImageField(_('Profile picture'), upload_to='profile_pictures/', blank=True, null=True)
     date_of_birth = models.DateField(_('Date of birth'), null=True, blank=True)
@@ -85,6 +94,23 @@ class User(AbstractUser):
         """
         Override save method to handle tenant.
         """
+        # Normalise '' -> None pour email/phone_number : ce sont les deux
+        # SEULS identifiants de connexion (voir
+        # UsersService.get_user_by_identifiant) et donc UNIQUES en base --
+        # une chaîne vide partagée par plusieurs comptes violerait cette
+        # contrainte dès le second compte sans email/téléphone renseigné.
+        # PostgreSQL ne traite JAMAIS deux valeurs '' comme distinctes sous
+        # une contrainte unique, contrairement à deux NULL. Fait ICI (au
+        # niveau du modèle, pas dans un serializer) pour protéger TOUTES
+        # les voies de création d'utilisateur de façon uniforme --
+        # RegisterView/GoogleAuthView (token_manager), UserViewSet admin
+        # (UserCreateSerializer, qui ne fournit même pas phone_number),
+        # `createsuperuser`, l'admin Django... pas seulement le nouveau
+        # flux d'inscription simplifié.
+        if self.email == '':
+            self.email = None
+        if self.phone_number == '':
+            self.phone_number = None
         # if not self.pk and hasattr(self, '_tenant'):
         #     # If it's a new instance and a tenant has been set
         #     self.tenant = self._tenant

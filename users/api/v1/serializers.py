@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from .services import UsersService, normaliser_identifiant, is_email, is_telephone_valide
 
 User = get_user_model()
 
@@ -98,6 +99,40 @@ class UserCreateSerializer(serializers.ModelSerializer):
         validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)
         return user
+
+class IdentifiantRegisterSerializer(serializers.Serializer):
+    """
+    Inscription simplifiée : un SEUL identifiant (email OU numéro de
+    téléphone, détecté automatiquement selon sa forme -- voir
+    users/api/v1/services.py:is_email) + un mot de passe. Remplace
+    UserCreateSerializer pour RegisterView (POST /token/v1/register/) --
+    UserCreateSerializer reste utilisé tel quel par UserViewSet.create
+    (création par un superuser depuis l'admin, avec username/nom/prénom
+    explicites), un usage différent qui n'a pas à changer ici.
+    """
+    identifiant = serializers.CharField(required=True, write_only=True)
+    password = serializers.CharField(required=True, write_only=True, validators=[validate_password])
+
+    def validate_identifiant(self, value):
+        value = normaliser_identifiant(value)
+        if not value:
+            raise serializers.ValidationError("L'identifiant (email ou numéro de téléphone) est requis.")
+        if not is_email(value) and not is_telephone_valide(value):
+            raise serializers.ValidationError(
+                "Entrez un email valide ou un numéro de téléphone valide (9 à 15 chiffres)."
+            )
+        return value
+
+    def validate(self, attrs):
+        if UsersService.get_user_by_identifiant(attrs['identifiant']) is not None:
+            raise serializers.ValidationError({'identifiant': "Un compte existe déjà avec cet identifiant."})
+        return attrs
+
+    def create(self, validated_data):
+        return UsersService.creer_utilisateur_depuis_identifiant(
+            validated_data['identifiant'], validated_data['password'],
+        )
+
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:

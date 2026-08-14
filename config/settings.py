@@ -94,11 +94,22 @@ TENANT_DOMAIN_MODEL = 'domain.Domain'  # Chemin complet vers le modèle Domain
 TENANT_MODEL = 'tenants.Tenant'  # Chemin complet vers le modèle Tenant
 
 MIDDLEWARE = [
-    'tenants.middleware.TenantMiddleware',  # Doit être en premier, middleware personnalisé
+    # CorsMiddleware DOIT être avant tout middleware custom susceptible de
+    # court-circuiter la requête (TenantMiddleware / TenantJWTMiddleware).
+    # CorsMiddleware.__call__ intercepte lui-même les preflights OPTIONS
+    # (méthode check_preflight) et répond 200 + headers CORS SANS jamais
+    # appeler get_response() -- donc sans jamais atteindre TenantJWTMiddleware.
+    # S'il est placé après, un preflight vers une route AUTHENTICATED se fait
+    # rejeter en 401 par TenantJWTMiddleware avant même que CorsMiddleware ne
+    # s'exécute : aucun header CORS n'est ajouté, et le navigateur bloque la
+    # requête en l'affichant comme une erreur CORS (qui masque en réalité une
+    # erreur 401). Voir https://github.com/adamchainz/django-cors-headers
+    # ("CorsMiddleware should be placed as high as possible").
+    'corsheaders.middleware.CorsMiddleware',
+    'tenants.middleware.TenantMiddleware',  # Doit être en premier parmi les middlewares métier (résolution schéma tenant)
     'token_manager.middleware.TenantJWTMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

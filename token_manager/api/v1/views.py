@@ -30,7 +30,7 @@ from django.db import connection
 from tenants.api.v1.services import TenantService
 from domain.api.v1.services import DomainService
 from users.api.v1.services import UsersService
-from users.api.v1.serializers import UserCreateSerializer
+from users.api.v1.serializers import IdentifiantRegisterSerializer
 from .services import TokenService
 from django.core.exceptions import ObjectDoesNotExist
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         # 1.1 Verification de la conformite des doneees en entrée dans le serializer
         serializer = TokenObtenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = request.data.get('username')
+        identifiant = request.data.get('identifiant')
         password = request.data.get('password')
 
         # 1.2 Verification de la conformite du tenant par le sous-domaine dans l'URL
@@ -62,16 +62,34 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
         ###### 2. Verification des donnees entrees en Base de donnees
         with schema_context(tenant.schema_name):
-            # 2.1 Verification de l'existance de l'utilisateur dans le tenant
-            formatReponse['status'] = int(status.HTTP_400_BAD_REQUEST)  
+            # 2.1 Recherche du compte par identifiant (email OU téléphone,
+            # voir UsersService.get_user_by_identifiant) -- l'ABSENCE totale
+            # de compte pour cet identifiant est distinguée (404 +
+            # code='ACCOUNT_NOT_FOUND') d'un mot de passe incorrect pour un
+            # compte existant (401), afin que le frontend puisse proposer
+            # la création du compte UNIQUEMENT dans le premier cas -- ne
+            # jamais proposer de créer un compte quand l'identifiant existe
+            # déjà mais que le mot de passe est simplement erroné, pour ne
+            # pas créer de doublon quand l'utilisateur a juste oublié son
+            # mot de passe.
             try:
-                user = User.objects.get(username=username)
-                if not user.check_password(password):
-                    formatReponse['message'] = "Le username ou password est incorrect"
+                user = UsersService.get_user_by_identifiant(identifiant)
+                if user is None:
+                    formatReponse['type'] = 'error'
+                    formatReponse['titre'] = 'Compte introuvable'
+                    formatReponse['code'] = 'ACCOUNT_NOT_FOUND'
+                    formatReponse['niveau'] = 100
+                    formatReponse['message'] = "Aucun compte n'est associé à cet identifiant."
+                    formatReponse['status'] = int(status.HTTP_404_NOT_FOUND)
                     return Response(formatReponse, formatReponse['status'])
-            except User.DoesNotExist:
-                formatReponse['message'] = "Le username ou password est incorrect"
-                return Response(formatReponse,  formatReponse['status'])
+                if not user.check_password(password):
+                    formatReponse['type'] = 'error'
+                    formatReponse['titre'] = 'Identifiants incorrects'
+                    formatReponse['code'] = 'INVALID_CREDENTIALS'
+                    formatReponse['niveau'] = 100
+                    formatReponse['message'] = "Identifiant ou mot de passe incorrect."
+                    formatReponse['status'] = int(status.HTTP_401_UNAUTHORIZED)
+                    return Response(formatReponse, formatReponse['status'])
             except Exception as e:
                 formatReponse['titre'] = 'Erreur Interne'
                 formatReponse['message'] = "Erreur lors de la verification des donnees en base de donnees. Veuillez contacter l'administrateur"
@@ -105,19 +123,19 @@ class RegisterView(APIView):
     """
     Inscription self-service (POST /token/v1/register/).
 
-    Réutilise UserCreateSerializer (users/api/v1/serializers.py — déjà
-    utilisé par UserViewSet.create, mais réservé aux superusers via
-    IsSuperUser sur cette action) pour la validation/création, puis
-    TokenService.emettre_session (factorisée depuis
-    CustomTokenObtainPairView) pour auto-connecter l'utilisateur
-    immédiatement après création : même forme de réponse que le login
-    ({access, refresh, device_info}), pour que le frontend n'ait pas à
-    distinguer inscription et connexion après coup.
+    Simplifiée à un unique champ `identifiant` (email OU numéro de
+    téléphone, détecté automatiquement) + `password` -- voir
+    IdentifiantRegisterSerializer (users/api/v1/serializers.py). Réutilisé
+    tel quel par le flux "proposer de créer le compte" du frontend, quand
+    le login échoue sur un identifiant totalement inconnu (voir
+    CustomTokenObtainPairView ci-dessus) : mêmes deux champs, donc les
+    identifiants déjà saisis dans le formulaire de connexion peuvent être
+    réutilisés sans re-saisie.
 
-    La validation d'unicité du username (UniqueValidator sur le champ,
-    hérité d'AbstractUser) ET la création doivent s'exécuter dans le
-    MÊME schema_context que le tenant cible, sinon l'unicité serait
-    vérifiée dans le mauvais schéma (généralement le schéma public).
+    La validation d'unicité de l'identifiant ET la création doivent
+    s'exécuter dans le MÊME schema_context que le tenant cible, sinon
+    l'unicité serait vérifiée dans le mauvais schéma (généralement le
+    schéma public).
     """
     permission_classes = []
     authentication_classes = []
@@ -133,7 +151,7 @@ class RegisterView(APIView):
             return Response(formatReponse_tenant, int(formatReponse_tenant['status']))
 
         with schema_context(tenant.schema_name):
-            serializer = UserCreateSerializer(data=request.data)
+            serializer = IdentifiantRegisterSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
 

@@ -153,6 +153,23 @@ class TenantJWTMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         try:
+            # Défense en profondeur : un preflight CORS (OPTIONS) ne porte
+            # jamais l'Authorization/le token (le navigateur ne les envoie
+            # pas sur le preflight par spec). Le rejeter ici avec 401 casse
+            # le preflight de TOUTE route protégée, indépendamment de l'ordre
+            # des middlewares. Normalement CorsMiddleware (placé avant ce
+            # middleware) intercepte déjà l'OPTIONS avant qu'on l'atteigne,
+            # mais ce garde-fou évite de recasser silencieusement le CORS si
+            # l'ordre des middlewares est un jour modifié.
+            if request.method == 'OPTIONS':
+                request.user = None
+                request.auth_info = {
+                    'is_authenticated': False,
+                    'is_public_route': True,
+                    'requires_auth': False
+                }
+                return None
+
             # Debug logging pour le développement
             if settings.DEBUG:
                 logger.debug(f"[JWTMiddleware] 🔍 Processing request: {request.path}")

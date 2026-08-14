@@ -10,9 +10,14 @@ User = get_user_model()
 
 class TokenObtenSerializer(serializers.Serializer):
     """
-    Sérialiseur pour les demandes de tokens
+    Sérialiseur pour les demandes de tokens -- connexion simplifiée par
+    un unique champ `identifiant` (email OU numéro de téléphone, voir
+    users/api/v1/services.py:get_user_by_identifiant), plutôt qu'un
+    `username` que l'utilisateur ne choisit ni ne connaît (généré
+    automatiquement à l'inscription, voir
+    generer_username_depuis_identifiant).
     """
-    username = serializers.CharField(required=True)
+    identifiant = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
 
     def validate(self, data):
