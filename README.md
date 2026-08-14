@@ -57,11 +57,11 @@ from django_tenants.utils import schema_context
 from tenants.models import Tenant
 
 User = get_user_model()
-tenant = Tenant.objects.get(schema_name='civitas-news')
+tenant = Tenant.objects.get(schema_name='civitas')
 
 with schema_context(tenant.schema_name):
     User.objects.create_superuser(
         username='admin',
-        email='admin@civitas-news.com',
+        email='admin@civitas.com',
         password='admin'
     )

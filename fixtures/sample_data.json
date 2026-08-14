@@ -1,0 +1,274 @@
+{
+  "categories": [
+    {
+      "nom": "Vie Académique",
+      "couleur": "#5B4DFF",
+      "icone": "BookOpen",
+      "description": "Actualités relatives aux études, cours, examens et vie académique"
+    },
+    {
+      "nom": "Sport",
+      "couleur": "#00C853",
+      "icone": "Trophy",
+      "description": "Événements sportifs, compétitions et activités physiques"
+    },
+    {
+      "nom": "Culture",
+      "couleur": "#FF6D00",
+      "icone": "Palette",
+      "description": "Événements culturels, expositions, spectacles et artistiques"
+    },
+    {
+      "nom": "Événements",
+      "couleur": "#E91E63",
+      "icone": "Calendar",
+      "description": "Conférences, séminaires, ateliers et événements spéciaux"
+    },
+    {
+      "nom": "Administration",
+      "couleur": "#2196F3",
+      "icone": "Building",
+      "description": "Annonces administratives et informations institutionnelles"
+    }
+  ],
+  "etablissements": [
+    {
+      "nom": "Université Omar Bongo",
+      "province": "Estuaire"
+    },
+    {
+      "nom": "Université des Sciences et Techniques de Masuku",
+      "province": "Haut-Ogooué"
+    },
+    {
+      "nom": "Institut National des Sciences de Gestion",
+      "province": "Estuaire"
+    }
+  ],
+  "organisations": [
+    {
+      "nom": "Association des Étudiants en Sciences",
+      "type": "association_etudiante",
+      "description": "Association représentant les étudiants de la faculté des sciences"
+    },
+    {
+      "nom": "Bureau des Étudiants",
+      "type": "administration",
+      "description": "Organisme officiel de gestion des affaires étudiantes"
+    },
+    {
+      "nom": "Club de Débat Universitaire",
+      "type": "club",
+      "description": "Club organisant des débats et discussions sur des sujets d'actualité"
+    }
+  ],
+  "tags": [
+    {"nom": "examen"},
+    {"nom": "concours"},
+    {"nom": "conférence"},
+    {"nom": "sport"},
+    {"nom": "culture"},
+    {"nom": "bourse"},
+    {"nom": "inscription"},
+    {"nom": "stage"},
+    {"nom": "recherche"},
+    {"nom": "innovation"}
+  ],
+  "news": [
+    {
+      "slug": "conference-intelligence-artificielle-2024",
+      "type": "conference",
+      "titre": "Conférence sur l'Intelligence Artificielle et son Impact sur l'Éducation",
+      "description": "Une conférence exceptionnelle sur les avancées de l'IA dans le domaine éducatif",
+      "contenu": "Nous avons le plaisir de vous inviter à notre conférence annuelle sur l'intelligence artificielle. Cet événement réunira des experts internationaux pour discuter de l'impact de l'IA sur l'éducation, la recherche et l'industrie. Au programme : présentations, ateliers pratiques et tables rondes. La conférence se tiendra dans l'amphithéâtre principal de l'université.",
+      "categorie_nom": "Événements",
+      "etablissement_nom": "Université Omar Bongo",
+      "organisation_nom": "Association des Étudiants en Sciences",
+      "province": "Estuaire",
+      "lieu": "Amphithéâtre Principal, Université Omar Bongo",
+      "date_debut": "2024-09-15T09:00:00Z",
+      "date_fin": "2024-09-15T17:00:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "tags": ["conférence", "innovation", "recherche"],
+      "partages": 15,
+      "commentaires": [
+        {
+          "contenu": "Je suis très intéressé par cette conférence ! Comment s'inscrire ?",
+          "est_epingle": true
+        },
+        {
+          "contenu": "Excellent sujet, l'IA transforme vraiment l'éducation aujourd'hui."
+        }
+      ],
+      "reactions": [
+        {"type_reaction": "coeur", "count": 12},
+        {"type_reaction": "jaime", "count": 8}
+      ],
+      "vues": 45
+    },
+    {
+      "slug": "tournoi-basket-interuniversitaire",
+      "type": "evenement",
+      "titre": "Tournoi de Basket Interuniversitaire 2024",
+      "description": "Le grand tournoi annuel de basket entre les universités gabonaises",
+      "contenu": "Le tournoi interuniversitaire de basket est de retour ! 8 équipes de différentes universités s'affronteront lors de cette compétition excitante. Venez soutenir votre équipe et profiter de l'ambiance. Des lots seront distribués aux gagnants et au public. Inscription des équipes jusqu'au 20 août.",
+      "categorie_nom": "Sport",
+      "etablissement_nom": "Université Omar Bongo",
+      "organisation_nom": "Bureau des Étudiants",
+      "province": "Estuaire",
+      "lieu": "Complexe Sportif Universitaire",
+      "date_debut": "2024-10-05T14:00:00Z",
+      "date_fin": "2024-10-06T18:00:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "tags": ["sport", "concours"],
+      "partages": 23,
+      "commentaires": [
+        {
+          "contenu": "Mon équipe est prête ! On va gagner cette année !",
+          "est_epingle": false
+        },
+        {
+          "contenu": "Super initiative, j'espère qu'il y aura beaucoup de monde.",
+          "est_epingle": false
+        },
+        {
+          "contenu": "Est-ce que l'entrée est gratuite pour les étudiants ?"
+        }
+      ],
+      "reactions": [
+        {"type_reaction": "youpi", "count": 25},
+        {"type_reaction": "bravo", "count": 15}
+      ],
+      "vues": 78,
+      "sondage": {
+        "titre": "Qui va gagner le tournoi ?",
+        "question": "Quelle équipe sera championne cette année ?",
+        "description": "Votez pour l'équipe que vous pensez qui remportera le tournoi",
+        "type_vote": "unique",
+        "anonymat": true,
+        "visibilite_resultat": "instantane",
+        "date_debut": "2024-08-20T00:00:00Z",
+        "date_fin": "2024-10-05T23:59:59Z",
+        "choix": [
+          {"libelle": "Université Omar Bongo", "ordre": 1},
+          {"libelle": "USTM", "ordre": 2},
+          {"libelle": "INSG", "ordre": 3},
+          {"libelle": "Autre", "ordre": 4}
+        ]
+      }
+    },
+    {
+      "slug": "appel-candidatures-bourse-etude",
+      "type": "annonce",
+      "titre": "Appel à Candidatures - Bourses d'Études 2024-2025",
+      "description": "Le ministère de l'Éducation lance un appel à candidatures pour les bourses d'études",
+      "contenu": "Le ministère de l'Éducation nationale lance officiellement l'appel à candidatures pour les bourses d'études de l'année académique 2024-2025. Les bourses sont destinées aux étudiants gabonais méritants poursuivant leurs études dans les domaines prioritaires : sciences, technologie, ingénierie et mathématiques. Dossier de candidature à déposer avant le 30 septembre 2024.",
+      "categorie_nom": "Administration",
+      "etablissement_nom": null,
+      "organisation_nom": null,
+      "province": null,
+      "lieu": null,
+      "date_debut": null,
+      "date_fin": "2024-09-30T23:59:59Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "tags": ["bourse", "inscription"],
+      "partages": 56,
+      "commentaires": [
+        {
+          "contenu": "Quels sont les critères d'éligibilité exacts ?",
+          "est_epingle": true
+        },
+        {
+          "contenu": "Excellente nouvelle ! Merci pour cette information."
+        }
+      ],
+      "reactions": [
+        {"type_reaction": "coeur", "count": 34},
+        {"type_reaction": "wow", "count": 12}
+      ],
+      "vues": 120,
+      "documents": [
+        {
+          "nom": "Formulaire de candidature bourse 2024-2025.pdf",
+          "description": "Formulaire officiel à remplir et à soumettre"
+        }
+      ]
+    },
+    {
+      "slug": "seminaire-recherche-scientifique",
+      "type": "atelier",
+      "titre": "Séminaire sur la Méthodologie de la Recherche Scientifique",
+      "description": "Formation pratique sur les méthodes de recherche scientifique",
+      "contenu": "Ce séminaire intensif de deux jours est destiné aux étudiants de master et doctorat. Il couvre les fondamentaux de la méthodologie de recherche : formulation de problématique, revue de littérature, collecte et analyse de données, rédaction scientifique. Les participants auront l'occasion de travailler sur leurs propres projets de recherche avec l'encadrement d'experts.",
+      "categorie_nom": "Vie Académique",
+      "etablissement_nom": "Université des Sciences et Techniques de Masuku",
+      "organisation_nom": "Club de Débat Universitaire",
+      "province": "Haut-Ogooué",
+      "lieu": "Salle de Conférence, USTM",
+      "date_debut": "2024-09-20T08:30:00Z",
+      "date_fin": "2024-09-21T16:30:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "tags": ["recherche", "conférence"],
+      "partages": 8,
+      "commentaires": [
+        {
+          "contenu": "C'est exactement ce qu'il me faut pour mon mémoire !"
+        }
+      ],
+      "reactions": [
+        {"type_reaction": "jaime", "count": 18}
+      ],
+      "vues": 32
+    },
+    {
+      "slug": "festival-culturel-universitaire",
+      "type": "evenement",
+      "titre": "Festival Culturel Universitaire 2024",
+      "description": "Célébration de la diversité culturelle à travers l'art, la musique et la danse",
+      "contenu": "Le Festival Culturel Universitaire est de retour pour sa 5ème édition ! Trois jours de célébration de la richesse culturelle gabonaise et internationale : expositions d'art, concerts de musique traditionnelle et moderne, spectacles de danse, ateliers d'artisanat, et dégustation de plats typiques. Venez découvrir et célébrer la diversité culturelle de notre communauté universitaire.",
+      "categorie_nom": "Culture",
+      "etablissement_nom": "Université Omar Bongo",
+      "organisation_nom": "Association des Étudiants en Sciences",
+      "province": "Estuaire",
+      "lieu": "Campus Universitaire",
+      "date_debut": "2024-11-10T10:00:00Z",
+      "date_fin": "2024-11-12T22:00:00Z",
+      "statut": "publie",
+      "visibilite": "public",
+      "tags": ["culture", "festival"],
+      "partages": 42,
+      "commentaires": [
+        {
+          "contenu": "J'attends cet événement toute l'année !",
+          "est_epingle": true
+        },
+        {
+          "contenu": "Y aura-t-il des artistes invités cette année ?"
+        },
+        {
+          "contenu": "Super ! Je vais participer à l'atelier d'artisanat."
+        }
+      ],
+      "reactions": [
+        {"type_reaction": "youpi", "count": 45},
+        {"type_reaction": "coeur", "count": 30},
+        {"type_reaction": "wow", "count": 15}
+      ],
+      "vues": 95,
+      "galerie": [
+        {
+          "legende": "Édition 2023 - Spectacle de danse traditionnelle",
+          "ordre": 1
+        },
+        {
+          "legende": "Édition 2023 - Exposition d'art étudiant",
+          "ordre": 2
+        }
+      ]
+    }
+  ]
+}
