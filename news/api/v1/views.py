@@ -16,6 +16,10 @@ from .serializers import NewsSerializer, NewsListSerializer, NewsEcritureSeriali
 class NewsViewSet(SocleModelViewSet):
     """
     - GET  /news/v1/news/                liste (filtrée par visibilité)
+    - GET  /news/v1/news/?auteur={id}     "mes publications" (page Profil) --
+      combiné à get_queryset() ci-dessous (qui autorise déjà l'auteur à voir
+      ses propres brouillons), ceci isole exactement SES publications,
+      brouillons compris, sans exposer les brouillons des autres.
     - POST /news/v1/news/                création
     - GET  /news/v1/news/{slug|id}/       détail
     - PATCH/PUT /news/v1/news/{slug|id}/  édition
@@ -25,7 +29,7 @@ class NewsViewSet(SocleModelViewSet):
     """
     permission_classes = [NewsPermission]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['type', 'categorie', 'province', 'statut', 'organisation', 'etablissement']
+    filterset_fields = ['type', 'categorie', 'province', 'statut', 'organisation', 'etablissement', 'auteur']
     search_fields = ['titre', 'description', 'tags__nom']
     ordering_fields = ['cree_le', 'modifie_le', 'titre']
     ordering = ['-cree_le']

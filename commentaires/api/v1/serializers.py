@@ -24,6 +24,12 @@ class CommentaireSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source='pk', read_only=True)
     news_id = serializers.CharField(read_only=True)
     sujet_id = serializers.CharField(source='news_id', read_only=True)
+    # Dénormalisent le strict nécessaire pour afficher/lier "mes
+    # commentaires" (page Profil, onglet Journal d'activité) sans que le
+    # frontend n'ait à refaire un aller-retour par news_id pour chaque
+    # commentaire listé (évite un N+1 côté client).
+    news_titre = serializers.CharField(source='news.titre', read_only=True)
+    news_slug = serializers.CharField(source='news.slug', read_only=True)
     auteur = UtilisateurPublicSerializer(read_only=True)
     type_contenu = serializers.CharField(required=False)
     audio_url = serializers.SerializerMethodField()
@@ -40,9 +46,10 @@ class CommentaireSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Commentaire
         fields = (
-            'id', 'news_id', 'sujet_id', 'auteur', 'type_contenu', 'audio_url', 'audio_duration',
-            'contenu', 'media', 'reponse_a', 'mentions', 'reactions', 'user_reactions', 'votes',
-            'user_vote_status', 'est_epingle', 'est_reponse_acceptee', 'est_administrateur', 'created_at',
+            'id', 'news_id', 'sujet_id', 'news_titre', 'news_slug', 'auteur', 'type_contenu', 'audio_url',
+            'audio_duration', 'contenu', 'media', 'reponse_a', 'mentions', 'reactions', 'user_reactions',
+            'votes', 'user_vote_status', 'est_epingle', 'est_reponse_acceptee', 'est_administrateur',
+            'created_at',
         )
 
     def get_audio_url(self, obj):

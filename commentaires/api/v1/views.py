@@ -14,6 +14,7 @@ from .serializers import CommentaireSerializer, CommentaireEcritureSerializer
 class CommentaireViewSet(SocleModelViewSet):
     """
     - GET  /commentaires/v1/commentaires/?news={id}&tri=recents|populaires|pertinents
+    - GET  /commentaires/v1/commentaires/?auteur={id}  "mes commentaires" (page Profil)
     - POST /commentaires/v1/commentaires/                (body: {news, contenu, ...})
     - GET/PATCH/DELETE /commentaires/v1/commentaires/{id}/
     - POST /commentaires/v1/commentaires/{id}/vote/       {direction: 'up'|'down'}
@@ -22,7 +23,7 @@ class CommentaireViewSet(SocleModelViewSet):
     """
     permission_classes = [CommentairePermission]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['news', 'reponse_a']
+    filterset_fields = ['news', 'reponse_a', 'auteur']
     ordering_fields = ['cree_le']
     ordering = ['-cree_le']
 
