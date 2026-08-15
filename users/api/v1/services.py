@@ -131,22 +131,52 @@ class UsersService:
     def get_user_by_identifiant(identifiant):
         """
         Cherche un utilisateur par email OU par numéro de téléphone --
-        SEULS identifiants de connexion exposés côté frontend (un unique
-        champ "identifiant" sur LoginPage/RegisterPage, voir la demande
-        produit : connexion/inscription simplifiées). La forme de la
-        chaîne (email vs téléphone) détermine seule le champ interrogé --
+        les deux identifiants de connexion normalement exposés côté
+        frontend (un unique champ "identifiant" sur LoginModal, voir la
+        demande produit : connexion/inscription simplifiées). La forme de
+        la chaîne (email vs téléphone) détermine le champ interrogé --
         voir normaliser_identifiant()/is_email().
 
-        Retourne None si aucun compte ne correspond (permet à
-        CustomTokenObtainPairView de distinguer "compte inexistant"
-        de "mot de passe incorrect").
+        Filet de sécurité : si aucune correspondance email/téléphone
+        n'est trouvée, on retente par `username` EXACT (non normalisé,
+        car un username n'est ni un email ni un téléphone -- toute
+        normalisation lui serait inadaptée). Indispensable pour les
+        comptes créés AVANT ce système simplifié (ex: comptes de
+        démonstration/seed, comptes créés via l'admin Django) qui ont un
+        username mémorisable mais pourraient ne pas avoir d'email/
+        téléphone saisi -- sans ce filet, ces comptes deviendraient
+        injoignables en connexion bien qu'ils existent réellement.
+
+        Ce filet NE PEUT PAS et ne doit PAS rendre joignable un compte
+        d'un AUTRE schéma tenant (ex: le superuser Django admin du
+        schéma "public", créé par bootstrap_public) : cette méthode
+        s'exécute toujours à l'intérieur du schema_context() du tenant
+        résolu par la requête (voir CustomTokenObtainPairView) -- deux
+        schémas ont chacun leur PROPRE table users_user, totalement
+        isolée l'une de l'autre par django-tenants. Un identifiant
+        "introuvable" sur un tenant peut donc très bien exister ailleurs
+        (schéma public ou un autre tenant) sans que ce soit un bug : la
+        connexion à l'espace admin Django (schéma public) et la
+        connexion à l'API d'un tenant sont deux espaces d'identité
+        distincts par conception.
+
+        Retourne None si aucun compte ne correspond, dans CE schéma
+        (permet à CustomTokenObtainPairView de distinguer "compte
+        inexistant" de "mot de passe incorrect").
         """
-        identifiant = normaliser_identifiant(identifiant)
-        if not identifiant:
-            return None
-        if is_email(identifiant):
-            return User.objects.filter(email__iexact=identifiant).first()
-        return User.objects.filter(phone_number=identifiant).first()
+        identifiant_normalise = normaliser_identifiant(identifiant)
+        if identifiant_normalise:
+            if is_email(identifiant_normalise):
+                user = User.objects.filter(email__iexact=identifiant_normalise).first()
+            else:
+                user = User.objects.filter(phone_number=identifiant_normalise).first()
+            if user is not None:
+                return user
+
+        identifiant_brut = (identifiant or '').strip()
+        if identifiant_brut:
+            return User.objects.filter(username=identifiant_brut).first()
+        return None
 
     @staticmethod
     def generer_username_depuis_identifiant(identifiant):
