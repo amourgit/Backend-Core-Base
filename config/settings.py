@@ -26,7 +26,15 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG")
+# ATTENTION : os.environ.get("DEBUG") retourne une STRING. En Python,
+# la string "False" est VRAIE (non vide) -> DEBUG=False dans le .env
+# était donc traité comme "truthy" par tout `if DEBUG:` ailleurs dans le
+# code, et un DEBUG absent du .env retombait sur None (falsy), activant
+# silencieusement SECURE_SSL_REDIRECT/HSTS ci-dessous comme si on était
+# en prod. Conversion explicite en booléen, DEBUG=False par défaut si
+# la variable est absente (sûr par défaut, jamais de comportement
+# "production" activé par accident faute de configuration).
+DEBUG = os.environ.get("DEBUG", "False").strip().lower() in ("true", "1", "yes", "on")
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(",")
 
@@ -390,11 +398,28 @@ TOKEN_MANAGER = {
 }
 
 # Security settings
+# IMPORTANT : ces réglages HSTS/SSL ne doivent JAMAIS être actifs en
+# développement local (DEBUG=True). SECURE_HSTS_SECONDS déclenche
+# l'en-tête Strict-Transport-Security dès que Django considère la
+# requête "secure" (voir SECURE_PROXY_SSL_HEADER) ; avec
+# INCLUDE_SUBDOMAINS + PRELOAD, un navigateur qui reçoit cet en-tête
+# UNE SEULE FOIS force ensuite https pendant 1 an sur "localhost" ET
+# tous ses sous-domaines (civitas.localhost, moncampus.localhost...),
+# alors que le serveur de dev ne parle jamais TLS -> ERR_SSL_PROTOCOL_ERROR
+# permanent, non réparable côté serveur une fois le navigateur "empoisonné"
+# (seul un nettoyage manuel de chrome://net-internals/#hsts le résout).
+# Auparavant ces 3 réglages n'étaient PAS conditionnés par DEBUG (à la
+# différence de SECURE_SSL_REDIRECT juste au-dessus), donc actifs même
+# en dev dès que la requête paraissait "secure" ne serait-ce qu'une fois.
 SECURE_SSL_REDIRECT = not DEBUG
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0  # 1 an en prod, désactivé en dev
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
+# Ne fait confiance à X-Forwarded-Proto que derrière un vrai reverse
+# proxy TLS (prod). En dev (pas de proxy), un client pourrait sinon
+# usurper cet en-tête pour faire croire à Django qu'une requête http
+# est "secure".
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if not DEBUG else None
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
