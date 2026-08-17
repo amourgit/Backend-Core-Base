@@ -13,7 +13,11 @@ class SondageViewSet(SocleModelViewSet):
     """
     - GET/POST /sondages/v1/sondages/
     - GET/PATCH/DELETE /sondages/v1/sondages/{id}/
-    - POST /sondages/v1/sondages/{id}/vote/   {choixIds: string[]}
+    - POST /sondages/v1/sondages/{id}/vote/   {choixIds: string[]} -- remplace
+      intégralement la sélection courante de l'utilisateur (ajoute les
+      nouveaux choix, retire ceux qui ne sont plus sélectionnés) ; un
+      tableau vide annule le vote de l'utilisateur sur ce sondage --
+      voir services.enregistrer_vote pour la réconciliation exacte.
     - GET /sondages/v1/sondages/mes-votes/    sondages auxquels l'utilisateur
       courant a participé (page Profil, onglet Historique des votes) --
       SondageSerializer.user_voted_choice_ids indique déjà le(s) choix
@@ -45,6 +49,10 @@ class SondageViewSet(SocleModelViewSet):
         # le frontend) en `choix_ids` avant que la vue ne le reçoive.
         choix_ids = request.data.get('choix_ids') or []
         services.enregistrer_vote(sondage, request.user, choix_ids)
+        # `sondage` vient de la queryset prefetch_related('choix', 'votes')
+        # de get_object() ; on force un état frais avant sérialisation pour
+        # ne jamais refléter un cache de requête pré-vote.
+        sondage.refresh_from_db()
         return Response(SondageSerializer(sondage, context={'request': request}).data)
 
     @action(detail=False, methods=['get'], url_path='mes-votes')

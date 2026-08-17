@@ -65,6 +65,14 @@ class ChoixSondage(models.Model):
     libelle = models.CharField(_('Libellé'), max_length=255)
     image = models.ImageField(_('Image'), upload_to='sondages/choix/', null=True, blank=True)
     ordre = models.PositiveSmallIntegerField(_('Ordre'), default=0)
+    # Métadonnée commune minimale, alignée sur les entités-enfants
+    # comparables du reste de la plateforme (ex: news.NewsMedia,
+    # news.DocumentJoint) : un choix est cascade-supprimé avec son
+    # Sondage, il n'a donc pas besoin du Socle de Traçabilité complet
+    # (statut/version/motif propres à une entité autonome), mais garder
+    # trace de sa date de création reste la métadonnée commune minimale
+    # attendue partout — ce qui manquait ici jusqu'à présent.
+    cree_le = models.DateTimeField(_('Créé le'), auto_now_add=True)
 
     class Meta:
         verbose_name = _('Choix de sondage')
@@ -76,6 +84,16 @@ class ChoixSondage(models.Model):
 
 
 class VoteSondage(models.Model):
+    """Table de faits : un vote d'un utilisateur pour un choix donné.
+
+    L'utilisateur est TOUJOURS résolu et persisté (`utilisateur`,
+    obligatoire, non-nullable) — cf. `sondages/api/v1/services.py:
+    enregistrer_vote`, qui est l'unique point d'écriture et applique la
+    réconciliation correcte choix unique/choix multiple (ajout ET
+    retrait des votes qui ne sont plus sélectionnés, jamais de simple
+    accumulation) avant de persister une ligne par (sondage, choix,
+    utilisateur).
+    """
     sondage = models.ForeignKey(Sondage, verbose_name=_('Sondage'), on_delete=models.CASCADE, related_name='votes')
     choix = models.ForeignKey(ChoixSondage, verbose_name=_('Choix'), on_delete=models.CASCADE, related_name='votes')
     utilisateur = models.ForeignKey(
@@ -87,6 +105,12 @@ class VoteSondage(models.Model):
     class Meta:
         verbose_name = _('Vote (sondage)')
         verbose_name_plural = _('Votes (sondages)')
+        ordering = ['-cree_le']
+        indexes = [
+            # Requête de réconciliation (enregistrer_vote) et de lecture
+            # ("mes votes sur ce sondage") : toujours filtrée par ce couple.
+            models.Index(fields=['sondage', 'utilisateur']),
+        ]
         constraints = [
             models.UniqueConstraint(fields=['choix', 'utilisateur'], name='vote_sondage_unique_par_choix_utilisateur')
         ]
