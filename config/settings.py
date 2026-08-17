@@ -116,11 +116,14 @@ MIDDLEWARE = [
     # requête en l'affichant comme une erreur CORS (qui masque en réalité une
     # erreur 401). Voir https://github.com/adamchainz/django-cors-headers
     # ("CorsMiddleware should be placed as high as possible").
-    'corsheaders.middleware.CorsMiddleware',
-    'tenants.middleware.TenantMiddleware',  # Doit être en premier parmi les middlewares métier (résolution schéma tenant)
-    'token_manager.middleware.TenantJWTMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
+
+    'tenants.middleware.TenantMiddleware',
+    'token_manager.middleware.TenantJWTMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -288,26 +291,29 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# ============================================================
+# STATIC FILES
+# ============================================================
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    BASE_DIR / "static",
 ]
 
-# Media files (Uploaded files)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# ============================================================
+# MEDIA FILES
+# ============================================================
 
-# Configuration des fichiers statiques pour le développement
-if DEBUG:
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'static'),
-    ]
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
-# Configuration du stockage des fichiers statiques
+
+# ============================================================
+# STATICFILES FINDERS
+# ============================================================
+
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -435,7 +441,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://civitasnews.vercel.app",
-    "https://*.civitasnews.vercel.app",
 ]
 # En plus de la liste exacte ci-dessus : accepte tout sous-domaine de
 # MAIN_DOMAIN (n'importe quel tenant), avec ou sans port, http ou https.

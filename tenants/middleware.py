@@ -336,18 +336,15 @@ class TenantMiddleware(TenantMainMiddleware):
 
     def process_request(self, request):
         try:
+
+            # Les fichiers statiques et médias ne doivent jamais être
+            # soumis à la résolution des tenants. Ils sont servis
+            # directement par WhiteNoise / Django.
+            if request.path.startswith('/static/') or request.path.startswith('/media/'):
+                return None
+
             # Les requêtes OPTIONS (preflight CORS) ne doivent JAMAIS être
-            # soumises à la validation de route/tenant ci-dessous : c'est
-            # CorsMiddleware (plus bas dans MIDDLEWARE, voir
-            # config/settings.py) qui doit y répondre, avec les en-têtes
-            # Access-Control-*. Ce middleware étant placé AVANT
-            # CorsMiddleware dans la pile (obligatoire : il doit pouvoir
-            # positionner le schema PostgreSQL avant que quoi que ce soit
-            # d'autre ne s'exécute), le laisser bloquer un preflight avec
-            # une erreur 400/404 (ex: tenant inexistant) priverait CETTE
-            # réponse des en-têtes CORS -- le navigateur ne verrait alors
-            # qu'une erreur CORS opaque et générique, jamais le message
-            # clair que la vraie requête aurait reçu.
+            # soumises à la validation de route/tenant ci-dessous.
             if request.method == "OPTIONS":
                 return None
 
@@ -359,6 +356,7 @@ class TenantMiddleware(TenantMainMiddleware):
                 if self.is_versioned_api_route(request.path):
                     version = self.get_api_version_from_path(request.path)
                     logger.debug(f"[TenantMiddleware] 🔍 API Version: {version}")
+
 
             # Détermination du type de route
             route_type = self.get_route_type(request.path)

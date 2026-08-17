@@ -18753,3 +18753,461 @@ DEBUG 2026-08-17 21:06:44,807 middleware [JWTMiddleware] 🔍 Is public route: T
 DEBUG 2026-08-17 21:06:44,807 middleware [JWTMiddleware] 🔍 Is authenticated route: False
 DEBUG 2026-08-17 21:06:44,807 middleware [JWTMiddleware] 🔍 Is admin route: False
 DEBUG 2026-08-17 21:06:44,807 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:21:27,689 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:21:27,689 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:21:27,690 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/
+DEBUG 2026-08-17 21:21:27,690 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:21:27,690 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:21:27,690 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:21:27,691 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:21:27,691 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:21:37,218 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:21:37,219 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:21:37,243 middleware [MultiTenant] Tenant trouvé par sous-domaine : civitas -> civitas
+DEBUG 2026-08-17 21:21:37,244 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/
+DEBUG 2026-08-17 21:21:37,244 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:21:37,244 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:21:37,245 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:21:37,245 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:21:37,245 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:21:37,246 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:21:41,721 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/sondage/
+DEBUG 2026-08-17 21:21:41,721 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:21:41,722 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:21:41,722 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/sondage/
+DEBUG 2026-08-17 21:21:41,722 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:21:41,723 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/sondage/
+DEBUG 2026-08-17 21:21:41,723 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:21:41,723 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:21:41,723 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:21:41,724 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:21:41,947 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:21:41,947 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:21:41,948 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:21:41,948 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:21:41,949 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:21:41,949 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:21:41,949 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:21:41,951 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:21:41,952 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:21:41,959 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:21:45,171 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/sondage/4/change/
+DEBUG 2026-08-17 21:21:45,171 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:21:45,172 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:21:45,172 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/sondage/4/change/
+DEBUG 2026-08-17 21:21:45,172 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:21:45,173 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/sondage/4/change/
+DEBUG 2026-08-17 21:21:45,173 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:21:45,173 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:21:45,173 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:21:45,174 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:21:45,356 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:21:45,357 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:21:45,357 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:21:45,357 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:21:45,357 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:21:45,358 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:21:45,358 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:21:45,358 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:21:45,358 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:21:45,358 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:21:59,369 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/sondage/
+DEBUG 2026-08-17 21:21:59,369 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:21:59,369 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:21:59,370 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/sondage/
+DEBUG 2026-08-17 21:21:59,370 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:21:59,370 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/sondage/
+DEBUG 2026-08-17 21:21:59,370 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:21:59,370 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:21:59,370 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:21:59,370 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:04,823 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/
+DEBUG 2026-08-17 21:22:04,824 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:04,824 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:04,825 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/choixsondage/
+DEBUG 2026-08-17 21:22:04,825 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:04,826 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/
+DEBUG 2026-08-17 21:22:04,826 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:04,827 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:04,827 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:04,827 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:04,931 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:04,932 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:04,932 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:04,932 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:04,932 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:04,932 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:04,933 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:04,933 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:04,933 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:04,933 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:14,683 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:22:14,683 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:14,684 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:14,684 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:22:14,684 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:14,684 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:22:14,684 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:14,685 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:14,685 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:14,685 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:14,784 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:14,784 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:14,785 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:14,785 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:14,785 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:14,785 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:14,785 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:14,785 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:14,785 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:14,786 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:19,266 middleware [TenantMiddleware] 🔍 Processing request: /admin/news/news/
+DEBUG 2026-08-17 21:22:19,266 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:19,267 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:19,267 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/news/news/
+DEBUG 2026-08-17 21:22:19,267 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:19,267 middleware [JWTMiddleware] 🔍 Processing request: /admin/news/news/
+DEBUG 2026-08-17 21:22:19,267 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:19,267 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:19,267 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:19,268 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:19,376 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:19,376 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:19,376 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:19,376 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:19,376 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:19,376 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:19,377 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:19,377 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:19,377 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:19,377 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:23,816 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/
+DEBUG 2026-08-17 21:22:23,817 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:23,817 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:23,817 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/choixsondage/
+DEBUG 2026-08-17 21:22:23,818 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:23,818 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/
+DEBUG 2026-08-17 21:22:23,818 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:23,818 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:23,818 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:23,819 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:23,918 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:23,919 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:23,919 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:23,919 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:23,919 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:23,919 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:23,920 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:23,920 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:23,920 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:23,920 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:25,182 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:25,182 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:25,183 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:25,183 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:25,183 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:25,183 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:25,183 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:25,184 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:25,184 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:25,184 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:25,281 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:25,281 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:25,282 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:25,282 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:25,282 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:25,282 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:25,282 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:25,282 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:25,282 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:25,283 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:40,006 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:40,006 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:40,007 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:40,007 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:40,007 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:40,007 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:40,008 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:40,008 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:40,008 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:40,009 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:40,111 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:40,112 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:40,112 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:40,112 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:40,112 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:40,112 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:40,112 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:40,112 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:40,113 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:40,113 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:42,316 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:42,316 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:42,316 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:42,317 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:42,317 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:42,317 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:42,317 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:42,317 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:42,318 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:42,318 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:42,404 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:42,404 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:42,404 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:42,404 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:42,404 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:42,405 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:42,405 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:42,405 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:42,405 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:42,405 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:43,811 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:43,812 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:43,812 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:43,812 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:43,813 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:43,813 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/choixsondage/12/change/
+DEBUG 2026-08-17 21:22:43,813 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:43,813 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:43,813 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:43,814 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:43,897 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:43,897 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:43,897 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:43,898 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:43,898 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:43,898 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:43,898 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:43,898 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:43,898 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:43,898 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:59,693 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:22:59,693 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:59,694 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:59,694 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:22:59,694 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:59,695 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:22:59,695 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:59,695 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:59,695 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:59,696 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:22:59,790 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:59,790 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:22:59,791 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:22:59,791 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:22:59,791 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:22:59,791 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:22:59,792 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:22:59,792 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:22:59,792 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:22:59,792 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:01,082 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/votesondage/add/
+DEBUG 2026-08-17 21:23:01,082 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:01,082 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:01,082 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/votesondage/add/
+DEBUG 2026-08-17 21:23:01,082 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:01,083 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/votesondage/add/
+DEBUG 2026-08-17 21:23:01,083 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:01,083 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:01,083 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:01,083 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:01,180 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:01,180 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:01,181 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:01,181 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:23:01,181 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:01,181 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:01,181 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:01,181 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:01,182 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:01,182 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:02,941 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:02,941 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:02,942 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:02,942 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:02,943 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:02,943 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:02,943 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:02,943 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:02,944 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:02,945 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:12,026 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/sondage/
+DEBUG 2026-08-17 21:23:12,026 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:12,026 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:12,027 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/sondage/
+DEBUG 2026-08-17 21:23:12,027 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:12,027 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/sondage/
+DEBUG 2026-08-17 21:23:12,027 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:12,027 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:12,028 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:12,028 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:12,121 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:12,122 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:12,122 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:12,122 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:23:12,122 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:12,122 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:12,122 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:12,122 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:12,123 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:12,123 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:13,464 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/sondage/4/change/
+DEBUG 2026-08-17 21:23:13,465 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:13,465 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:13,465 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/sondage/4/change/
+DEBUG 2026-08-17 21:23:13,465 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:13,465 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/sondage/4/change/
+DEBUG 2026-08-17 21:23:13,466 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:13,466 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:13,466 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:13,466 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:13,607 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:13,607 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:13,607 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:13,607 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:23:13,607 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:13,607 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:13,608 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:13,608 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:13,608 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:13,608 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:26,318 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:23:26,319 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:26,319 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:26,319 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:23:26,319 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:26,319 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/votesondage/
+DEBUG 2026-08-17 21:23:26,319 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:26,320 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:26,320 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:26,320 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:26,407 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:26,408 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:26,408 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:26,408 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:23:26,408 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:26,409 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:26,409 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:26,409 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:26,409 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:26,409 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:28,157 middleware [TenantMiddleware] 🔍 Processing request: /admin/sondages/votesondage/add/
+DEBUG 2026-08-17 21:23:28,158 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:28,158 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:28,159 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/sondages/votesondage/add/
+DEBUG 2026-08-17 21:23:28,159 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:28,160 middleware [JWTMiddleware] 🔍 Processing request: /admin/sondages/votesondage/add/
+DEBUG 2026-08-17 21:23:28,160 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:28,160 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:28,161 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:28,161 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:28,263 middleware [TenantMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:28,263 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:28,263 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:28,263 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/jsi18n/
+DEBUG 2026-08-17 21:23:28,263 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:28,264 middleware [JWTMiddleware] 🔍 Processing request: /admin/jsi18n/
+DEBUG 2026-08-17 21:23:28,264 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:28,264 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:28,264 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:28,264 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:30,542 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:30,542 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:30,543 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:30,543 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:30,543 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:30,543 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:30,543 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:30,544 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:30,544 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:30,544 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:32,917 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:32,917 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:32,917 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:32,918 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:32,918 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:32,918 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:32,918 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:32,918 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:32,918 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:32,919 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:35,361 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:35,362 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:35,364 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:35,365 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:35,366 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:35,366 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:35,368 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:35,369 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:35,371 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:35,372 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:37,740 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:37,740 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:37,741 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:37,741 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:37,741 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:37,741 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:37,741 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:37,742 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:37,742 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:37,742 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:39,776 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:39,776 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:39,776 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:39,777 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:39,777 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:39,777 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:39,777 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:39,778 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:39,778 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:39,778 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:41,659 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:41,659 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:41,659 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:41,659 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:41,660 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:41,660 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:41,660 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:41,660 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:41,660 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:41,661 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:44,645 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:44,645 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:44,645 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:44,646 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:44,646 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:44,646 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:44,646 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:44,647 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:44,647 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:44,647 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:45,789 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:45,789 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:45,790 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:45,790 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:45,790 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:45,790 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:45,790 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:45,790 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:45,790 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:45,791 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:48,308 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:48,309 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:48,309 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:48,309 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:48,309 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:48,310 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:48,310 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:48,310 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:48,310 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:48,310 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:23:50,003 middleware [TenantMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:50,004 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:23:50,005 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:23:50,005 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/autocomplete/
+DEBUG 2026-08-17 21:23:50,005 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:23:50,005 middleware [JWTMiddleware] 🔍 Processing request: /admin/autocomplete/
+DEBUG 2026-08-17 21:23:50,006 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:23:50,006 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:23:50,007 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:23:50,008 middleware [Auth] Aucun token trouvé dans la requête
