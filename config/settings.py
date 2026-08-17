@@ -434,6 +434,8 @@ MAIN_DOMAIN = 'localhost'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://civitasnews.vercel.app",
+    "https://*.civitasnews.vercel.app",
 ]
 # En plus de la liste exacte ci-dessus : accepte tout sous-domaine de
 # MAIN_DOMAIN (n'importe quel tenant), avec ou sans port, http ou https.
@@ -446,6 +448,12 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOWED_ORIGIN_REGEXES = [
     rf'^https?://([a-zA-Z0-9-]+\.)?{re.escape(MAIN_DOMAIN)}(:\d+)?$',
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://civitasnews.vercel.app",
+    "https://*.civitasnews.vercel.app",
+]
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'DELETE',
@@ -455,6 +463,7 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -486,7 +495,7 @@ TENANT_DOMAIN_MODEL = 'domain.Domain'
 # URL de base du frontend CIVITAS NEWS (SPA Vite), utilisée pour construire
 # les URLs publiques des liens de partage (liens/models.py) quand le
 # frontend ne fournit pas explicitement `urlPublique`.
-FRONTEND_BASE_URL = 'http://localhost:5173'
+FRONTEND_BASE_URL = 'https://civitasnews.vercel.app'
 
 # Clé de chiffrement pour les mots de passe de base de données
 ENCRYPTION_KEY = 'ozQujKHvSUZE11J-JDcCi1CgvnJ4x3aDJOdclCxxhHI='
