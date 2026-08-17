@@ -428,7 +428,7 @@ X_FRAME_OPTIONS = 'DENY'
 # besoin) depuis son emplacement plus bas dans ce fichier ("Multi-tenant
 # settings"), où il reste aussi documenté/référencé pour le reste du
 # système de tenants (tenants/middleware.py, domain/api/v1/services.py).
-MAIN_DOMAIN = 'localhost'
+MAIN_DOMAIN = os.environ.get("MAIN_DOMAIN")
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [

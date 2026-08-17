@@ -17457,3 +17457,1299 @@ DEBUG 2026-08-17 19:35:37,868 middleware [JWTMiddleware] 🔍 Is admin route: Fa
 DEBUG 2026-08-17 19:35:37,868 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
 DEBUG 2026-08-17 19:35:37,880 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
 DEBUG 2026-08-17 19:35:37,880 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+ERROR 2026-08-17 20:40:32,215 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:32,218 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:32,220 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:32,223 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:33,487 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:33,489 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:33,492 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:33,497 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:34,711 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:34,713 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:34,716 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:34,719 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:36,171 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:36,178 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:36,179 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+ERROR 2026-08-17 20:40:36,183 basehttp You're accessing the development server over HTTPS, but it only supports HTTP.
+DEBUG 2026-08-17 20:40:55,968 middleware [TenantMiddleware] 🔍 Processing request: /admin/news/news/
+DEBUG 2026-08-17 20:40:55,968 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 20:40:55,969 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/news/news/
+DEBUG 2026-08-17 20:40:55,970 middleware [JWTMiddleware] 🔍 Processing request: /admin/news/news/
+DEBUG 2026-08-17 20:40:55,970 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 20:40:55,970 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 20:40:55,971 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 20:40:55,972 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 20:40:56,128 middleware [TenantMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 20:40:56,129 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 20:40:56,129 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/login/
+DEBUG 2026-08-17 20:40:56,129 middleware [JWTMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 20:40:56,130 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 20:40:56,130 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 20:40:56,130 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 20:40:56,130 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 20:40:56,370 middleware [TenantMiddleware] 🔍 Processing request: /favicon.ico
+DEBUG 2026-08-17 20:40:56,370 middleware [TenantMiddleware] 🔍 Route type: None
+DEBUG 2026-08-17 20:40:56,371 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /favicon.ico
+WARNING 2026-08-17 20:40:56,371 middleware [MultiTenant] ⚠️ Type de route non géré : None pour /favicon.ico
+WARNING 2026-08-17 20:40:56,372 log Not Found: /favicon.ico
+WARNING 2026-08-17 20:40:56,372 basehttp "GET /favicon.ico HTTP/1.1" 404 25
+DEBUG 2026-08-17 20:41:00,245 middleware [TenantMiddleware] 🔍 Processing request: /
+DEBUG 2026-08-17 20:41:00,246 middleware [TenantMiddleware] 🔍 Route type: None
+DEBUG 2026-08-17 20:41:00,247 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /
+WARNING 2026-08-17 20:41:00,248 middleware [MultiTenant] ⚠️ Type de route non géré : None pour /
+WARNING 2026-08-17 20:41:00,249 log Not Found: /
+WARNING 2026-08-17 20:41:00,250 basehttp "GET / HTTP/1.1" 404 25
+DEBUG 2026-08-17 20:41:06,296 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 20:41:06,297 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 20:41:06,298 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/
+DEBUG 2026-08-17 20:41:06,299 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 20:41:06,299 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 20:41:06,300 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 20:41:06,300 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 20:41:06,301 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 20:41:06,333 middleware [TenantMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 20:41:06,333 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 20:41:06,334 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/login/
+DEBUG 2026-08-17 20:41:06,335 middleware [JWTMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 20:41:06,336 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 20:41:06,336 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 20:41:06,337 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 20:41:06,338 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 20:46:00,817 middleware [TenantMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 20:46:00,818 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 20:46:00,819 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/login/
+DEBUG 2026-08-17 20:46:00,819 middleware [JWTMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 20:46:00,820 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 20:46:00,820 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 20:46:00,820 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 20:46:00,821 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:01:20,155 middleware [TenantMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 21:01:20,156 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:01:20,156 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/login/
+DEBUG 2026-08-17 21:01:20,157 middleware [JWTMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 21:01:20,157 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:01:20,157 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:01:20,157 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:01:20,157 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:01:39,980 middleware [TenantMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 21:01:39,980 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:01:39,980 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/login/
+DEBUG 2026-08-17 21:01:39,981 middleware [JWTMiddleware] 🔍 Processing request: /admin/login/
+DEBUG 2026-08-17 21:01:39,981 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:01:39,981 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:01:39,981 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:01:39,981 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:01:40,676 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:01:40,676 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:01:40,676 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/
+DEBUG 2026-08-17 21:01:40,676 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:01:40,677 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:01:40,677 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:01:40,677 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:01:40,677 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:01:55,387 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:01:55,387 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:01:55,403 middleware [MultiTenant] Tenant trouvé par sous-domaine : civitas -> civitas
+DEBUG 2026-08-17 21:01:55,403 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/
+DEBUG 2026-08-17 21:01:55,403 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:01:55,403 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:01:55,403 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:01:55,404 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:01:55,404 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:01:55,404 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:05:10,183 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:05:10,183 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:05:10,184 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/
+DEBUG 2026-08-17 21:05:10,184 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:05:10,185 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:05:10,185 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:05:10,185 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:05:10,185 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:05:30,177 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:05:30,177 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:05:30,178 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/
+DEBUG 2026-08-17 21:05:30,178 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:05:30,178 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:05:30,179 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:05:30,179 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:05:30,179 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:05:39,629 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:05:39,630 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+WARNING 2026-08-17 21:05:39,654 middleware [MultiTenant] Aucun tenant trouvé pour : jdeuud.localhost (sous-domaine: jdeuud)
+WARNING 2026-08-17 21:05:39,655 log Not Found: /admin/
+WARNING 2026-08-17 21:05:39,655 basehttp "GET /admin/ HTTP/1.1" 404 78
+DEBUG 2026-08-17 21:05:39,698 middleware [TenantMiddleware] 🔍 Processing request: /favicon.ico
+DEBUG 2026-08-17 21:05:39,698 middleware [TenantMiddleware] 🔍 Route type: None
+DEBUG 2026-08-17 21:05:39,699 middleware [MultiTenant] Cache hit pour jdeuud.localhost -> False
+WARNING 2026-08-17 21:05:39,699 log Not Found: /favicon.ico
+WARNING 2026-08-17 21:05:39,700 basehttp "GET /favicon.ico HTTP/1.1" 404 30
+DEBUG 2026-08-17 21:05:51,466 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:05:51,466 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:05:51,466 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/
+DEBUG 2026-08-17 21:05:51,467 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:05:51,467 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:05:51,467 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:05:51,467 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:05:51,467 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:06:15,000 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,000 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,000 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,006 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,007 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,007 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,017 middleware [TenantMiddleware] 🔍 Processing request: /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:15,018 middleware [TenantMiddleware] 🔍 Route type: AUTHENTICATED
+DEBUG 2026-08-17 21:06:15,018 middleware [MultiTenant] Tenant trouvé par sous-domaine : civitas -> civitas
+DEBUG 2026-08-17 21:06:15,018 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,019 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,019 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,020 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,020 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:15,020 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,020 middleware [MultiTenant] 🔐 Route AUTHENTICATED : /api/notifications/v1/notifications/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,021 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,021 middleware [JWTMiddleware] 🔍 Processing request: /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:15,021 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,021 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:06:15,022 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,022 middleware [JWTMiddleware] 🔍 Is authenticated route: True
+DEBUG 2026-08-17 21:06:15,022 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,022 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,025 middleware [Auth] Aucun token trouvé dans la requête
+WARNING 2026-08-17 21:06:15,025 middleware [Auth] ⚠️ Authentification requise pour : /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:15,026 middleware [MultiTenant] Tenant trouvé par sous-domaine : civitas -> civitas
+DEBUG 2026-08-17 21:06:15,028 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,029 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,029 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+WARNING 2026-08-17 21:06:15,030 log Unauthorized: /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:15,030 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,037 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+WARNING 2026-08-17 21:06:15,038 basehttp "GET /api/notifications/v1/notifications/?page=1 HTTP/1.1" 401 110
+DEBUG 2026-08-17 21:06:15,038 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,038 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,112 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,113 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,114 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,114 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,116 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,116 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,117 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,117 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,117 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,118 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,118 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,164 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,165 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,165 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,166 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,166 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,166 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,168 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,168 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,168 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,169 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,169 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,221 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,221 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,222 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,222 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,222 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,223 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,223 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,223 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,223 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,223 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,223 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,228 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,228 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,228 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,228 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,228 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,228 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,229 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,229 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,229 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,229 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,229 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,247 middleware [TenantMiddleware] 🔍 Processing request: /api/token/v1/refresh/
+DEBUG 2026-08-17 21:06:15,250 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,251 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,251 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,251 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/token/v1/refresh/
+DEBUG 2026-08-17 21:06:15,252 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/token/v1/refresh/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,252 middleware [JWTMiddleware] 🔍 Processing request: /api/token/v1/refresh/
+DEBUG 2026-08-17 21:06:15,252 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,252 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,252 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,252 middleware [Auth] 🌐 Accès à la route publique : /api/token/v1/refresh/
+DEBUG 2026-08-17 21:06:15,269 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,269 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,271 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,275 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,276 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,280 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,281 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,281 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,286 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,286 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,287 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,288 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,290 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,290 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,292 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,293 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,293 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,295 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,295 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,306 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,306 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,307 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,359 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,363 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,365 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,371 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,374 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,377 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,377 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,380 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,381 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,383 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,383 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,427 middleware [TenantMiddleware] 🔍 Processing request: /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:15,427 middleware [TenantMiddleware] 🔍 Route type: AUTHENTICATED
+DEBUG 2026-08-17 21:06:15,427 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,428 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,428 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:15,429 middleware [MultiTenant] 🔐 Route AUTHENTICATED : /api/notifications/v1/notifications/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,429 middleware [JWTMiddleware] 🔍 Processing request: /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:15,430 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:06:15,430 middleware [JWTMiddleware] 🔍 Is authenticated route: True
+DEBUG 2026-08-17 21:06:15,430 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,430 middleware [Auth] Token extrait du header Authorization
+DEBUG 2026-08-17 21:06:15,432 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,433 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,433 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,433 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,435 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,435 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,435 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,435 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,437 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,437 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,437 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,455 middleware [Auth] 🔐 Utilisateur authentifié : admin (ID: 1)
+DEBUG 2026-08-17 21:06:15,455 middleware [Auth] ✅ Accès autorisé pour utilisateur authentifié : admin
+DEBUG 2026-08-17 21:06:15,484 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,484 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,485 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,487 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,488 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,489 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,489 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,491 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,491 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,493 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,494 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:15,548 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,549 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,549 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,550 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,550 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,550 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,550 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,551 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,551 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,551 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,552 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,552 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,553 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,559 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,560 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,560 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,561 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,561 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,561 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,562 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,562 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,562 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,816 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,816 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,817 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,817 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,817 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,817 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,818 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,818 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,818 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,818 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,818 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,823 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,824 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:15,824 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:15,824 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:15,824 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,825 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:15,825 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:15,825 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:15,825 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:15,825 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:15,826 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,063 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,064 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:16,064 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:16,064 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:16,064 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,064 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:16,064 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,065 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:16,065 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:16,065 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:16,065 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,071 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,071 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:16,071 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:16,071 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:16,071 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,072 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:16,072 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,072 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:16,072 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:16,072 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:16,072 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,308 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,308 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:16,308 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:16,309 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:16,309 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,309 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:16,309 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,309 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:16,310 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:16,310 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:16,310 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,316 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,316 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:16,316 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:16,316 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:16,316 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,316 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:16,317 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,317 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:16,317 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:16,317 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:16,317 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,554 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,554 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:16,555 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:16,555 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:16,555 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,555 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:16,555 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,556 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,557 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:16,557 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:16,558 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:16,557 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:16,558 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:16,558 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:16,559 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,559 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,559 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:16,566 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,566 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:16,567 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:16,567 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:16,567 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,811 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,811 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:16,811 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:16,812 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:16,812 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,812 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:16,812 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,812 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:16,812 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:16,813 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:16,813 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,819 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,819 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:16,819 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:16,820 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:16,820 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,820 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:16,820 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:16,820 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:16,820 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:16,820 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:16,821 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,056 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,056 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:17,057 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:17,057 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:17,057 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,058 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:17,058 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,058 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:17,058 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:17,058 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:17,058 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,059 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,064 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:17,064 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:17,064 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:17,064 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,065 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:17,065 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,065 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:17,065 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:17,065 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:17,065 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,296 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,297 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:17,297 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:17,297 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:17,297 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,298 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:17,298 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,298 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:17,298 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:17,298 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:17,298 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,303 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,303 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:17,304 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:17,304 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:17,304 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,304 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:17,304 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,304 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:17,304 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:17,305 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:17,305 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,547 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,547 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:17,547 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:17,548 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:17,548 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,548 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:17,548 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,548 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:17,548 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:17,549 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:17,549 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,572 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,572 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:17,572 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:17,573 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:17,573 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,573 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:17,573 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:17,574 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:17,574 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:17,574 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:17,574 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,374 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,375 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,375 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,375 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,376 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,376 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,376 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,376 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,376 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,376 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,376 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,378 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,379 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,379 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,379 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,379 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,379 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,379 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,380 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,380 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,380 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,380 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,390 middleware [TenantMiddleware] 🔍 Processing request: /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:18,390 middleware [TenantMiddleware] 🔍 Route type: AUTHENTICATED
+DEBUG 2026-08-17 21:06:18,390 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,391 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,391 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:18,392 middleware [MultiTenant] 🔐 Route AUTHENTICATED : /api/notifications/v1/notifications/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,392 middleware [JWTMiddleware] 🔍 Processing request: /api/notifications/v1/notifications/
+DEBUG 2026-08-17 21:06:18,392 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:06:18,392 middleware [JWTMiddleware] 🔍 Is authenticated route: True
+DEBUG 2026-08-17 21:06:18,392 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,393 middleware [Auth] Token extrait du header Authorization
+DEBUG 2026-08-17 21:06:18,401 middleware [TenantMiddleware] 🔍 Processing request: /api/users/v1/users/me/
+DEBUG 2026-08-17 21:06:18,402 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,407 middleware [TenantMiddleware] 🔍 Route type: AUTHENTICATED
+DEBUG 2026-08-17 21:06:18,409 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,409 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,410 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,410 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,410 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/users/v1/users/me/
+DEBUG 2026-08-17 21:06:18,410 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,411 middleware [MultiTenant] 🔐 Route AUTHENTICATED : /api/users/v1/users/me/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,411 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,411 middleware [JWTMiddleware] 🔍 Processing request: /api/users/v1/users/me/
+DEBUG 2026-08-17 21:06:18,411 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,414 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:06:18,416 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,416 middleware [JWTMiddleware] 🔍 Is authenticated route: True
+DEBUG 2026-08-17 21:06:18,416 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,416 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,416 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,416 middleware [Auth] Token extrait du header Authorization
+DEBUG 2026-08-17 21:06:18,417 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,419 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,428 middleware [Auth] 🔐 Utilisateur authentifié : admin (ID: 1)
+DEBUG 2026-08-17 21:06:18,429 middleware [Auth] ✅ Accès autorisé pour utilisateur authentifié : admin
+DEBUG 2026-08-17 21:06:18,453 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,453 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,454 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,454 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,460 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,460 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,461 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,463 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,464 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,464 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,465 middleware [Auth] 🔐 Utilisateur authentifié : admin (ID: 1)
+DEBUG 2026-08-17 21:06:18,465 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,465 middleware [Auth] ✅ Accès autorisé pour utilisateur authentifié : admin
+DEBUG 2026-08-17 21:06:18,527 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,527 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,529 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,529 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,529 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,529 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,530 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,531 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,531 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,532 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,532 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,533 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,533 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,534 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,534 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,535 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,536 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,536 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,537 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,537 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,538 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,539 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,567 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,567 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,567 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,569 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,569 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,569 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,569 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,570 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,571 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,571 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,572 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,608 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,670 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,671 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,671 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,672 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,672 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,674 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,674 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,674 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,676 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,676 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,676 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,676 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,677 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,677 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,678 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,678 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,679 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,679 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,679 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,680 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,680 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:18,744 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,744 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,744 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,744 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,745 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,745 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,745 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,745 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,745 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,745 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,745 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,750 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,750 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,750 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,751 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,751 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,751 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,751 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,752 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,752 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,752 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,752 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,988 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,988 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,989 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,989 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:18,989 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,990 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:18,990 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,991 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:18,991 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,991 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,992 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,992 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:18,992 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,993 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,993 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,993 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:18,994 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,994 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:18,994 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,994 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:18,995 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,995 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:18,998 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,000 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:19,001 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:19,001 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:19,002 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,002 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:19,002 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,002 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:19,002 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:19,003 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:19,003 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,326 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,326 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:19,327 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:19,327 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:19,327 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,327 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:19,327 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,328 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:19,328 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:19,328 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:19,328 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,337 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,337 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:19,337 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:19,338 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:19,338 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,338 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:19,338 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,338 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:19,339 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:19,339 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:19,339 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,364 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,364 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,365 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,369 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,371 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:19,372 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:19,372 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:19,372 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:19,373 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:19,375 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:19,378 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:19,386 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:19,379 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:19,385 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:19,378 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:19,390 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,390 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,391 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,391 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:19,395 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:19,395 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:19,395 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:19,395 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,397 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,397 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,397 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,403 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:19,403 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:19,403 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:19,409 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:19,409 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,410 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:19,411 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:19,412 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:19,412 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:19,414 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:19,414 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:19,414 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:19,414 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:19,415 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,416 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,417 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,418 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:19,432 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,556 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,577 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:19,588 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:19,592 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:19,603 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,606 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:19,616 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,621 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:19,630 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:19,635 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:19,644 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:19,998 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:06:20,004 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:06:20,009 middleware [MultiTenant] 🏛️ Domaine racine -> schéma public : /admin/
+DEBUG 2026-08-17 21:06:20,012 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:06:20,018 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:06:20,024 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,030 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,035 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:06:20,073 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,117 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:20,125 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:20,148 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:20,153 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,163 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:20,174 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,176 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:20,178 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,184 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,190 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,212 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,232 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,232 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:20,236 middleware [TenantMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:06:20,241 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,241 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:20,248 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:20,251 middleware [TenantMiddleware] 🔍 Route type: ADMIN
+DEBUG 2026-08-17 21:06:20,255 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:20,256 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:20,260 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:20,263 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:20,265 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:20,265 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:20,268 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,271 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /admin/
+DEBUG 2026-08-17 21:06:20,278 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:20,281 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,283 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,284 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:20,284 middleware [MultiTenant] 👑 Accès admin avec tenant : civitas
+DEBUG 2026-08-17 21:06:20,287 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,289 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:20,290 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:20,291 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,292 middleware [JWTMiddleware] 🔍 Processing request: /admin/
+DEBUG 2026-08-17 21:06:20,293 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:20,296 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,297 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:20,299 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:20,301 middleware [JWTMiddleware] 🔍 Is public route: False
+DEBUG 2026-08-17 21:06:20,303 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,304 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:20,307 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:20,310 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,312 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,313 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:20,316 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,317 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,319 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,319 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,323 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,323 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,324 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:20,327 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,328 middleware [Auth] Aucun token trouvé dans la requête
+DEBUG 2026-08-17 21:06:20,329 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,330 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,331 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,341 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,351 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:20,356 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,366 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,366 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,694 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,701 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:20,703 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:20,707 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:20,718 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,723 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:20,724 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,730 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:20,735 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,738 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,745 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,957 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,957 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:20,964 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:20,967 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:20,970 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,974 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:20,974 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:20,980 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:20,984 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:20,991 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:20,993 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,155 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,155 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:21,156 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:21,156 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:21,157 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,157 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:21,157 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,157 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:21,158 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:21,158 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:21,158 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,283 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,283 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:21,284 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:21,284 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:21,284 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,284 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:21,284 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,284 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:21,285 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:21,285 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:21,285 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,398 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,398 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:21,398 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:21,399 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:21,399 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,399 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:21,399 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,399 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:21,399 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:21,399 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:21,400 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,509 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,509 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:21,509 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:21,509 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:21,510 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,510 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:21,510 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,510 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:21,510 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:21,510 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:21,510 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,597 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,597 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:21,597 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:21,597 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:21,598 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,598 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:21,598 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,598 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:21,598 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:21,598 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:21,598 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,683 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,684 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:21,684 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:21,684 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:21,684 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,684 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:21,684 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,684 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:21,685 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:21,685 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:21,685 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,771 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,771 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:21,771 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:21,771 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:21,771 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,771 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:21,772 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,772 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:21,772 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:21,772 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:21,772 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,865 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,865 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:21,865 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:21,865 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:21,866 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,866 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:21,866 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:21,866 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:21,866 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:21,866 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:21,866 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,890 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:23,890 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:23,890 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:23,891 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:23,891 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:23,891 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:23,891 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:23,891 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:23,891 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:23,892 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:23,892 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:23,894 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,895 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,895 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:23,895 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:23,895 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:23,895 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:23,896 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:23,896 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:23,896 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,896 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,896 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:23,897 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:23,897 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,897 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,897 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:23,897 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:23,897 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:23,897 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:23,898 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:23,898 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:23,898 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,898 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:23,913 middleware [TenantMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:23,913 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:23,914 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:23,914 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:23,914 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:23,914 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/statistiques/v1/globales/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:23,915 middleware [JWTMiddleware] 🔍 Processing request: /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:23,915 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:23,924 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:23,925 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:23,925 middleware [Auth] 🌐 Accès à la route publique : /api/statistiques/v1/globales/
+DEBUG 2026-08-17 21:06:24,177 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,178 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,182 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,182 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:24,183 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:24,183 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:24,184 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:24,185 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,185 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:24,185 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:24,185 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:24,186 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:24,186 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:24,186 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:24,187 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,187 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:24,187 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,188 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,188 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:24,188 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:24,188 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:24,189 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:24,189 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,189 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,189 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,190 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,190 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,191 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:24,191 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:24,191 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:24,191 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:24,192 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:24,192 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:24,192 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,192 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:24,193 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:24,193 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:24,193 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:24,193 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:24,194 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:24,194 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:24,194 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:24,194 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,195 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:24,195 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,195 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,195 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,197 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:24,201 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:24,201 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,201 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,203 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:24,203 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:24,203 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:24,204 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,775 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,775 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:24,775 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:24,776 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:24,776 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,777 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:24,777 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,777 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:24,778 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:24,778 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:24,778 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,822 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,822 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:24,822 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:24,823 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:24,823 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,823 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:24,825 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,825 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:24,825 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:24,825 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:24,825 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,830 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,830 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:24,830 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:24,833 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:24,834 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,834 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:24,834 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:24,835 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:24,836 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:24,836 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:24,836 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:25,019 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:25,020 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:25,020 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:25,020 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:25,021 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:25,022 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:25,022 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:25,022 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:25,023 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:25,023 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:25,024 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:25,147 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:25,147 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:25,147 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:25,148 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:25,148 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:25,148 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:25,148 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:25,148 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:25,148 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:25,149 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:25,149 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:29,662 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:29,662 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:29,662 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:29,663 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:29,663 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:29,663 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:29,663 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:29,664 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:29,664 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:29,664 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:29,664 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:29,664 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:29,665 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:29,665 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:29,665 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:29,665 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:29,665 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:29,665 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:29,666 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:29,666 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:29,666 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:29,666 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:29,826 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:29,828 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:29,828 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:29,828 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:29,830 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:29,830 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:29,830 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:29,830 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:29,831 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:29,831 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:29,831 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:29,945 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:29,945 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:29,945 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:29,946 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:29,947 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:29,947 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:29,947 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:29,947 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:29,948 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:29,948 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:29,948 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:30,056 middleware [TenantMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:30,057 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:30,058 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:30,058 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:30,060 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:30,060 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/commentaires/v1/commentaires/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:30,061 middleware [JWTMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:30,061 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:30,063 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:30,064 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:30,064 middleware [Auth] 🌐 Accès à la route publique : /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:30,133 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:30,134 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:30,135 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:30,136 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:30,139 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:30,141 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:30,142 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:30,142 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:30,144 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:30,145 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:30,147 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:30,191 middleware [TenantMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:30,194 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:30,194 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:30,194 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:30,198 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:30,198 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/commentaires/v1/commentaires/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:30,198 middleware [JWTMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:30,201 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:30,201 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:30,201 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:30,202 middleware [Auth] 🌐 Accès à la route publique : /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:30,366 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:30,367 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:30,367 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:30,367 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:30,367 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:30,367 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:30,367 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:30,367 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:30,367 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:30,368 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:30,368 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:37,222 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/hackathon-club-info-edition-2026-brouillon/
+DEBUG 2026-08-17 21:06:37,223 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:37,223 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:37,223 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:37,223 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/hackathon-club-info-edition-2026-brouillon/
+DEBUG 2026-08-17 21:06:37,223 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/hackathon-club-info-edition-2026-brouillon/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:37,224 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/hackathon-club-info-edition-2026-brouillon/
+DEBUG 2026-08-17 21:06:37,224 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:37,224 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:37,224 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:37,224 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/hackathon-club-info-edition-2026-brouillon/
+DEBUG 2026-08-17 21:06:37,476 middleware [TenantMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:37,476 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:37,476 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:37,477 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:37,477 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:37,477 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/commentaires/v1/commentaires/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:37,477 middleware [JWTMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:37,477 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:37,477 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:37,477 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:37,477 middleware [Auth] 🌐 Accès à la route publique : /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:37,615 middleware [TenantMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:37,616 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:37,616 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:37,616 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:37,616 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:37,616 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/commentaires/v1/commentaires/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:37,616 middleware [JWTMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:37,617 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:37,617 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:37,617 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:37,617 middleware [Auth] 🌐 Accès à la route publique : /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:40,986 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/22/reactions/
+DEBUG 2026-08-17 21:06:40,986 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:40,986 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:40,987 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:40,987 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/22/reactions/
+DEBUG 2026-08-17 21:06:40,987 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/22/reactions/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:40,987 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/22/reactions/
+DEBUG 2026-08-17 21:06:40,987 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:40,987 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:40,987 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:40,988 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/22/reactions/
+DEBUG 2026-08-17 21:06:42,014 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:42,014 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:42,015 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:42,015 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:42,015 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:42,015 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:42,015 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:42,015 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:42,015 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:42,016 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:42,016 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/resultats-conseil-scientifique-juillet-2026/
+DEBUG 2026-08-17 21:06:42,199 middleware [TenantMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:42,199 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:42,199 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:42,199 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:42,199 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:42,200 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/commentaires/v1/commentaires/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:42,200 middleware [JWTMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:42,200 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:42,200 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:42,200 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:42,200 middleware [Auth] 🌐 Accès à la route publique : /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:42,269 middleware [TenantMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:42,269 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:42,270 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:42,270 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:42,270 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:42,271 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/commentaires/v1/commentaires/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:42,271 middleware [JWTMiddleware] 🔍 Processing request: /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:42,271 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:42,272 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:42,272 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:42,272 middleware [Auth] 🌐 Accès à la route publique : /api/commentaires/v1/commentaires/
+DEBUG 2026-08-17 21:06:44,237 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,237 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:44,238 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:44,238 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:44,238 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,238 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:44,238 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,238 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:44,239 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:44,239 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:44,239 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,446 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,446 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:44,446 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:44,447 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:44,447 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,447 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:44,447 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,448 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:44,448 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:44,448 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:44,448 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,451 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,452 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:44,452 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:44,452 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:44,452 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,452 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:44,452 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,453 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:44,453 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:44,453 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:44,453 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,805 middleware [TenantMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,805 middleware [TenantMiddleware] 🔍 Route type: TENANT_PUBLIC
+DEBUG 2026-08-17 21:06:44,806 middleware [TenantMiddleware] 🔍 API Version: v1
+DEBUG 2026-08-17 21:06:44,806 middleware [MultiTenant] Cache hit pour civitas.localhost -> civitas (civitas)
+DEBUG 2026-08-17 21:06:44,806 middleware [MultiTenant] 🌐 Tenant résolu : civitas pour /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,806 middleware [MultiTenant] 🌐 Route TENANT_PUBLIC : /api/news/v1/news/ | Tenant: civitas
+DEBUG 2026-08-17 21:06:44,807 middleware [JWTMiddleware] 🔍 Processing request: /api/news/v1/news/
+DEBUG 2026-08-17 21:06:44,807 middleware [JWTMiddleware] 🔍 Is public route: True
+DEBUG 2026-08-17 21:06:44,807 middleware [JWTMiddleware] 🔍 Is authenticated route: False
+DEBUG 2026-08-17 21:06:44,807 middleware [JWTMiddleware] 🔍 Is admin route: False
+DEBUG 2026-08-17 21:06:44,807 middleware [Auth] 🌐 Accès à la route publique : /api/news/v1/news/

@@ -85,27 +85,64 @@ class TenantMiddleware(TenantMainMiddleware):
 
     def is_valid_domain(self, hostname):
         """
-        Vérifie si le domaine est valide. Deux cas légitimes :
-          1. Le domaine racine lui-même (ex: "localhost") -> schéma public,
-             utilisé pour l'admin GLOBAL de la plateforme.
-          2. Un sous-domaine de tenant (ex: "ecole1.localhost") -> schéma du
-             tenant, utilisé pour l'admin/API de cet établissement.
+        Vérifie que le hostname appartient au domaine principal de la plateforme.
 
-        Avant ce correctif, seul le cas 2 était accepté : toute requête sur
-        le domaine racine (donc l'admin global) était rejetée en 404 avant
-        même d'atteindre Django.
+        Règles :
+
+        1. MAIN_DOMAIN exact
+            -> domaine principal de la plateforme
+            -> schéma public
+            -> aucun tenant
+
+        2. <tenant>.MAIN_DOMAIN
+            -> sous-domaine tenant
+            -> résolution du tenant en base
+
+        3. Tout autre hostname
+            -> domaine invalide
+            -> 404
         """
         if not settings.MAIN_DOMAIN:
-            logger.error("MAIN_DOMAIN n'est pas configuré dans les paramètres")
+            logger.error(
+                "[MultiTenant] MAIN_DOMAIN n'est pas configuré dans les paramètres"
+            )
             return False
 
-        # Cas 1 : domaine racine / plateforme (schéma public)
-        if hostname == settings.MAIN_DOMAIN.lower():
+        hostname = hostname.lower().strip().rstrip(".")
+        main_domain = settings.MAIN_DOMAIN.lower().strip().rstrip(".")
+
+        # ---------------------------------------------------------
+        # 1. Domaine principal de la plateforme
+        # ---------------------------------------------------------
+        if hostname == main_domain:
             return True
 
-        # Cas 2 : sous-domaine de tenant
-        pattern = rf'^[a-zA-Z0-9-]+\.{re.escape(settings.MAIN_DOMAIN)}$'
-        return bool(re.match(pattern, hostname))
+        # ---------------------------------------------------------
+        # 2. Sous-domaine direct = tenant
+        #
+        # Exemple :
+        #   MAIN_DOMAIN = civitasnews-backend.onrender.com
+        #
+        #   civitas.civitasnews-backend.onrender.com -> OK
+        #   foo.civitasnews-backend.onrender.com     -> OK
+        #
+        # Mais :
+        #   foo.bar.civitasnews-backend.onrender.com -> NON
+        # ---------------------------------------------------------
+        pattern = rf'^[a-zA-Z0-9-]+\.{re.escape(main_domain)}$'
+
+        if re.match(pattern, hostname):
+            return True
+
+        # ---------------------------------------------------------
+        # 3. Domaine extérieur / invalide
+        # ---------------------------------------------------------
+        logger.warning(
+            f"[MultiTenant] Domaine invalide : {hostname} "
+            f"(MAIN_DOMAIN={main_domain})"
+        )
+
+        return False
 
     def get_route_type(self, path):
         """
