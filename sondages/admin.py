@@ -31,9 +31,10 @@ class SondageAdmin(TracabiliteAdminMixin, admin.ModelAdmin):
 
 @admin.register(ChoixSondage)
 class ChoixSondageAdmin(admin.ModelAdmin):
-    list_display = ('libelle', 'sondage', 'ordre')
+    list_display = ('libelle', 'sondage', 'ordre', 'cree_le')
     search_fields = ('libelle', 'sondage__titre')
     autocomplete_fields = ['sondage']
+    readonly_fields = ('cree_le',)
 
 
 @admin.register(VoteSondage)
