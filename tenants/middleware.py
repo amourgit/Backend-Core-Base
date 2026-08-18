@@ -98,7 +98,26 @@ class TenantMiddleware(TenantMainMiddleware):
             -> sous-domaine tenant
             -> résolution du tenant en base
 
-        3. Tout autre hostname
+        3. Domaine explicitement enregistré (table Domain), même hors du
+           schéma MAIN_DOMAIN
+            -> nécessaire dès que le frontend d'un tenant n'est PAS hébergé
+               en sous-domaine du backend (ex: frontend sur Vercel --
+               "civitasnews.vercel.app" -- backend sur Render --
+               MAIN_DOMAIN="civitasnews-backend.onrender.com" : deux
+               domaines sans aucune relation de sous-domaine entre eux).
+               Le frontend pose alors ce hostname dans X-Tenant-Domain
+               (voir resolve_request_hostname), qui ne peut PAR
+               CONSTRUCTION jamais matcher le motif "<x>.MAIN_DOMAIN" du
+               cas 2. Sans ce cas 3, TOUTE requête authentifiée/tenant
+               échouerait en 404 INVALID_DOMAIN dès que frontend et
+               backend sont sur des domaines indépendants -- ce qui est
+               le cas de tout déploiement gratuit Vercel + Render.
+            -> pas moins sûr que les cas 1/2 : Domain.domain est unique en
+               base et n'est peuplé QUE par un administrateur (bootstrap_tenant
+               --extra-domain, ou l'admin Django) -- jamais depuis une
+               requête entrante.
+
+        4. Tout autre hostname
             -> domaine invalide
             -> 404
         """
@@ -135,7 +154,15 @@ class TenantMiddleware(TenantMainMiddleware):
             return True
 
         # ---------------------------------------------------------
-        # 3. Domaine extérieur / invalide
+        # 3. Domaine explicitement enregistré (voir docstring ci-dessus)
+        # ---------------------------------------------------------
+        from domain.models import Domain
+
+        if Domain.objects.filter(domain=hostname).exists():
+            return True
+
+        # ---------------------------------------------------------
+        # 4. Domaine extérieur / invalide
         # ---------------------------------------------------------
         logger.warning(
             f"[MultiTenant] Domaine invalide : {hostname} "

@@ -15,13 +15,32 @@ réel disponible pour la router.
 
 Usage :
     python manage.py bootstrap_tenant --nom "Mon Campus" --sous-domaine moncampus
+    python manage.py bootstrap_tenant --nom "Mon Campus" --sous-domaine moncampus \
+        --extra-domain civitasnews.vercel.app \
+        --create-admin --admin-username admin --admin-email admin@moncampus.example \
+        --admin-password "un-mot-de-passe-fort"
 
 Avec auto_create_schema=True sur le modèle Tenant (voir tenants/models.py),
 la création déclenche automatiquement la création ET la migration du
 schéma PostgreSQL correspondant -- aucune étape manuelle supplémentaire.
 
-Idempotent : peut être relancée sans effet de bord si le tenant et son
-domaine existent déjà.
+`--create-admin` crée, DANS le schéma de ce tenant (pas dans le schéma
+public -- voir README.md pour l'équivalent manuel via `manage.py shell`
+que cette option remplace), un utilisateur superutilisateur Django
+(is_staff/is_superuser, accès à /admin/) ET applicativement administrateur
+(role=RoleUtilisateur.ADMINISTRATEUR, pour les permissions fines
+common.permissions.a_role côté API).
+
+`--extra-domain` (répétable) enregistre un domaine SUPPLÉMENTAIRE pour ce
+tenant, en plus de <sous-domaine>.MAIN_DOMAIN -- indispensable dès que le
+frontend n'est PAS hébergé en sous-domaine du backend (typiquement :
+frontend sur Vercel, ex. "civitasnews.vercel.app", backend sur Render,
+MAIN_DOMAIN="civitasnews-backend.onrender.com" -- deux domaines sans
+relation de sous-domaine entre eux). Voir le correctif correspondant sur
+`TenantMiddleware.is_valid_domain` (tenants/middleware.py).
+
+Idempotent : peut être relancée sans effet de bord si le tenant, ses
+domaines et/ou son administrateur existent déjà.
 """
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -40,6 +59,26 @@ class Command(BaseCommand):
                  "Minuscules, chiffres et tirets uniquement -- doit être un identifiant PostgreSQL valide.",
         )
         parser.add_argument("--description", default="")
+        parser.add_argument(
+            "--extra-domain",
+            action="append",
+            default=[],
+            dest="extra_domains",
+            help="Domaine complet supplémentaire à rattacher à ce tenant (ex: civitasnews.vercel.app). "
+                 "Répétable : --extra-domain a.example --extra-domain b.example.",
+        )
+        parser.add_argument(
+            "--create-admin",
+            action="store_true",
+            help="Créer également un administrateur pour CE tenant (schéma du tenant, pas le schéma public).",
+        )
+        parser.add_argument("--admin-username", default="admin")
+        parser.add_argument("--admin-email", default="admin@example.com")
+        parser.add_argument(
+            "--admin-password",
+            default=None,
+            help="Requis si --create-admin est utilisé.",
+        )
 
     def handle(self, *args, **options):
         from tenants.models import Tenant
@@ -56,8 +95,11 @@ class Command(BaseCommand):
             )
         if sous_domaine == 'public':
             raise CommandError("'public' est réservé au tenant plateforme (voir bootstrap_public).")
+        if options["create_admin"] and not options["admin_password"]:
+            raise CommandError("--admin-password est requis avec --create-admin.")
 
         full_domain = f"{sous_domaine}.{main_domain}"
+        extra_domains = [d.strip().lower() for d in options["extra_domains"] if d.strip()]
 
         with transaction.atomic():
             tenant, created = Tenant.objects.get_or_create(
@@ -93,9 +135,55 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.WARNING(f"ℹ️ Domaine '{full_domain}' déjà rattaché à ce tenant."))
 
+            for extra in extra_domains:
+                extra_domain_obj, extra_created = Domain.objects.get_or_create(
+                    domain=extra,
+                    defaults={"tenant": tenant, "is_primary": False},
+                )
+                if extra_created:
+                    self.stdout.write(self.style.SUCCESS(f"✅ Domaine supplémentaire '{extra}' rattaché au tenant."))
+                elif extra_domain_obj.tenant_id != tenant.id:
+                    raise CommandError(
+                        f"Le domaine '{extra}' existe déjà et pointe vers un autre tenant "
+                        f"(id={extra_domain_obj.tenant_id}). Corrigez manuellement."
+                    )
+                else:
+                    self.stdout.write(self.style.WARNING(f"ℹ️ Domaine '{extra}' déjà rattaché à ce tenant."))
+
+        if options["create_admin"]:
+            self._create_admin(
+                schema_name=tenant.schema_name,
+                username=options["admin_username"],
+                email=options["admin_email"],
+                password=options["admin_password"],
+            )
+
         self.stdout.write(self.style.SUCCESS(
             f"\nTenant prêt. Pointez vos requêtes API (et le VITE_API_BASE_URL du frontend) vers :\n"
             f"  http://{full_domain}:8000/api\n"
             f"(ajoutez '127.0.0.1 {full_domain}' à /etc/hosts si vous n'utilisez pas déjà un DNS wildcard "
             f"*.{main_domain} -> 127.0.0.1)."
         ))
+
+    def _create_admin(self, schema_name, username, email, password):
+        from django.contrib.auth import get_user_model
+        from django_tenants.utils import schema_context
+        from users.models import RoleUtilisateur
+
+        User = get_user_model()
+
+        with schema_context(schema_name):
+            if User.objects.filter(username=username).exists():
+                self.stdout.write(self.style.WARNING(
+                    f"ℹ️ Un utilisateur '{username}' existe déjà sur le schéma '{schema_name}'."
+                ))
+                return
+
+            User.objects.create_superuser(
+                username=username, email=email, password=password,
+                role=RoleUtilisateur.ADMINISTRATEUR,
+            )
+            self.stdout.write(self.style.SUCCESS(
+                f"✅ Administrateur '{username}' créé sur le tenant '{schema_name}' "
+                f"(superutilisateur Django + role='{RoleUtilisateur.ADMINISTRATEUR}')."
+            ))
