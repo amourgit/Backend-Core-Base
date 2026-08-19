@@ -18,10 +18,17 @@ class DomainService:
         # sinon Host) -- voir config/fonction.py:resolve_request_hostname.
         hostname = resolve_request_hostname(request)
         main_domain = getattr(settings, 'MAIN_DOMAIN', None)
-        sous_domaine = None
         if main_domain and hostname.endswith('.' + main_domain):
-            sous_domaine = hostname.split('.')[0]
-        return sous_domaine
+            return hostname.split('.')[0]
+        # Le hostname n'est PAS un sous-domaine de MAIN_DOMAIN : cas d'un
+        # domaine de tenant enregistré ailleurs (ex: frontend Vercel,
+        # backend Render -- voir tenants/middleware.py:TenantMiddleware.
+        # is_valid_domain, cas 3, et bootstrap_tenant --extra-domain).
+        # Repli sur une recherche directe en base par domaine complet,
+        # plutôt que de renvoyer None et casser tout appelant qui ne
+        # passe QUE par un sous-domaine de MAIN_DOMAIN.
+        domain_row = Domain.objects.filter(domain=hostname).select_related('tenant').first()
+        return domain_row.tenant.sous_domaine if domain_row else None
     
     @staticmethod
     def update_all_domain_by_perform(data_get, data_update):

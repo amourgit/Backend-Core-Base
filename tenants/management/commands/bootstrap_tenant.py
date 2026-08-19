@@ -159,10 +159,13 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(self.style.SUCCESS(
-            f"\nTenant prêt. Pointez vos requêtes API (et le VITE_API_BASE_URL du frontend) vers :\n"
-            f"  http://{full_domain}:8000/api\n"
-            f"(ajoutez '127.0.0.1 {full_domain}' à /etc/hosts si vous n'utilisez pas déjà un DNS wildcard "
-            f"*.{main_domain} -> 127.0.0.1)."
+            f"\nTenant prêt.\n"
+            f"En local (DNS wildcard *.{main_domain} -> 127.0.0.1) : {full_domain}\n"
+            f"En production (Render/Vercel ou toute config sans certificat TLS pour les "
+            f"sous-domaines) : appelez le domaine PRINCIPAL du backend et ajoutez l'en-tête "
+            f"'X-Tenant-Domain: {full_domain}' à chaque requête (posé automatiquement par le "
+            f"frontend, voir src/config/tenantHost.ts) -- voir "
+            f"TenantMiddleware.is_valid_domain / _resolve_tenant_dual pour le détail."
         ))
 
     def _create_admin(self, schema_name, username, email, password):

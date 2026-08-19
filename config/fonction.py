@@ -11,15 +11,29 @@ from rest_framework import status
 TENANT_DOMAIN_HEADER = 'HTTP_X_TENANT_DOMAIN'
 
 
+def get_host_header_hostname(request):
+    """Hostname dérivé STRICTEMENT du Host HTTP standard (jamais de repli
+    sur X-Tenant-Domain) -- utilisé quand on veut résoudre cette source
+    indépendamment de l'en-tête, voir tenants/middleware.py:
+    TenantMiddleware._resolve_tenant_dual."""
+    return request.get_host().split(':')[0].strip().lower()
+
+
+def get_tenant_header_hostname(request):
+    """Hostname dérivé STRICTEMENT de l'en-tête X-Tenant-Domain, sans
+    repli sur le Host -- chaîne vide si l'en-tête est absent."""
+    return request.META.get(TENANT_DOMAIN_HEADER, '').strip().lower()
+
+
 def resolve_request_hostname(request):
     """
-    Point UNIQUE de résolution du hostname utilisé pour identifier le
-    tenant -- utilisé à la fois par tenants/middleware.py
-    (TenantMiddleware, qui positionne le schema PostgreSQL) et par
-    domain/api/v1/services.py (DomainService.get_sous_domaine_by_request,
-    utilisé par le login/l'inscription/Google, qui résolvent leur propre
-    tenant indépendamment du middleware). Centralisé ici pour que les
-    deux mécanismes ne puissent jamais diverger.
+    Point de résolution du hostname utilisé par DomainService.
+    get_sous_domaine_by_request (login/inscription/Google -- résout son
+    propre tenant indépendamment du middleware). Le middleware
+    (tenants/middleware.py:TenantMiddleware) résout lui les DEUX sources
+    en parallèle (voir _resolve_tenant_dual) plutôt que cette simple
+    priorité -- centralisé ici quand même pour que les deux mécanismes
+    partagent la même définition de base de chaque source.
 
     Priorité :
       1. En-tête X-Tenant-Domain, si présent et non vide (ex:
@@ -27,11 +41,12 @@ def resolve_request_hostname(request):
          (voir services/api/token/tenantHost.ts côté frontend) à partir
          de sa PROPRE URL courante (window.location.hostname), donc
          correct même quand frontend et backend sont sur des origines
-         différentes (ports distincts en dev).
+         différentes (ports distincts en dev, domaines indépendants en
+         prod -- ex: frontend Vercel, backend Render).
       2. Sinon, l'en-tête Host standard de la requête HTTP (comportement
          historique, correct quand frontend et backend partagent le
-         même domaine -- typiquement en production derrière un même
-         reverse proxy).
+         même domaine -- typiquement en local derrière un même reverse
+         proxy, ou quand un vrai DNS wildcard est configuré).
 
     Ce n'est pas un mécanisme moins sûr que le Host header : les deux
     passent par la MÊME validation en aval (recherche exacte dans
@@ -40,10 +55,10 @@ def resolve_request_hostname(request):
     domaine actif échoue exactement pareil, quelle que soit sa
     provenance.
     """
-    header_value = request.META.get(TENANT_DOMAIN_HEADER, '').strip().lower()
+    header_value = get_tenant_header_hostname(request)
     if header_value:
         return header_value
-    return request.get_host().split(':')[0].lower()
+    return get_host_header_hostname(request)
 
 
 formatReponse = {

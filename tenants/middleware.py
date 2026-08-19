@@ -11,11 +11,36 @@ from config.config import (
     ADMIN_ROUTES,
     API_VERSIONS
 )
-from config.fonction import resolve_request_hostname
+from config.fonction import (
+    resolve_request_hostname,
+    get_host_header_hostname,
+    get_tenant_header_hostname,
+)
 import re
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class TenantMismatch(Exception):
+    """
+    Levée quand le sous-domaine (Host) ET l'en-tête X-Tenant-Domain sont
+    TOUS LES DEUX présents dans une même requête mais désignent deux
+    tenants DIFFÉRENTS -- voir TenantMiddleware._resolve_tenant_dual.
+    Ambiguïté volontairement jamais résolue en silence (on ne choisit
+    pas arbitrairement l'une des deux sources).
+    """
+
+    def __init__(self, host_hostname, tenant_from_host, header_hostname, tenant_from_header):
+        self.host_hostname = host_hostname
+        self.tenant_from_host = tenant_from_host
+        self.header_hostname = header_hostname
+        self.tenant_from_header = tenant_from_header
+        super().__init__(
+            f"Le sous-domaine ('{host_hostname}' -> tenant '{tenant_from_host.schema_name}') et "
+            f"l'en-tête X-Tenant-Domain ('{header_hostname}' -> tenant '{tenant_from_header.schema_name}') "
+            f"désignent deux tenants différents pour la même requête."
+        )
 
 
 class TenantMiddleware(TenantMainMiddleware):
@@ -314,6 +339,71 @@ class TenantMiddleware(TenantMainMiddleware):
             logger.error(f"[MultiTenant] Erreur lors de la résolution par domaine complet : {str(e)}")
             return None
 
+    def _resolve_tenant_dual(self, request):
+        """
+        Résout le tenant en tentant les DEUX sources EN PARALLÈLE --
+        sous-domaine (Host) ET en-tête X-Tenant-Domain -- au lieu de
+        l'ancienne priorité stricte "en-tête sinon Host" (qui ne
+        regardait qu'UNE seule source, choisie avant même de savoir si
+        elle résolvait quoi que ce soit).
+
+        Pourquoi : Render (plan gratuit) ne fournit pas de certificat TLS
+        valide pour les sous-domaines de *.onrender.com (uniquement pour
+        le domaine exact du service) -- en pratique, le Host vu par
+        Django y est donc TOUJOURS le domaine racine du service, même
+        pour une requête destinée à un tenant précis. Seul l'en-tête
+        porte alors la véritable intention. À l'inverse, en dev local
+        (ou le jour où un vrai domaine wildcard est configuré), c'est le
+        sous-domaine qui est fiable et l'en-tête peut être absent. On ne
+        privilégie donc plus une source par défaut : les deux sont
+        tentées, chacune indépendamment suffisante.
+
+        Règles :
+          - un seul candidat résout un tenant -> celui-là, ça ne bloque
+            jamais la suite ;
+          - les deux résolvent un tenant -> DOIVENT être le MÊME tenant,
+            sinon TenantMismatch (traduit en 400 par process_request) ;
+          - aucun des deux ne résout de tenant -> (None, None) : à
+            process_request de retomber sur la logique racine/domaine
+            invalide historique.
+
+        Le domaine racine (MAIN_DOMAIN exact) n'est jamais soumis à
+        résolution ici : il ne représente aucun tenant réel, une requête
+        avec Host=MAIN_DOMAIN est le cas normal de toute requête API sur
+        ce déploiement (un seul domaine backend), pas une tentative de
+        cibler un tenant nommé "MAIN_DOMAIN".
+
+        Retourne (tenant, host_hostname, header_hostname, hostname_affiche).
+        `tenant` est None si aucune source n'a résolu de tenant réel ;
+        `hostname_affiche` est alors le meilleur candidat pour les logs
+        d'erreur (en-tête si présent, sinon Host).
+        """
+        main_domain = (settings.MAIN_DOMAIN or '').lower()
+        host_hostname = get_host_header_hostname(request)
+        header_hostname = get_tenant_header_hostname(request)
+
+        tenant_from_host = None
+        if host_hostname and host_hostname != main_domain:
+            tenant_from_host = self._resolve_tenant_with_cache(host_hostname)
+
+        tenant_from_header = None
+        if header_hostname and header_hostname != main_domain:
+            tenant_from_header = self._resolve_tenant_with_cache(header_hostname)
+
+        if tenant_from_host and tenant_from_header:
+            if tenant_from_host.pk != tenant_from_header.pk:
+                raise TenantMismatch(host_hostname, tenant_from_host, header_hostname, tenant_from_header)
+            # Les deux concordent : l'en-tête l'emporte pour l'affichage,
+            # par convention (voir resolve_request_hostname).
+            return tenant_from_host, host_hostname, header_hostname, header_hostname
+
+        if tenant_from_header:
+            return tenant_from_header, host_hostname, header_hostname, header_hostname
+        if tenant_from_host:
+            return tenant_from_host, host_hostname, header_hostname, host_hostname
+
+        return None, host_hostname, header_hostname, (header_hostname or host_hostname)
+
     def _handle_error_response(self, request, message, error_code, status_code):
         """
         Centralise la gestion des réponses d'erreur
@@ -330,7 +420,11 @@ class TenantMiddleware(TenantMainMiddleware):
         """
         Vrai si la requête cible le domaine racine (ex: "localhost"), c'est
         à dire la plateforme elle-même, PAS un établissement particulier.
+        Sûr face à un hostname vide (source absente, ex: en-tête
+        X-Tenant-Domain non fourni) ou un MAIN_DOMAIN non configuré.
         """
+        if not settings.MAIN_DOMAIN or not hostname:
+            return False
         return hostname == settings.MAIN_DOMAIN.lower()
 
     def _get_app_prefix_from_path(self, path):
@@ -404,38 +498,44 @@ class TenantMiddleware(TenantMainMiddleware):
                 logger.debug(f"[MultiTenant] 🌐 Route GLOBAL_PUBLIC : {request.path}")
                 return None
 
-            # Pour toutes les autres routes (y compris ADMIN), on doit
-            # d'abord savoir si on est sur le domaine racine ou un
-            # sous-domaine de tenant.
-            hostname = self.get_hostname_from_request(request)
-            
-            if not self.is_valid_domain(hostname):
-                return self._handle_error_response(
-                    request, 
-                    "Domaine ou tenant introuvable.", 
-                    "INVALID_DOMAIN", 
-                    404
-                )
+            # Pour toutes les autres routes (y compris ADMIN), on résout
+            # le tenant en tentant les DEUX sources en parallèle -- voir
+            # _resolve_tenant_dual pour le détail des règles (un seul
+            # candidat suffit, les deux doivent concorder s'ils sont
+            # tous les deux présents).
+            try:
+                tenant, host_hostname, header_hostname, hostname = self._resolve_tenant_dual(request)
+            except TenantMismatch as exc:
+                logger.warning(f"[MultiTenant] ⚠️ {exc}")
+                return self._handle_error_response(request, str(exc), "TENANT_MISMATCH", 400)
 
-            # 2. DOMAINE RACINE = SCHÉMA PUBLIC, PAR DÉFINITION.
-            #    Règle explicite, volontairement sans aucune recherche en
-            #    base : le domaine racine EST la plateforme (schéma
-            #    public), il n'y a pas de "Tenant" à trouver pour lui.
-            #    Avant ce correctif, on appelait quand même
-            #    _resolve_tenant_with_cache(hostname) ici, ce qui exigeait
-            #    qu'une ligne Tenant(schema_name='public') + Domain(domain=
-            #    MAIN_DOMAIN) existe en base (créée par
-            #    `manage.py bootstrap_public`). Si cette ligne n'existait
-            #    pas encore -- DB fraîchement recréée, oubli de la
-            #    commande, etc. -- absolument TOUTE requête sur le domaine
-            #    racine échouait en 404 "Domaine ou tenant introuvable"
-            #    (TENANT_NOT_FOUND), y compris /admin/ lui-même. C'est
-            #    incohérent : le schéma public existe toujours (c'est le
-            #    schéma par défaut de PostgreSQL), sa disponibilité ne doit
-            #    jamais dépendre d'une ligne de données.
-            if self.is_root_domain(hostname):
+            if tenant is not None:
+                # 3. Tenant résolu (sous-domaine et/ou en-tête X-Tenant-Domain).
                 connection.set_schema_to_public()
-                self._set_request_public(request, hostname)
+                self._set_request_tenant(request, tenant, hostname)
+                logger.debug(f"[MultiTenant] 🌐 Tenant résolu : {tenant.name} pour {request.path}")
+
+                if route_type == "ADMIN":
+                    if not tenant.is_active:
+                        return self._handle_error_response(
+                            request,
+                            "Ce tenant est désactivé.",
+                            "TENANT_INACTIVE",
+                            403
+                        )
+                    logger.debug(f"[MultiTenant] 👑 Accès admin avec tenant : {tenant.name}")
+                    return None
+
+                return self._handle_tenant_route(request, route_type, tenant, hostname)
+
+            # Ni le sous-domaine ni l'en-tête n'ont résolu de tenant réel.
+            # On retombe sur le cas racine si L'UNE des deux sources est
+            # le domaine principal -- l'autre, absente ou parasite, ne
+            # doit jamais bloquer l'accès à la plateforme (même principe
+            # que ci-dessus : une seule source suffisante).
+            if self.is_root_domain(host_hostname) or self.is_root_domain(header_hostname):
+                connection.set_schema_to_public()
+                self._set_request_public(request, settings.MAIN_DOMAIN)
                 logger.debug(f"[MultiTenant] 🏛️ Domaine racine -> schéma public : {request.path}")
 
                 if route_type == "ADMIN":
@@ -462,8 +562,8 @@ class TenantMiddleware(TenantMainMiddleware):
                     return self._handle_error_response(
                         request,
                         "Cette ressource appartient à un établissement précis et doit être "
-                        "appelée depuis son sous-domaine (ex: moncampus.{}), pas depuis le "
-                        "domaine racine.".format(settings.MAIN_DOMAIN),
+                        "appelée avec l'en-tête X-Tenant-Domain (ou depuis son sous-domaine, "
+                        "ex: moncampus.{}), pas depuis le domaine racine seul.".format(settings.MAIN_DOMAIN),
                         "TENANT_REQUIRED",
                         400
                     )
@@ -476,37 +576,25 @@ class TenantMiddleware(TenantMainMiddleware):
                     404
                 )
 
-            # 3. Sous-domaine d'un établissement précis : là, et seulement
-            #    là, on résout un vrai Tenant en base.
-            connection.set_schema_to_public()
-            tenant = self._resolve_tenant_with_cache(hostname)
-            
-            if not tenant:
+            # Ni tenant résolu, ni domaine racine : soit le hostname
+            # n'appartient carrément pas à la plateforme (INVALID_DOMAIN),
+            # soit il a la forme d'un sous-domaine de MAIN_DOMAIN /
+            # d'un domaine enregistré mais sans Tenant correspondant en
+            # base (TENANT_NOT_FOUND).
+            if not self.is_valid_domain(hostname):
                 return self._handle_error_response(
-                    request, 
-                    "Domaine ou tenant introuvable.", 
-                    "TENANT_NOT_FOUND", 
+                    request,
+                    "Domaine ou tenant introuvable.",
+                    "INVALID_DOMAIN",
                     404
                 )
 
-            # Configuration du tenant pour la requête
-            self._set_request_tenant(request, tenant, hostname)
-            logger.debug(f"[MultiTenant] 🌐 Tenant résolu : {tenant.name} pour {request.path}")
-            
-            # Pour les routes admin, on s'assure que le tenant est valide
-            if route_type == "ADMIN":
-                if not tenant.is_active:
-                    return self._handle_error_response(
-                        request,
-                        "Ce tenant est désactivé.",
-                        "TENANT_INACTIVE",
-                        403
-                    )
-                logger.debug(f"[MultiTenant] 👑 Accès admin avec tenant : {tenant.name}")
-                return None
-                
-            # Pour les autres types de routes (TENANT_PUBLIC, AUTHENTICATED)
-            return self._handle_tenant_route(request, route_type, tenant, hostname)
+            return self._handle_error_response(
+                request,
+                "Domaine ou tenant introuvable.",
+                "TENANT_NOT_FOUND",
+                404
+            )
 
         except Exception as e:
             logger.error(f"[MultiTenant] ❌ Erreur inattendue : {str(e)}", exc_info=True)
