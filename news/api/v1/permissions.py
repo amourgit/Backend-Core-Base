@@ -30,3 +30,25 @@ class NewsPermission(BasePermission):
         if a_role(request.user, *ROLES_MODERATION):
             return True
         return obj.auteur_id == request.user.id
+
+
+class NewsSousRessourcePermission(BasePermission):
+    """Permission des sous-collections d'une News (médias, galerie,
+    documents joints) — même politique que `NewsPermission` sur la News
+    parente elle-même : lecture publique, écriture réservée à
+    l'auteur de la News rattachée ou à un modérateur/administrateur.
+    Ces modèles (NewsMedia, NewsImageGalerie, DocumentJoint) ne portent
+    pas le Socle de Traçabilité (pas de `cree_par`), l'appartenance se
+    vérifie donc via `obj.news.auteur_id`."""
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        return bool(request.user and request.user.is_authenticated)
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        if a_role(request.user, *ROLES_MODERATION):
+            return True
+        return obj.news.auteur_id == request.user.id

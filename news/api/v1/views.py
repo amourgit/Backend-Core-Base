@@ -1,5 +1,5 @@
 from django.utils import timezone
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -9,8 +9,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from common.drf import SocleModelViewSet
 from ... import models
 from . import services
-from .permissions import NewsPermission
-from .serializers import NewsSerializer, NewsListSerializer, NewsEcritureSerializer
+from .permissions import NewsPermission, NewsSousRessourcePermission
+from .serializers import (
+    NewsSerializer, NewsListSerializer, NewsEcritureSerializer,
+    NewsMediaSerializer, NewsMediaEcritureSerializer,
+    NewsImageGalerieSerializer, DocumentJointSerializer, DocumentJointEcritureSerializer,
+)
 
 
 class NewsViewSet(SocleModelViewSet):
@@ -107,3 +111,68 @@ class NewsViewSet(SocleModelViewSet):
         news = self.get_object()
         total = services.incrementer_partages(news)
         return Response({'partages': total})
+
+
+class NewsMediaViewSet(viewsets.ModelViewSet):
+    """
+    - GET/POST /news/v1/medias/?news={id}
+    - GET/PATCH/DELETE /news/v1/medias/{id}/
+
+    Endpoint dédié, app backend séparée du détail News (même convention
+    que commentaires/sondages/liens — voir NewsPermission et
+    CommentaireViewSet) : le frontend backoffice gère les médias riches
+    d'une News (vidéo, audio, document intégré, image annotée) sans
+    passer par NewsEcritureSerializer, qui ne couvre que les champs
+    scalaires de News elle-même.
+    """
+    permission_classes = [NewsSousRessourcePermission]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['news']
+
+    def get_queryset(self):
+        return models.NewsMedia.objects.select_related('news').order_by('ordre', 'cree_le')
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return NewsMediaEcritureSerializer
+        return NewsMediaSerializer
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        media = models.NewsMedia.objects.get(pk=response.data['id'])
+        return Response(
+            NewsMediaSerializer(media, context={'request': request}).data, status=status.HTTP_201_CREATED,
+        )
+
+
+class NewsImageGalerieViewSet(viewsets.ModelViewSet):
+    """GET/POST /news/v1/galerie/?news={id} — GET/PATCH/DELETE /news/v1/galerie/{id}/"""
+    permission_classes = [NewsSousRessourcePermission]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['news']
+    serializer_class = NewsImageGalerieSerializer
+
+    def get_queryset(self):
+        return models.NewsImageGalerie.objects.select_related('news').order_by('ordre')
+
+
+class DocumentJointViewSet(viewsets.ModelViewSet):
+    """GET/POST /news/v1/documents/?news={id} — GET/PATCH/DELETE /news/v1/documents/{id}/"""
+    permission_classes = [NewsSousRessourcePermission]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['news']
+
+    def get_queryset(self):
+        return models.DocumentJoint.objects.select_related('news').order_by('-cree_le')
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return DocumentJointEcritureSerializer
+        return DocumentJointSerializer
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        document = models.DocumentJoint.objects.get(pk=response.data['id'])
+        return Response(
+            DocumentJointSerializer(document, context={'request': request}).data, status=status.HTTP_201_CREATED,
+        )

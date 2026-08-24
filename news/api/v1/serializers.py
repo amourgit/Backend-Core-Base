@@ -196,6 +196,57 @@ def calculer_stats_news(news_obj):
     }
 
 
+class NewsMediaEcritureSerializer(serializers.ModelSerializer):
+    """Serializer d'écriture pour les médias riches d'une News —
+    endpoint dédié /news/v1/medias/ (voir views.py:NewsMediaViewSet),
+    filtré par `?news=<id>`. `news` est requis en écriture (non imbriqué
+    sous /news/{id}/, même convention que commentaires/sondages/liens)."""
+
+    class Meta:
+        model = models.NewsMedia
+        fields = (
+            'id', 'news', 'type', 'fichier', 'url_externe', 'vignette',
+            'titre', 'description', 'duree', 'ordre',
+        )
+
+
+class NewsImageGalerieSerializer(serializers.ModelSerializer):
+    """Lecture ET écriture (modèle simple, un seul serializer suffit —
+    pas de champs calculés à masquer en écriture comme sur News/Sondage)."""
+
+    id = serializers.CharField(source='pk', read_only=True)
+    # `pk_field=CharField()` : convention id-toujours-string de toute
+    # l'API (voir NewsSerializer.id, DocumentJointSerializer.id...),
+    # sinon ce SEUL champ renverrait un entier JSON brut.
+    news = serializers.PrimaryKeyRelatedField(queryset=models.News.objects.all(), pk_field=serializers.CharField())
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.NewsImageGalerie
+        # `image` reste requis (le modèle ne l'autorise pas vide,
+        # `blank=True` n'est pas déclaré sur ce champ) : POST doit
+        # toujours le fournir. PATCH (partial_update) reste possible
+        # sans le refournir -- DRF ignore `required` en mode partiel.
+        fields = ('id', 'news', 'image', 'image_url', 'legende', 'ordre')
+        extra_kwargs = {'image': {'write_only': True}}
+
+    def get_image_url(self, obj):
+        if not obj.image:
+            return None
+        request = self.context.get('request')
+        return request.build_absolute_uri(obj.image.url) if request else obj.image.url
+
+
+class DocumentJointEcritureSerializer(serializers.ModelSerializer):
+    """`taille`/`type` sont calculés côté modèle (DocumentJoint.save) —
+    jamais fournis par le client, voir models.py."""
+
+    class Meta:
+        model = models.DocumentJoint
+        fields = ('id', 'news', 'nom', 'fichier', 'taille', 'type')
+        read_only_fields = ('taille', 'type')
+
+
 class NewsEcritureSerializer(serializers.ModelSerializer):
     """Serializer de création/édition — champs simples uniquement (les
     sous-collections passent par leurs propres endpoints dédiés)."""

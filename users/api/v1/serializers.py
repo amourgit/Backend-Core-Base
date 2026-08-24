@@ -5,13 +5,6 @@ from .services import UsersService, normaliser_identifiant, is_email, is_telepho
 
 User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'date_joined')
-        read_only_fields = ('id', 'date_joined')
-
-
 class BadgeSerializer(serializers.ModelSerializer):
     """
     `id` explicitement forcé en chaîne (comme TOUS les autres serializers
@@ -32,6 +25,31 @@ class BadgeSerializer(serializers.ModelSerializer):
         from users.models import Badge
         model = Badge
         fields = ('id', 'nom', 'icone', 'description')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """
+    Représentation ADMINISTRATIVE complète d'un utilisateur — consommée
+    par le backoffice (table `Utilisateurs`, voir
+    src/components/backoffice/registry/models/users.registry.ts côté
+    frontend). Distincte de `UtilisateurPublicSerializer` (profil public
+    léger, imbriqué dans news.auteur/commentaire.auteur/etc.) : ici on
+    expose aussi les champs de gestion (rôle, rattachements, statut de
+    vérification) nécessaires à une vraie administration de comptes,
+    absents jusqu'ici de ce endpoint alors que le modèle les porte déjà
+    (voir users/models.py).
+    """
+    badges = BadgeSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_verified',
+            'is_staff', 'is_superuser', 'date_joined', 'last_login', 'phone_number', 'address',
+            'date_of_birth', 'role', 'etablissement', 'organisation', 'badges',
+            'language_preference', 'timezone',
+        )
+        read_only_fields = ('id', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'badges')
 
 
 class UtilisateurPublicSerializer(serializers.ModelSerializer):
@@ -135,9 +153,23 @@ class IdentifiantRegisterSerializer(serializers.Serializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    """
+    Étendu au-delà des 3 champs d'origine (email/first_name/last_name)
+    pour permettre au backoffice de gérer réellement un compte : rôle
+    applicatif, rattachements établissement/organisation, statut
+    actif/vérifié, coordonnées. Action réservée aux modérateurs/
+    administrateurs (voir UserViewSet.permission_classes =
+    EstModerateurOuAdministrateur, ci-dessus dans views.py). Le mot de
+    passe reste HORS de ce serializer — voir `change_password` (action
+    dédiée, UserViewSet), jamais mêlé à une édition de profil.
+    """
+
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name')
+        fields = (
+            'email', 'first_name', 'last_name', 'is_active', 'is_verified', 'role',
+            'etablissement', 'organisation', 'phone_number', 'address', 'date_of_birth',
+        )
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
