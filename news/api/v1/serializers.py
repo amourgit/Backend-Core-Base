@@ -260,6 +260,17 @@ class NewsEcritureSerializer(serializers.ModelSerializer):
             'organisation', 'etablissement', 'categorie', 'tags',
             'province', 'lieu', 'date_debut', 'date_fin', 'statut', 'visibilite',
         )
+        # `slug` n'a pas `blank=True` au niveau du modèle (voir news/models.py) :
+        # sans ce read_only, DRF l'expose comme un champ REQUIS côté client
+        # ("Ce champ est obligatoire.", 400) -- alors qu'il est TOUJOURS
+        # généré côté serveur à partir du titre (voir
+        # NewsViewSet.perform_create -> services.generer_slug_unique), jamais
+        # fourni par le frontend (NewsEcriturePayload.slug est d'ailleurs
+        # optionnel côté TypeScript, voir news.repository.ts). Sur update,
+        # perform_update() ne le régénère pas : il reste simplement inchangé,
+        # comportement voulu (une édition ne doit pas faire bouger l'URL
+        # publique d'une News déjà publiée).
+        read_only_fields = ('slug',)
 
     def _resoudre_tags(self, noms_tags):
         tags = []
