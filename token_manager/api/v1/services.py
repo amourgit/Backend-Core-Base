@@ -7,7 +7,7 @@ from tenants.models import Tenant
 from django_tenants.utils import schema_context
 import uuid
 import logging
-from config.fonction import formatReponse
+from config.fonction import formatReponse, get_client_ip
 from rest_framework import status
 
 logger = logging.getLogger(__name__)
@@ -87,8 +87,7 @@ class TokenService:
 
         user_agent_str = request.META.get('HTTP_USER_AGENT', '')
         user_agent = parse(user_agent_str)
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        ip_address = x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR')
+        ip_address = get_client_ip(request)
         device_id = hashlib.md5(f"{ip_address}{user_agent_str}".encode()).hexdigest()
 
         try:
@@ -208,7 +207,7 @@ class TokenService:
                 jti=uuid.UUID(refresh['jti']),
                 access_token=access_token,
                 refresh_token=refresh_token,
-                ip_address=request.META.get('REMOTE_ADDR') if request else None,
+                ip_address=get_client_ip(request) if request else None,
                 user_agent=request.META.get('HTTP_USER_AGENT') if request else None,
                 expires_at=timezone.now() + token_settings.to_jwt_settings()['ACCESS_TOKEN_LIFETIME']
             )
@@ -318,7 +317,7 @@ class TokenService:
 
             # Vérifications supplémentaires selon les paramètres
             if token_settings.validate_ip and request:
-                if token.ip_address != request.META.get('REMOTE_ADDR'):
+                if token.ip_address != get_client_ip(request):
                     return False
 
             if token_settings.validate_user_agent and request:

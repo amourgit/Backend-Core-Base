@@ -61,6 +61,41 @@ def resolve_request_hostname(request):
     return get_host_header_hostname(request)
 
 
+def get_client_ip(request):
+    """
+    Adresse IP réelle du client, en tenant compte d'un reverse proxy
+    (Render, Vercel, Nginx...) qui remplace TOUJOURS REMOTE_ADDR par sa
+    propre adresse interne -- voir les logs d'accès Render, où CHAQUE
+    requête affiche "127.0.0.1", quel que soit le visiteur réel.
+    X-Forwarded-For, quand présent, porte la vraie IP en première
+    position (liste séparée par des virgules si plusieurs proxies).
+
+    Centralise ce qui existait en 3 copies légèrement différentes
+    (TokenService.emettre_session, TokenService.generate_tokens -- cette
+    dernière SANS le repli X-Forwarded-For --, et les deux copies
+    identiques de CustomTokenObtainPairView._get_client_ip /
+    CustomTokenRefreshView._get_client_ip dans token_manager/api/v1/
+    views.py) : TokenService.validate_token, appelée à CHAQUE requête
+    authentifiée (donc GET /api/users/v1/users/me/ inclus), comparait
+    `token.ip_address` (capturé via X-Forwarded-For à la CRÉATION du
+    token) à `request.META.get('REMOTE_ADDR')` brut à la VALIDATION --
+    qui vaut 127.0.0.1 derrière Render, jamais l'IP réelle stockée.
+    Résultat : la vérification IP échouait systématiquement en
+    production dès que TokenSettings.validate_ip est actif, y compris
+    pour un token tout juste rafraîchi (le refresh lui-même n'échoue
+    pas : CustomTokenRefreshView valide l'ancien refresh_token via
+    TokenService.get_token_by_choice_data, qui ne vérifie aucune IP --
+    d'où un POST /token/v1/refresh/ à 200 immédiatement suivi d'un GET
+    /users/v1/users/me/ à 401). En local, la coïncidence "pas de reverse
+    proxy -> pas de X-Forwarded-For -> REMOTE_ADDR utilisé des deux
+    côtés" masquait complètement le bug.
+    """
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
 formatReponse = {
     'type': str or None,
     'titre': str or None,

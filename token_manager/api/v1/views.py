@@ -14,7 +14,7 @@ from .serialisers import (
 )
 from datetime import timedelta
 from .utils import check_and_revoke_token_if_expired, check_token_settings
-from config.fonction import request_header_token, minute_to_seconde
+from config.fonction import request_header_token, minute_to_seconde, get_client_ip
 from tenants.models import Tenant
 import logging
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
@@ -107,15 +107,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
         ##### 4. Renvoie de la reponse si toutes les actions effectuees sans erreurs
         return Response(session)
-
-    # Recuperation de l'adress IP du client lors de la requette
-    def _get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
 
 
 class RegisterView(APIView):
@@ -314,7 +305,7 @@ class CustomTokenRefreshView(TokenRefreshView):
                     # 8. Get device information
                     user_agent_str = request.META.get('HTTP_USER_AGENT', '')
                     user_agent = parse(user_agent_str)
-                    ip_address = self._get_client_ip(request)
+                    ip_address = get_client_ip(request)
                     device_id = hashlib.md5(f"{ip_address}{user_agent_str}".encode()).hexdigest()
 
                     # 9. Créer un nouveau token manager avec toutes les informations
@@ -360,14 +351,6 @@ class CustomTokenRefreshView(TokenRefreshView):
                 {'error': 'Invalid refresh token'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-
-    def _get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
 
 class LogoutView(APIView):
     permission_classes = []
