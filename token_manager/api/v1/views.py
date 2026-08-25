@@ -28,7 +28,6 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 from tenants.api.v1.services import TenantService
-from domain.api.v1.services import DomainService
 from users.api.v1.services import UsersService
 from users.api.v1.serializers import IdentifiantRegisterSerializer
 from .services import TokenService
@@ -532,16 +531,21 @@ class TokenManagerViewSet(ModelViewSet):
 class SessionManagementView(APIView):
     def get(self, request, session_id=None):
         ###### 1. Verification de l'existance du tenant
-        
-        # 2.1 Tentative de détection manuelle du tenant par le sous-domaine
-        sous_domaine = DomainService.get_sous_domaine_by_request(request)           
-        try:
-            tenant = TenantService.get_tenant_by_sous_domaine_actif(sous_domaine=sous_domaine)
-        except Tenant.DoesNotExist:
-            return Response(
-                {'error': 'Tenant not found'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+
+        # 1.1 Le tenant a normalement déjà été résolu par TenantMiddleware
+        # (Host et/ou en-tête X-Tenant-Domain, voir _resolve_tenant_dual) --
+        # le réutiliser évite une résolution redondante ET moins capable
+        # (voir DomainService.get_sous_domaine_by_request).
+        tenant = getattr(request, 'tenant', None)
+        if tenant is None:
+            # 1.2 Repli : détection manuelle du tenant par le sous-domaine,
+            # même signature d'appel que dans delete() ci-dessous
+            # (TenantService.get_tenant_by_sous_domaine_actif prend
+            # `request`, retourne un tuple (tenant, formatReponse) --
+            # jamais Tenant.DoesNotExist).
+            tenant, formatReponse = TenantService.get_tenant_by_sous_domaine_actif(request)
+            if tenant is None:
+                return Response(formatReponse, status=int(formatReponse['status']))
         
         is_unique = True if session_id else False
 
@@ -594,14 +598,12 @@ class SessionManagementView(APIView):
         tenant = getattr(request, 'tenant', None)
         if not tenant:
             # 2.1 Tentative de détection manuelle du tenant par le sous-domaine
-            sous_domaine = DomainService.get_sous_domaine_by_request(request)           
-            try:
-                tenant = TenantService.get_tenant_by_sous_domaine_actif(sous_domaine=sous_domaine)
-            except Tenant.DoesNotExist:
-                return Response(
-                    {'error': 'Tenant not found'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            # (même signature d'appel que get() ci-dessus : `request`, pas
+            # `sous_domaine=` -- TenantService.get_tenant_by_sous_domaine_actif
+            # retourne un tuple (tenant, formatReponse), jamais Tenant.DoesNotExist).
+            tenant, formatReponse = TenantService.get_tenant_by_sous_domaine_actif(request)
+            if tenant is None:
+                return Response(formatReponse, status=int(formatReponse['status']))
 
         # 2. Verification de l'existance de la session
         if session_id:
