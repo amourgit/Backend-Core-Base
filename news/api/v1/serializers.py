@@ -251,7 +251,19 @@ class NewsEcritureSerializer(serializers.ModelSerializer):
     """Serializer de création/édition — champs simples uniquement (les
     sous-collections passent par leurs propres endpoints dédiés)."""
 
-    tags = serializers.ListField(child=serializers.CharField(max_length=50), required=False, default=list)
+    # write_only : ce champ n'accepte QUE des noms de tags en entrée (voir
+    # _resoudre_tags ci-dessous, qui les convertit en instances Tag). Sans
+    # write_only, DRF tente aussi de s'en servir pour REPRÉSENTER la
+    # relation M2M `News.tags` en sortie (ex: juste après un POST/PATCH,
+    # quand ModelViewSet construit sa réponse) -- or ListField.to_representation
+    # itère directement sur l'attribut, sans jamais appeler `.all()` comme le
+    # fait ManyRelatedField (voir NewsListSerializer.tags, qui utilise
+    # SlugRelatedField(many=True) pour la lecture, correctement). Résultat
+    # sans ce write_only : `TypeError: 'ManyRelatedManager' object is not
+    # iterable` -- 500 à chaque création/édition contenant des tags.
+    tags = serializers.ListField(
+        child=serializers.CharField(max_length=50), required=False, default=list, write_only=True,
+    )
 
     class Meta:
         model = models.News

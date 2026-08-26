@@ -88,6 +88,25 @@ class NewsViewSet(SocleModelViewSet):
         user = self.request.user
         serializer.save(modifie_par=user, motif_derniere_modification='Mise à jour via API')
 
+    def create(self, request, *args, **kwargs):
+        # NewsEcritureSerializer ne restitue que les champs scalaires
+        # (voir son Meta.fields) -- on re-sérialise avec NewsSerializer pour
+        # renvoyer la forme complète attendue par NewsSchema côté frontend
+        # (auteur, stats, tags résolus, etc.), même pattern que
+        # NewsMediaViewSet.create() / DocumentJointViewSet.create() ci-dessous.
+        # On identifie l'instance créée par son slug : NewsEcritureSerializer
+        # n'expose pas `id` (voir Meta.fields), seulement `slug`.
+        response = super().create(request, *args, **kwargs)
+        news = self.get_queryset().get(slug=response.data['slug'])
+        return Response(
+            NewsSerializer(news, context=self.get_serializer_context()).data, status=status.HTTP_201_CREATED,
+        )
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        news = self.get_queryset().get(slug=response.data['slug'])
+        return Response(NewsSerializer(news, context=self.get_serializer_context()).data)
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         services.enregistrer_vue(instance, request.user if request.user.is_authenticated else None,
