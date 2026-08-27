@@ -27,23 +27,10 @@ def generer_slug_unique(titre: str, instance_id=None) -> str:
     return slug
 
 
-def basculer_reaction(news: models.News, utilisateur, type_reaction: str) -> models.News:
-    """Ajoute/retire/change la réaction de `utilisateur` sur `news`,
-    de façon idempotente (un seul type de réaction actif par utilisateur) :
-      - pas de réaction existante -> on la crée
-      - même réaction déjà posée -> on la retire (toggle off)
-      - réaction différente déjà posée -> on la remplace
-    """
-    existante = models.ReactionNews.objects.filter(news=news, utilisateur=utilisateur).first()
-
-    if existante and existante.type_reaction == type_reaction:
-        existante.delete()
-    elif existante:
-        existante.type_reaction = type_reaction
-        existante.save(update_fields=['type_reaction'])
-    else:
-        models.ReactionNews.objects.create(news=news, utilisateur=utilisateur, type_reaction=type_reaction)
-
+def ajouter_reaction(news: models.News, utilisateur, type_reaction: str) -> models.News:
+    """Ajoute une réaction sur `news` (réactions illimitées autorisées).
+    Chaque clic crée une nouvelle réaction, anonymes acceptés."""
+    models.ReactionNews.objects.create(news=news, utilisateur=utilisateur, type_reaction=type_reaction)
     return news
 
 
