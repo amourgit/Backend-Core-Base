@@ -21,16 +21,11 @@ class NewsPermission(BasePermission):
             return True
         if view.action == 'create':
             return a_role(request.user, *ROLES_PEUVENT_CREER_NEWS)
-        # react : autorisé pour tous (anonymes inclus)
-        if view.action == 'reagir':
-            return True
-        # partager : tout utilisateur authentifié
+        # react / partager : tout utilisateur authentifié
         return bool(request.user and request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
-            return True
-        if view.action == 'reagir':
             return True
         if a_role(request.user, *ROLES_MODERATION):
             return True

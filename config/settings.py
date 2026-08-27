@@ -69,6 +69,10 @@ SHARED_APPS = (
     'drf_yasg',
     'corsheaders',
     "common",
+    # django-storages : déjà dans requirements.txt (avec boto3) mais
+    # jamais branché -- voir STORAGES plus bas, à propos du stockage
+    # médias éphémère sur Render sans ceci.
+    "storages",
 )
 
 TENANT_APPS = (
@@ -133,14 +137,61 @@ MIDDLEWARE = [
     # 'django_user_agents.middleware.UserAgentMiddleware',  # Laisser en commentaire si non prioritaire
 ]
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+# Stockage des fichiers médias (ImageField/FileField : News.image,
+# NewsMedia.fichier, DocumentJoint.fichier, avatars...).
+#
+# ATTENTION PRODUCTION (Render) : le disque de Render est ÉPHÉMÈRE --
+# tout fichier écrit sur le disque local (FileSystemStorage, le
+# comportement par défaut de Django) est PERDU au moindre redéploiement
+# ou redémarrage du service (exactement ce qui se produit à chaque
+# `git push` sur cette branche). C'est la cause du symptôme "les images
+# uploadées à la création/modification d'une News n'apparaissent
+# jamais dans le détail" : l'upload réussit bien sur le moment, mais le
+# fichier ne survit pas jusqu'à la prochaine requête si un redéploiement
+# a eu lieu entre-temps -- ce qui, en pratique de développement actif,
+# est quasi systématique.
+#
+# django-storages + boto3 sont déjà dans requirements.txt depuis le
+# départ (jamais branchés) -- il suffit de définir AWS_STORAGE_BUCKET_NAME
+# (+ credentials) dans les variables d'environnement Render pour bénéficier
+# d'un stockage S3-compatible PERSISTANT. Fonctionne avec AWS S3 lui-même
+# OU tout équivalent compatible S3 (Cloudflare R2, Backblaze B2,
+# DigitalOcean Spaces...) via AWS_S3_ENDPOINT_URL. Sans cette variable
+# (typiquement en local), on retombe sur FileSystemStorage -- à ne
+# JAMAIS utiliser en production sur Render pour cette même raison.
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+
+if AWS_STORAGE_BUCKET_NAME:
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'eu-west-3')
+    # Bucket S3-compatible non-AWS (R2, B2, Spaces...) : renseigner
+    # l'endpoint du fournisseur. Laisser vide pour AWS S3 lui-même.
+    AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL') or None
+    # Domaine personnalisé (ex: CDN devant le bucket) pour les URLs
+    # générées -- sinon django-storages construit l'URL du bucket lui-même.
+    AWS_S3_CUSTOM_DOMAIN = os.environ.get('AWS_S3_CUSTOM_DOMAIN') or None
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None  # Permissions gérées par policy de bucket, pas par objet.
+    AWS_QUERYSTRING_AUTH = os.environ.get('AWS_QUERYSTRING_AUTH', 'False').strip().lower() in ('true', '1', 'yes')
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 ROOT_URLCONF = 'config.urls'
 
@@ -330,8 +381,11 @@ ALLOWED_EXTENSIONS = {
     'archive': ['.zip', '.rar', '.7z'],
 }
 
-# Configuration du stockage des fichiers
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+# Configuration du stockage des fichiers : voir STORAGES plus haut
+# (bascule S3 conditionnelle) -- DEFAULT_FILE_STORAGE est l'ancien
+# réglage (pré-Django 4.2), superseded par STORAGES quand les deux sont
+# présents ; le garder figé sur FileSystemStorage ici aurait été
+# trompeur une fois le bucket S3 configuré, donc retiré.
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -354,6 +408,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PARSER_CLASSES': [
         'common.camel_case.CamelCaseJSONParser',
+        'common.camel_case.CamelCaseMergePatchJSONParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser'
     ],

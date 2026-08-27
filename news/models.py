@@ -164,12 +164,12 @@ class NewsVue(models.Model):
 
 
 class ReactionNews(models.Model):
-    """Une réaction (au sens 'réseau social') sur une News.
-    Réactions illimitées par utilisateur et anonymes autorisées."""
+    """Une réaction (au sens 'réseau social') d'un utilisateur sur une News.
+    Un seul type de réaction actif par utilisateur et par News."""
     news = models.ForeignKey(News, verbose_name=_('News'), on_delete=models.CASCADE, related_name='reactions')
     utilisateur = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_('Utilisateur'),
-        null=True, blank=True, on_delete=models.CASCADE, related_name='reactions_news',
+        on_delete=models.CASCADE, related_name='reactions_news',
     )
     type_reaction = models.CharField(_('Type de réaction'), max_length=20, choices=TypeReaction.choices)
     cree_le = models.DateTimeField(_('Créé le'), auto_now_add=True)
@@ -177,7 +177,9 @@ class ReactionNews(models.Model):
     class Meta:
         verbose_name = _('Réaction (News)')
         verbose_name_plural = _('Réactions (News)')
-        # Plus de contrainte d'unicité - réactions illimitées autorisées
+        constraints = [
+            models.UniqueConstraint(fields=['news', 'utilisateur'], name='reaction_unique_par_utilisateur_news')
+        ]
 
 
 class NewsMedia(models.Model):

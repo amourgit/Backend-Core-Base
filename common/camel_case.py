@@ -64,3 +64,18 @@ class CamelCaseJSONParser(JSONParser):
     def parse(self, stream, media_type=None, parser_context=None):
         data = super().parse(stream, media_type, parser_context)
         return _convert_keys(data, to_snake_case)
+
+
+class CamelCaseMergePatchJSONParser(CamelCaseJSONParser):
+    """Identique à CamelCaseJSONParser ci-dessus, mais pour le media type
+    `application/merge-patch+json` (RFC 7396 -- JSON Merge Patch), que le
+    frontend envoie par défaut sur ses requêtes PATCH (voir
+    UpdateService.ts:buildPatchHeaders, patchFormat='merge-patch' par
+    défaut, appliqué à TOUTES les mises à jour partielles de l'app, pas
+    seulement News). DRF ne reconnaît par défaut que 'application/json' ;
+    sans ce parser enregistré (voir REST_FRAMEWORK.DEFAULT_PARSER_CLASSES
+    dans config/settings.py), toute requête PATCH échoue en 415
+    Unsupported Media Type avant même d'atteindre la vue, quel que soit
+    l'endpoint concerné."""
+
+    media_type = 'application/merge-patch+json'
