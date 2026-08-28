@@ -17,6 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+import os
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -69,3 +70,29 @@ urlpatterns = [
     path('api/statistiques/', include('statistiques.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# static() de Django est un no-op SILENCIEUX dès que DEBUG=False (voir sa
+# propre implémentation dans django/conf/urls/static.py : "No-op if not
+# in debug mode") -- aucune route n'est alors enregistrée pour /media/,
+# quel que soit le fichier demandé. C'est la cause du 404 systématique
+# en production (Render, DEBUG=False à raison), alors qu'en local
+# (DEBUG=True) ça fonctionnait sans qu'on y touche : même code, même
+# fichier présent sur le disque, mais aucune route ne pointe dessus.
+#
+# Tant qu'aucun stockage S3 n'est configuré (AWS_STORAGE_BUCKET_NAME,
+# voir STORAGES dans settings.py), Django doit encore servir MEDIA_ROOT
+# lui-même, y compris en production -- pas la solution la plus
+# performante à grande échelle (un vrai serveur web/CDN devant les
+# fichiers serait préférable), mais correcte et suffisante pour ce
+# volume, et surtout : elle fonctionne, contrairement au no-op actuel.
+# Dès que AWS_STORAGE_BUCKET_NAME est configuré, les nouveaux fichiers
+# sont servis directement depuis des URLs S3 (ImageField.url renvoie
+# alors une URL absolue du bucket) -- cette route ne sert plus alors que
+# d'éventuels fichiers restés sur le disque local historique.
+if not settings.DEBUG and not os.environ.get('AWS_STORAGE_BUCKET_NAME'):
+    from django.urls import re_path
+    from django.views.static import serve as serve_static_file
+
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve_static_file, {'document_root': settings.MEDIA_ROOT}),
+    ]
