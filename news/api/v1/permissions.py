@@ -27,6 +27,14 @@ class NewsPermission(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
+        # react / partager : n'importe quel utilisateur authentifié peut
+        # agir sur N'IMPORTE QUELLE News, pas seulement les siennes --
+        # question distincte de "faut-il être authentifié" (déjà tranchée
+        # par has_permission). Sans ce cas, obj.auteur_id ==
+        # request.user.id rejette en 403 tout utilisateur qui réagit à
+        # une News qu'il n'a pas écrite lui-même -- le cas normal.
+        if view.action in ('reagir', 'partager'):
+            return True
         if a_role(request.user, *ROLES_MODERATION):
             return True
         return obj.auteur_id == request.user.id
