@@ -114,14 +114,17 @@ class NewsViewSet(SocleModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'], url_path='reactions')
+    @action(detail=True, methods=['post'], url_path='reactions', permission_classes=[])
     def reagir(self, request, pk=None):
         news = self.get_object()
         type_reaction = request.data.get('reaction')
         if type_reaction not in models.TypeReaction.values:
             return Response({'detail': 'Type de réaction invalide.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        services.basculer_reaction(news, request.user, type_reaction)
+        # Décision produit : aucune contrainte d'authentification -- un
+        # visiteur anonyme peut réagir (utilisateur=None).
+        utilisateur = request.user if request.user.is_authenticated else None
+        services.ajouter_reaction(news, utilisateur, type_reaction)
         serializer = NewsSerializer(news, context={'request': request})
         return Response(serializer.data)
 

@@ -131,7 +131,11 @@ class NewsListSerializer(serializers.ModelSerializer):
         user = getattr(request, 'user', None)
         if not (user and user.is_authenticated):
             return None
-        reaction = obj.reactions.filter(utilisateur=user).first()
+        # Plusieurs réactions par utilisateur sont désormais possibles
+        # (décision produit, aucune contrainte d'unicité) : on retient la
+        # plus récente plutôt qu'une valeur arbitraire, purement à titre
+        # informatif pour l'affichage initial du bouton.
+        reaction = obj.reactions.filter(utilisateur=user).order_by('-cree_le').first()
         return reaction.type_reaction if reaction else None
 
 
