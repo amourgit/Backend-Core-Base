@@ -246,7 +246,7 @@ def seed_commentaires(news, auteur_defaut, utilisateurs, commentaires_data):
                 news.auteur, format_="actualite", titre="Nouveau commentaire",
                 description=f"{auteur_commentaire.get_full_name() or auteur_commentaire.username} a commenté « {news.titre} ».",
                 categorie_nom="Commentaires", categorie_couleur="#5B4DFF", categorie_icone="MessageCircle",
-                lien=f"/news/{news.slug}",
+                lien=f"/news?news={news.slug}",
             )
 
         for r in c.get("reponses", []):
@@ -261,7 +261,7 @@ def seed_commentaires(news, auteur_defaut, utilisateurs, commentaires_data):
                     auteur_commentaire, format_="actualite", titre="Réponse à votre commentaire",
                     description=f"{auteur_reponse.get_full_name() or auteur_reponse.username} vous a répondu sur « {news.titre} ».",
                     categorie_nom="Commentaires", categorie_couleur="#5B4DFF", categorie_icone="MessageCircle",
-                    lien=f"/news/{news.slug}",
+                    lien=f"/news?news={news.slug}",
                 )
 
     if total_commentaires:

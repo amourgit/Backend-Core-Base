@@ -50,6 +50,16 @@ class SignalementViewSet(SocleModelViewSet):
         signalement.motif_derniere_modification = f'Signalement {statut} par {request.user}'
         signalement.save()
 
+        from notifications.api.v1 import services as notifications_services
+        notifications_services.creer_notification(
+            destinataire=signalement.auteur_signalement,
+            format='actualite',
+            titre='Votre signalement a été traité' if statut == models.SignalementStatutChoices.TRAITE else 'Votre signalement a été rejeté',
+            description=f'Le signalement que vous avez soumis concernant « {signalement.titre_ou_apercu} » a été '
+                        f'{"traité" if statut == models.SignalementStatutChoices.TRAITE else "rejeté"} par la modération.',
+            categorie_nom='Modération', categorie_couleur='#F59E0B', categorie_icone='ShieldAlert',
+        )
+
         EvenementJournal.consigner(
             action=TypeActionJournal.MODERATION,
             utilisateur=request.user,

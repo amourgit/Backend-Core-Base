@@ -56,7 +56,7 @@ def notifier_nouveau_commentaire(commentaire) -> None:
         titre='Nouveau commentaire',
         description=f'{commentaire.auteur.get_full_name()} a commenté « {news.titre} ».',
         categorie_nom='Commentaires', categorie_couleur='#3B82F6', categorie_icone='MessageSquare',
-        lien=f'/news/{news.slug}', category_tab=models.CategoryTab.DIRECT,
+        lien=f'/news?news={news.slug}', category_tab=models.CategoryTab.DIRECT,
     )
 
 
@@ -71,7 +71,7 @@ def notifier_reponse_commentaire(commentaire) -> None:
         titre='Nouvelle réponse',
         description=f'{commentaire.auteur.get_full_name()} a répondu à votre commentaire.',
         categorie_nom='Réponses', categorie_couleur='#8B5CF6', categorie_icone='CornerUpLeft',
-        lien=f'/news/{commentaire.news.slug}', category_tab=models.CategoryTab.DIRECT,
+        lien=f'/news?news={commentaire.news.slug}', category_tab=models.CategoryTab.DIRECT,
     )
 
 
@@ -82,5 +82,5 @@ def notifier_mention(commentaire, utilisateur_mentionne) -> None:
         titre='Vous avez été mentionné',
         description=f'{commentaire.auteur.get_full_name()} vous a mentionné dans un commentaire.',
         categorie_nom='Mentions', categorie_couleur='#EC4899', categorie_icone='AtSign',
-        lien=f'/news/{commentaire.news.slug}', category_tab=models.CategoryTab.DIRECT,
+        lien=f'/news?news={commentaire.news.slug}', category_tab=models.CategoryTab.DIRECT,
     )
