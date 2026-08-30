@@ -107,6 +107,7 @@ class NewsListSerializer(serializers.ModelSerializer):
     date_fin = serializers.DateTimeField(required=False, allow_null=True)
     stats = serializers.SerializerMethodField()
     user_reaction = serializers.SerializerMethodField()
+    reacteurs_recents = serializers.SerializerMethodField()
 
     class Meta:
         model = models.News
@@ -114,7 +115,7 @@ class NewsListSerializer(serializers.ModelSerializer):
             'id', 'slug', 'type', 'titre', 'description', 'image', 'auteur',
             'organisation', 'etablissement', 'categorie', 'tags', 'province', 'lieu',
             'date_debut', 'date_fin', 'created_at', 'updated_at', 'statut', 'visibilite',
-            'stats', 'user_reaction',
+            'stats', 'user_reaction', 'reacteurs_recents',
         )
 
     def get_image(self, obj):
@@ -125,6 +126,27 @@ class NewsListSerializer(serializers.ModelSerializer):
 
     def get_stats(self, obj):
         return calculer_stats_news(obj)
+
+    def get_reacteurs_recents(self, obj):
+        # Pile d'avatars affichée sur la card (voir NewsCard.tsx) : les
+        # réactions étant illimitées par utilisateur (décision produit,
+        # voir ReactionNews), on déduplique par utilisateur -- "sans
+        # doublant" -- et on exclut les réactions anonymes
+        # (utilisateur=None), qui n'ont aucun profil à afficher. Limité à
+        # 5, la pile n'a pas vocation à tout montrer.
+        utilisateurs = []
+        vus = set()
+        for reaction in obj.reactions.filter(
+            type_reaction=models.TypeReaction.COEUR, utilisateur__isnull=False
+        ).select_related('utilisateur').order_by('-cree_le'):
+            if reaction.utilisateur_id in vus:
+                continue
+            vus.add(reaction.utilisateur_id)
+            utilisateurs.append(reaction.utilisateur)
+            if len(utilisateurs) >= 5:
+                break
+        from users.api.v1.serializers import UtilisateurPublicSerializer
+        return UtilisateurPublicSerializer(utilisateurs, many=True, context=self.context).data
 
     def get_user_reaction(self, obj):
         request = self.context.get('request')
