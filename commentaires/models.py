@@ -13,6 +13,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from common.models import SocleTracabilite
+from common.storage import get_raw_media_storage
 
 
 class TypeContenuCommentaire(models.TextChoices):
@@ -32,7 +33,10 @@ class Commentaire(SocleTracabilite):
         _('Type de contenu'), max_length=10, choices=TypeContenuCommentaire.choices, default=TypeContenuCommentaire.TEXTE,
     )
     contenu = models.TextField(_('Contenu'), blank=True)
-    audio_fichier = models.FileField(_('Fichier audio'), upload_to='commentaires/audio/', null=True, blank=True)
+    audio_fichier = models.FileField(
+        _('Fichier audio'), upload_to='commentaires/audio/', null=True, blank=True,
+        storage=get_raw_media_storage,
+    )
     audio_duration = models.PositiveIntegerField(_('Durée audio (secondes)'), null=True, blank=True)
 
     reponse_a = models.ForeignKey(
@@ -69,7 +73,10 @@ class MediaJointCommentaire(models.Model):
 
     commentaire = models.ForeignKey(Commentaire, verbose_name=_('Commentaire'), on_delete=models.CASCADE, related_name='medias')
     type = models.CharField(_('Type'), max_length=20, choices=TypeMedia.choices)
-    fichier = models.FileField(_('Fichier'), upload_to='commentaires/medias/', null=True, blank=True)
+    fichier = models.FileField(
+        _('Fichier'), upload_to='commentaires/medias/', null=True, blank=True,
+        storage=get_raw_media_storage,
+    )
     url_externe = models.URLField(_('URL externe'), blank=True)
 
     class Meta:

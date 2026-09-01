@@ -7,6 +7,7 @@ certifi==2026.6.17
 cffi==2.1.0
 charset-normalizer==3.4.9
 click==8.4.2
+cloudinary==1.46.2
 colorama==0.4.6
 coreapi==2.3.3
 coreschema==0.0.4
@@ -18,6 +19,7 @@ Django==5.2.16
 django-axes==6.3.0
 django-cacheops==7.2
 django-cleanup==8.0.0
+django-cloudinary-storage==0.3.0
 django-cors-headers==4.9.0
 django-crispy-forms==2.1
 django-debug-toolbar==4.3.0

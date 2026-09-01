@@ -14,6 +14,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from common.models import SocleTracabilite, StatutCycleVie
+from common.storage import get_raw_media_storage
 
 
 class NewsType(models.TextChoices):
@@ -192,7 +193,10 @@ class NewsMedia(models.Model):
 
     news = models.ForeignKey(News, verbose_name=_('News'), on_delete=models.CASCADE, related_name='medias')
     type = models.CharField(_('Type'), max_length=20, choices=TypeMedia.choices)
-    fichier = models.FileField(_('Fichier'), upload_to='news/medias/', null=True, blank=True)
+    fichier = models.FileField(
+        _('Fichier'), upload_to='news/medias/', null=True, blank=True,
+        storage=get_raw_media_storage,
+    )
     url_externe = models.URLField(_('URL externe'), blank=True, help_text=_('Pour les médias hébergés ailleurs (ex: YouTube).'))
     vignette = models.ImageField(_('Vignette'), upload_to='news/medias/vignettes/', null=True, blank=True)
     titre = models.CharField(_('Titre'), max_length=255)
@@ -227,7 +231,10 @@ class DocumentJoint(models.Model):
     """Document téléchargeable attaché à une News (PDF, etc.)."""
     news = models.ForeignKey(News, verbose_name=_('News'), on_delete=models.CASCADE, related_name='documents')
     nom = models.CharField(_('Nom'), max_length=255)
-    fichier = models.FileField(_('Fichier'), upload_to='news/documents/')
+    fichier = models.FileField(
+        _('Fichier'), upload_to='news/documents/',
+        storage=get_raw_media_storage,
+    )
     taille = models.PositiveIntegerField(_('Taille (octets)'), default=0, editable=False)
     type = models.CharField(_('Type MIME'), max_length=100, blank=True)
     cree_le = models.DateTimeField(_('Créé le'), auto_now_add=True)

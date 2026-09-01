@@ -61,7 +61,15 @@ SHARED_APPS = (
     'referentiels',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # cloudinary_storage DOIT être listé avant django.contrib.staticfiles
+    # (exigence de la lib : c'est ce qui permet à `collectstatic` d'être
+    # correctement redirigé si jamais on active aussi Cloudinary pour les
+    # statics -- non fait ici, seuls les médias uploadés y passent, voir
+    # STORAGES plus bas). "cloudinary" (le SDK bas niveau) n'a pas cette
+    # contrainte d'ordre mais est placé juste à côté par lisibilité.
+    "cloudinary_storage",
     'django.contrib.staticfiles',
+    "cloudinary",
     # 'rest_framwork_simplejwt.token_blacklist',
     # 'django_user_agents',
     'rest_framework',
@@ -151,17 +159,47 @@ MIDDLEWARE = [
 # a eu lieu entre-temps -- ce qui, en pratique de développement actif,
 # est quasi systématique.
 #
-# django-storages + boto3 sont déjà dans requirements.txt depuis le
-# départ (jamais branchés) -- il suffit de définir AWS_STORAGE_BUCKET_NAME
-# (+ credentials) dans les variables d'environnement Render pour bénéficier
-# d'un stockage S3-compatible PERSISTANT. Fonctionne avec AWS S3 lui-même
-# OU tout équivalent compatible S3 (Cloudflare R2, Backblaze B2,
-# DigitalOcean Spaces...) via AWS_S3_ENDPOINT_URL. Sans cette variable
-# (typiquement en local), on retombe sur FileSystemStorage -- à ne
-# JAMAIS utiliser en production sur Render pour cette même raison.
+# Trois backends possibles, choisis par variable d'environnement -- AUCUN
+# n'est codé en dur, donc rien à changer dans le code entre local et
+# Render, seules les variables d'environnement diffèrent :
+#
+#   1. CLOUDINARY_URL   -> Cloudinary (retenu pour CIVITAS NEWS : un seul
+#      identifiant à définir, CDN + transformations d'images incluses).
+#      PRIORITAIRE si présent.
+#   2. AWS_STORAGE_BUCKET_NAME -> S3 ou tout équivalent compatible S3
+#      (Cloudflare R2, Backblaze B2, DigitalOcean Spaces via
+#      AWS_S3_ENDPOINT_URL) -- alternative déjà scaffoldée précédemment,
+#      conservée pour les fichiers pour lesquels Cloudinary ne serait pas
+#      adapté (gros fichiers, vidéos longues...). Utilisée seulement si
+#      CLOUDINARY_URL est absent.
+#   3. Aucune des deux -> FileSystemStorage (disque local). À ne JAMAIS
+#      utiliser en production sur Render : son disque est ÉPHÉMÈRE, tout
+#      fichier écrit dessus est perdu au moindre redéploiement/redémarrage.
+#
+# Le SDK `cloudinary` lit lui-même la variable d'environnement
+# CLOUDINARY_URL (format cloudinary://<api_key>:<api_secret>@<cloud_name>)
+# dès son import -- rien à dupliquer ici pour l'authentification.
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 
-if AWS_STORAGE_BUCKET_NAME:
+if CLOUDINARY_URL:
+    # MediaCloudinaryStorage envoie tout en resource_type="image" -- correct
+    # pour les ImageField (News.image, logos, avatars, vignettes...), mais
+    # invalide pour un FileField pouvant contenir un PDF/audio/vidéo
+    # (Cloudinary rejette ces uploads en resource_type "image"). Ces champs
+    # précis (NewsMedia.fichier, DocumentJoint.fichier,
+    # MediaJointCommentaire.fichier, Commentaire.audio_fichier) déclarent
+    # donc explicitement `storage=get_raw_media_storage` (voir
+    # common/storage.py) plutôt que de dépendre du storage "default" ici.
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+elif AWS_STORAGE_BUCKET_NAME:
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'eu-west-3')
