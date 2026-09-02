@@ -180,7 +180,10 @@ class NewsSerializer(NewsListSerializer):
     def get_galerie(self, obj):
         request = self.context.get('request')
         return [
-            request.build_absolute_uri(img.image.url) if request else img.image.url
+            {
+                'url': request.build_absolute_uri(img.image.url) if request else img.image.url,
+                'legende': img.legende,
+            }
             for img in obj.galerie.all()
         ]
 
