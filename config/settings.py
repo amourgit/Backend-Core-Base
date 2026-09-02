@@ -61,14 +61,23 @@ SHARED_APPS = (
     'referentiels',
     'django.contrib.sessions',
     'django.contrib.messages',
-    # cloudinary_storage DOIT être listé avant django.contrib.staticfiles
-    # (exigence de la lib : c'est ce qui permet à `collectstatic` d'être
-    # correctement redirigé si jamais on active aussi Cloudinary pour les
-    # statics -- non fait ici, seuls les médias uploadés y passent, voir
-    # STORAGES plus bas). "cloudinary" (le SDK bas niveau) n'a pas cette
-    # contrainte d'ordre mais est placé juste à côté par lisibilité.
-    "cloudinary_storage",
+    # django.contrib.staticfiles DOIT précéder cloudinary_storage dans cette
+    # liste. Django résout les commandes de management (collectstatic
+    # notamment) en donnant la priorité à la PREMIÈRE app de INSTALLED_APPS
+    # qui la définit -- avoir cloudinary_storage avant staticfiles (ancien
+    # ordre) fait donc gagner sa commande `collectstatic` personnalisée à
+    # CHAQUE build, y compris ici où on ne s'en sert pas : seuls les médias
+    # uploadés passent par Cloudinary (voir STORAGES plus bas), pas les
+    # statics ("staticfiles" y pointe vers whitenoise dans les 3 branches).
+    # Cette commande personnalisée lit l'ancien `settings.STATICFILES_STORAGE`
+    # (pré Django 4.2, absent depuis le passage à STORAGES seul) -> crash
+    # AttributeError au `collectstatic` du build Render. La remettre après
+    # staticfiles restaure la commande standard de Django (celle qu'on veut
+    # réellement) ; si Cloudinary est un jour activé pour les statics, ce
+    # sera à réévaluer explicitement. "cloudinary" (le SDK bas niveau) n'a
+    # pas de contrainte d'ordre, placé juste à côté par lisibilité.
     'django.contrib.staticfiles',
+    "cloudinary_storage",
     "cloudinary",
     # 'rest_framwork_simplejwt.token_blacklist',
     # 'django_user_agents',
@@ -230,6 +239,17 @@ else:
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
+
+# Filet de sécurité, en plus du réordonnancement de SHARED_APPS ci-dessus
+# (staticfiles avant cloudinary_storage, qui règle la cause réelle du crash
+# `collectstatic` sur Render) : django-cloudinary-storage lit encore
+# l'ancien `settings.STATICFILES_STORAGE` (pré Django 4.2), qui n'existe
+# plus du tout quand seul STORAGES est défini -> AttributeError si jamais
+# sa commande collectstatic personnalisée redevient prioritaire (ordre des
+# apps modifié par erreur plus tard, autre lib tierce qui lirait cet
+# attribut...). Toujours dérivé de STORAGES, jamais une valeur figée
+# indépendante, pour ne jamais pouvoir diverger de la branche active.
+STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
 
 ROOT_URLCONF = 'config.urls'
 
