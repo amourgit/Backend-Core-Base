@@ -30,6 +30,7 @@ def calculer_statistiques_globales() -> dict:
     debut_mois_precedent = _debut_mois(debut_mois_courant - timedelta(days=1))
 
     news_actives_qs = News.objects.actifs().filter(statut=NewsStatutChoices.PUBLIE)
+    total_news_actives = news_actives_qs.count()
 
     total_votes = VoteSondage.objects.count() + VoteCommentaire.objects.count()
     total_visiteurs = NewsVue.objects.values('utilisateur_id', 'adresse_ip').distinct().count()
@@ -43,14 +44,26 @@ def calculer_statistiques_globales() -> dict:
         if news_mois_precedent > 0 else (100.0 if news_ce_mois > 0 else 0.0)
     )
 
+    # Part des News publiées disposant d'au moins un LienPublication (voir
+    # liens/models.py) -- le mécanisme d'enregistrement/traçabilité sur le
+    # "registre certifié CIVITAS" mis en avant côté frontend
+    # (NewsDetailContent.tsx). Ce n'est PAS automatique à la publication
+    # (créé via un endpoint dédié, voir LienPublicationEcritureSerializer) :
+    # un ratio < 100% est donc possible et significatif, pas un artefact.
+    news_avec_lien_publication = news_actives_qs.filter(liens_publication__isnull=False).distinct().count()
+    taux_transparence = (
+        round(news_avec_lien_publication / total_news_actives * 100, 1) if total_news_actives > 0 else 0.0
+    )
+
     return {
         'total_visiteurs': total_visiteurs,
         'total_votes': total_votes,
         'total_commentaires': Commentaire.objects.actifs().count(),
-        'total_news_actives': news_actives_qs.count(),
-        'total_sujets_actifs': news_actives_qs.count(),
+        'total_news_actives': total_news_actives,
+        'total_sujets_actifs': total_news_actives,
         'total_organisations': Organisation.objects.actifs().count(),
         'croissance_mensuelle': croissance_mensuelle,
+        'taux_transparence': taux_transparence,
         'participation_par_province': _participation_par_province(),
         'repartition_par_categorie': _repartition_par_categorie(),
         'activite_par_heure': _activite_par_heure(),

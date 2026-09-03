@@ -28,6 +28,7 @@ class StatistiquesGlobalesSerializer(serializers.Serializer):
     total_sujets_actifs = serializers.IntegerField()
     total_organisations = serializers.IntegerField()
     croissance_mensuelle = serializers.FloatField()
+    taux_transparence = serializers.FloatField()
     participation_par_province = ParticipationProvinceSerializer(many=True)
     repartition_par_categorie = RepartitionCategorieSerializer(many=True)
     activite_par_heure = ActiviteHeureSerializer(many=True)
