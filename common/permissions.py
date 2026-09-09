@@ -3,8 +3,17 @@ common/permissions.py
 =======================
 
 Permissions DRF réutilisables par toutes les apps métier, basées sur
-`User.role` (voir users/models.py). Centralisées ici pour éviter de
-dupliquer la même logique de contrôle d'accès dans chaque app.
+le rôle du membre DANS LE TENANT COURANT (`adhesions.MembreTenant` --
+voir adhesions/models.py). Depuis la réforme identité globale /
+adhésion tenant, `User` (schéma public, global) ne porte plus de rôle
+applicatif : une même personne peut avoir un rôle différent d'un
+tenant à l'autre. `a_role` lit donc le rôle via
+`adhesions.AdhesionService`, qui interroge TOUJOURS le schéma
+actuellement actif sur la connexion -- déjà positionné sur le tenant
+courant par TenantMiddleware au moment où cette fonction est appelée,
+donc aucun besoin de `request.tenant` explicite ici. Centralisées ici
+pour éviter de dupliquer la même logique de contrôle d'accès dans
+chaque app.
 """
 
 from rest_framework.permissions import SAFE_METHODS, BasePermission
@@ -17,7 +26,10 @@ def a_role(user, *roles):
         return False
     if user.is_superuser:
         return True
-    return getattr(user, 'role', None) in roles
+    # Import local : évite tout souci d'ordre de chargement des apps
+    # (common est importé très tôt par beaucoup d'apps).
+    from adhesions.api.v1.services import AdhesionService
+    return AdhesionService.get_role(user.id) in roles
 
 
 class EstModerateurOuAdmin(BasePermission):

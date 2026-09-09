@@ -5,51 +5,27 @@ from .services import UsersService, normaliser_identifiant, is_email, is_telepho
 
 User = get_user_model()
 
-class BadgeSerializer(serializers.ModelSerializer):
-    """
-    `id` explicitement forcé en chaîne (comme TOUS les autres serializers
-    du projet — CategorieNesteeSerializer, OrganisationNesteeSerializer,
-    UtilisateurPublicSerializer, CommentaireSerializer, etc. — voir la
-    convention documentée dans src/types/models/user.types.ts côté
-    frontend : "tous les identifiants sont traités comme des chaînes de
-    façon uniforme"). Sans ce override, DRF sérialise l'AutoField Django
-    en entier JSON natif -> BadgeSchema (id: z.string()) rejette la
-    valeur -> échec de validation Zod de TOUT utilisateur/commentaire/
-    news dont l'auteur possède au moins un badge, silencieusement avalé
-    par les `catch` des hooks appelants (ex: useComments) -> listes qui
-    semblent vides côté UI alors que les données existent bien en base.
-    """
-    id = serializers.CharField(source='pk', read_only=True)
-
-    class Meta:
-        from users.models import Badge
-        model = Badge
-        fields = ('id', 'nom', 'icone', 'description')
-
 
 class UserSerializer(serializers.ModelSerializer):
     """
-    Représentation ADMINISTRATIVE complète d'un utilisateur — consommée
-    par le backoffice (table `Utilisateurs`, voir
-    src/components/backoffice/registry/models/users.registry.ts côté
-    frontend). Distincte de `UtilisateurPublicSerializer` (profil public
-    léger, imbriqué dans news.auteur/commentaire.auteur/etc.) : ici on
-    expose aussi les champs de gestion (rôle, rattachements, statut de
-    vérification) nécessaires à une vraie administration de comptes,
-    absents jusqu'ici de ce endpoint alors que le modèle les porte déjà
-    (voir users/models.py).
+    Représentation ADMINISTRATIVE d'un compte GLOBAL (identité --
+    schéma public uniquement) -- consommée par l'administration
+    plateforme (superusers). Le rôle applicatif et les rattachements
+    (organisation/établissement/badges), propres à CHAQUE tenant, ne
+    sont plus portés par `User` depuis la réforme identité globale /
+    adhésion tenant : voir `adhesions.MembreTenant` /
+    MembreTenantSerializer (adhesions/api/v1/serializers.py) pour la
+    gestion "membres de CE tenant" (backoffice par tenant).
     """
-    badges = BadgeSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
         fields = (
             'id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_verified',
             'is_staff', 'is_superuser', 'date_joined', 'last_login', 'phone_number', 'address',
-            'date_of_birth', 'role', 'etablissement', 'organisation', 'badges',
-            'language_preference', 'timezone',
+            'date_of_birth', 'language_preference', 'timezone',
         )
-        read_only_fields = ('id', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'badges')
+        read_only_fields = ('id', 'date_joined', 'last_login', 'is_staff', 'is_superuser')
 
 
 class UtilisateurPublicSerializer(serializers.ModelSerializer):
@@ -59,17 +35,34 @@ class UtilisateurPublicSerializer(serializers.ModelSerializer):
     numériques Django sont exposés en tant que chaînes (`id`) pour
     correspondre au contrat frontend, qui traite tous les identifiants
     comme des chaînes de façon uniforme.
+
+    `role`/`etablissement`/`badges` restent dans le CONTRAT JSON
+    (inchangé côté frontend) mais sont désormais résolus depuis
+    `adhesions.MembreTenant` DANS LE TENANT COURANT (le schéma actif
+    sur la connexion au moment de la sérialisation) plutôt que depuis
+    des champs directs de `User` -- une même personne peut avoir un
+    rôle différent d'un tenant à l'autre. Absence d'adhésion dans ce
+    tenant -> `role`/`etablissement`/`badges` valent None/[] (comme un
+    utilisateur sans rôle assigné auparavant).
     """
     id = serializers.CharField(source='pk', read_only=True)
     nom_affiche = serializers.SerializerMethodField()
     avatar = serializers.SerializerMethodField()
-    badges = BadgeSerializer(many=True, read_only=True)
-    etablissement = serializers.CharField(source='etablissement.nom', read_only=True, default=None)
+    role = serializers.SerializerMethodField()
+    etablissement = serializers.SerializerMethodField()
+    badges = serializers.SerializerMethodField()
     stats = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('id', 'username', 'nom_affiche', 'avatar', 'role', 'etablissement', 'email', 'badges', 'stats')
+
+    def _membre(self, obj):
+        from adhesions.api.v1.services import AdhesionService
+        cache = self.context.setdefault('_membres_cache', {})
+        if obj.pk not in cache:
+            cache[obj.pk] = AdhesionService.get_membre(obj.pk)
+        return cache[obj.pk]
 
     def get_nom_affiche(self, obj):
         full_name = obj.get_full_name()
@@ -81,6 +74,21 @@ class UtilisateurPublicSerializer(serializers.ModelSerializer):
             url = obj.profile_picture.url
             return request.build_absolute_uri(url) if request else url
         return None
+
+    def get_role(self, obj):
+        membre = self._membre(obj)
+        return membre.role if membre else None
+
+    def get_etablissement(self, obj):
+        membre = self._membre(obj)
+        return membre.etablissement.nom if (membre and membre.etablissement_id) else None
+
+    def get_badges(self, obj):
+        from adhesions.api.v1.serializers import BadgeSerializer
+        membre = self._membre(obj)
+        if not membre:
+            return []
+        return BadgeSerializer(membre.badges.all(), many=True).data
 
     def get_stats(self, obj):
         contributions_news = getattr(obj, 'news_publiees', None)
@@ -127,6 +135,10 @@ class IdentifiantRegisterSerializer(serializers.Serializer):
     UserCreateSerializer reste utilisé tel quel par UserViewSet.create
     (création par un superuser depuis l'admin, avec username/nom/prénom
     explicites), un usage différent qui n'a pas à changer ici.
+
+    Crée désormais TOUJOURS le compte dans le schéma public (identité
+    globale) -- voir RegisterView (token_manager/api/v1/views.py), qui
+    se charge ensuite de l'adhésion au tenant courant.
     """
     identifiant = serializers.CharField(required=True, write_only=True)
     password = serializers.CharField(required=True, write_only=True, validators=[validate_password])
@@ -154,12 +166,9 @@ class IdentifiantRegisterSerializer(serializers.Serializer):
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     """
-    Étendu au-delà des 3 champs d'origine (email/first_name/last_name)
-    pour permettre au backoffice de gérer réellement un compte : rôle
-    applicatif, rattachements établissement/organisation, statut
-    actif/vérifié, coordonnées. Action réservée aux modérateurs/
-    administrateurs (voir UserViewSet.permission_classes =
-    EstModerateurOuAdministrateur, ci-dessus dans views.py). Le mot de
+    Édition d'un compte GLOBAL (identité uniquement). Rôle/organisation/
+    établissement se gèrent désormais via `MembreTenantRoleUpdateSerializer`
+    (adhesions/api/v1/serializers.py), dans le tenant concerné. Le mot de
     passe reste HORS de ce serializer — voir `change_password` (action
     dédiée, UserViewSet), jamais mêlé à une édition de profil.
     """
@@ -167,8 +176,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'email', 'first_name', 'last_name', 'is_active', 'is_verified', 'role',
-            'etablissement', 'organisation', 'phone_number', 'address', 'date_of_birth',
+            'email', 'first_name', 'last_name', 'is_active', 'is_verified',
+            'phone_number', 'address', 'date_of_birth',
         )
 
 class ChangePasswordSerializer(serializers.Serializer):

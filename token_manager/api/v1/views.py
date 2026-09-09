@@ -30,6 +30,8 @@ from django.db import connection
 from tenants.api.v1.services import TenantService
 from users.api.v1.services import UsersService
 from users.api.v1.serializers import IdentifiantRegisterSerializer
+from adhesions.api.v1.services import AdhesionService
+from adhesions.models import RoleUtilisateur, StatutAdhesion
 from .services import TokenService
 from django.core.exceptions import ObjectDoesNotExist
 logger = logging.getLogger(__name__)
@@ -59,8 +61,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             return Response(formatReponse, int(formatReponse['status']))
 
 
-        ###### 2. Verification des donnees entrees en Base de donnees
-        with schema_context(tenant.schema_name):
+        ###### 2. Verification des donnees entrees en Base de donnees --
+        ###### TOUJOURS dans le schéma PUBLIC : l'identité est désormais
+        ###### globale (réforme identité globale / adhésion tenant), un
+        ###### même compte sert à se connecter à N'IMPORTE QUEL tenant.
+        with schema_context('public'):
             # 2.1 Recherche du compte par identifiant (email OU téléphone,
             # voir UsersService.get_user_by_identifiant) -- l'ABSENCE totale
             # de compte pour cet identifiant est distinguée (404 +
@@ -94,13 +99,38 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 formatReponse['message'] = "Erreur lors de la verification des donnees en base de donnees. Veuillez contacter l'administrateur"
                 formatReponse['status'] = int(status.HTTP_500_INTERNAL_SERVER_ERROR)
                 return Response(formatReponse, formatReponse['status'])
-            
+
         ###### 2. Verification si actif ou pas.
         if not user.is_active:
             formatReponse['titre'] = 'Hors Service'
             formatReponse['message'] = "Votre compte est hors service! Veuillez contacter votre administrateur."
             return Response(formatReponse,  formatReponse['status'])
-        
+
+        ###### 2.2 Verification de l'adhésion à CE tenant -- des
+        ###### identifiants globaux valides ne suffisent plus à eux seuls :
+        ###### il faut une adhésion (adhesions.MembreTenant) ACCEPTEE dans
+        ###### le tenant résolu. Distingue "jamais demandé" (le frontend
+        ###### peut proposer d'en faire la demande) de "en attente/refusée/
+        ###### suspendue" (déjà demandé, statut à afficher tel quel).
+        with schema_context(tenant.schema_name):
+            membre = AdhesionService.get_membre(user.id)
+        if membre is None:
+            formatReponse['type'] = 'error'
+            formatReponse['titre'] = 'Aucune adhésion'
+            formatReponse['code'] = 'NO_TENANT_MEMBERSHIP'
+            formatReponse['niveau'] = 100
+            formatReponse['message'] = "Ce compte n'a pas encore rejoint cet espace."
+            formatReponse['status'] = int(status.HTTP_403_FORBIDDEN)
+            return Response(formatReponse, formatReponse['status'])
+        if membre.statut_adhesion != StatutAdhesion.ACCEPTEE:
+            formatReponse['type'] = 'error'
+            formatReponse['titre'] = 'Adhésion non active'
+            formatReponse['code'] = f'MEMBERSHIP_{membre.statut_adhesion.upper()}'
+            formatReponse['niveau'] = 100
+            formatReponse['message'] = "Votre adhésion à cet espace n'est pas active."
+            formatReponse['status'] = int(status.HTTP_403_FORBIDDEN)
+            return Response(formatReponse, formatReponse['status'])
+
         ###### 3. Émission de la session (device tracking, révocation, tokens) — factorisé
         ###### dans TokenService.emettre_session, partagé avec RegisterView et GoogleAuthView.
         session = TokenService.emettre_session(request, user, tenant, settings_token_actif)
@@ -122,10 +152,12 @@ class RegisterView(APIView):
     identifiants déjà saisis dans le formulaire de connexion peuvent être
     réutilisés sans re-saisie.
 
-    La validation d'unicité de l'identifiant ET la création doivent
-    s'exécuter dans le MÊME schema_context que le tenant cible, sinon
-    l'unicité serait vérifiée dans le mauvais schéma (généralement le
-    schéma public).
+    L'identité étant désormais GLOBALE (réforme identité globale /
+    adhésion tenant), l'unicité de l'identifiant ET la création
+    s'exécutent dans le schéma PUBLIC -- puis une adhésion (statut
+    ACCEPTEE, accès immédiat, rôle ÉTUDIANT par défaut) est créée pour
+    ce compte DANS le tenant résolu, exactement le comportement
+    d'inscription "immédiat" déjà offert avant cette réforme.
     """
     permission_classes = []
     authentication_classes = []
@@ -140,10 +172,15 @@ class RegisterView(APIView):
         if tenant is None:
             return Response(formatReponse_tenant, int(formatReponse_tenant['status']))
 
-        with schema_context(tenant.schema_name):
+        with schema_context('public'):
             serializer = IdentifiantRegisterSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
+
+        with schema_context(tenant.schema_name):
+            AdhesionService.get_or_create_adhesion(
+                user.id, role=RoleUtilisateur.ETUDIANT, statut_adhesion=StatutAdhesion.ACCEPTEE,
+            )
 
         session = TokenService.emettre_session(request, user, tenant, settings_token_actif)
         return Response(session, status=status.HTTP_201_CREATED)
@@ -218,7 +255,10 @@ class GoogleAuthView(APIView):
         given_name = payload.get('given_name', '')
         family_name = payload.get('family_name', '')
 
-        with schema_context(tenant.schema_name):
+        # Identité GLOBALE (schéma public) -- un compte Google donné doit
+        # être LE MÊME compte quel que soit le tenant par lequel on se
+        # connecte, voir réforme identité globale / adhésion tenant.
+        with schema_context('public'):
             user = User.objects.filter(email=email).first()
             if user is None:
                 base_username = email.split('@')[0]
@@ -241,6 +281,13 @@ class GoogleAuthView(APIView):
                     {'message': "Votre compte est hors service! Veuillez contacter votre administrateur."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
+        # Adhésion à CE tenant -- accès immédiat par défaut (statut
+        # ACCEPTEE), même logique que RegisterView.
+        with schema_context(tenant.schema_name):
+            AdhesionService.get_or_create_adhesion(
+                user.id, role=RoleUtilisateur.ETUDIANT, statut_adhesion=StatutAdhesion.ACCEPTEE,
+            )
 
         session = TokenService.emettre_session(request, user, tenant, settings_token_actif)
         return Response(session)

@@ -45,16 +45,20 @@ SHARED_APPS = (
     'tenants',
     'token_manager',
     'django.contrib.contenttypes',
-    # auth/admin/users sont volontairement AUSSI dans SHARED_APPS (en plus de
-    # TENANT_APPS ci-dessous). django-tenants supporte explicitement ce
-    # double-listage : chaque schéma (public ET chaque tenant) obtient alors
-    # sa PROPRE table utilisateurs, isolée. C'est ce qui permet d'avoir :
-    #   - un espace "admin global" (schéma public) avec ses super-admins de
-    #     plateforme, qui gèrent les Tenants/Domains,
-    #   - un espace "admin tenant" (schéma de l'établissement) avec ses
-    #     propres admins/utilisateurs locaux, complètement isolés.
-    # Sans ça, le schéma public n'a aucune table auth_user/users_user et il
-    # est structurellement impossible de se connecter à un admin global.
+    # Réforme identité globale / adhésion tenant : auth/admin/users ne
+    # vivent plus QUE dans le schéma public -- un seul compte, une seule
+    # authentification, quel que soit le tenant. ATTENTION : anciennement
+    # double-listées aussi dans TENANT_APPS (chaque tenant avait sa PROPRE
+    # table users_user isolée) -- les schémas tenant EXISTANTS ont donc
+    # encore physiquement cette table jusqu'au passage de la commande de
+    # migration de données dédiée (adhesions.management.commands.
+    # migrate_users_to_global), qui les convertit en adhesions.MembreTenant
+    # (rôle/organisation/établissement/badges, propres à CE tenant) puis
+    # supprime la table locale devenue orpheline. Ce que porte encore un
+    # ModelViewSet basé sur `role`/`etablissement`/`organisation`/`badges`
+    # de `User` referait remonter ce double-listage par erreur : ne pas
+    # réintroduire 'django.contrib.auth'/'django.contrib.admin'/'users'
+    # dans TENANT_APPS ci-dessous.
     'django.contrib.auth',
     'django.contrib.admin',
     'users',
@@ -93,11 +97,13 @@ SHARED_APPS = (
 )
 
 TENANT_APPS = (
-    'django.contrib.auth',
-    'django.contrib.admin',
-
-    # Niveau 0
-    "users",
+    # Niveau 0 -- réforme identité globale / adhésion tenant : `adhesions`
+    # remplace `users`/`auth`/`admin` ici. Ce que `users.User` portait par
+    # tenant (rôle, organisation, établissement, badges) vit maintenant
+    # dans adhesions.MembreTenant, qui référence l'utilisateur GLOBAL
+    # (schéma public) par simple `user_id` -- jamais de ForeignKey
+    # physique inter-schémas (voir adhesions/models.py).
+    "adhesions",
 
     # Niveau 1 — CIVITAS NEWS (domaines métier de contenu)
     "referentiels",

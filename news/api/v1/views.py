@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from common.drf import SocleModelViewSet
+from common.permissions import a_role, ROLES_MODERATION
 from ... import models
 from . import services
 from .permissions import NewsPermission, NewsSousRessourcePermission
@@ -47,7 +48,7 @@ class NewsViewSet(SocleModelViewSet):
             return qs.none()
 
         user = self.request.user
-        if user and user.is_authenticated and getattr(user, 'role', None) in ('moderateur', 'administrateur'):
+        if a_role(user, *ROLES_MODERATION):
             return qs
 
         # Public : uniquement les News publiées et publiques, sauf pour
