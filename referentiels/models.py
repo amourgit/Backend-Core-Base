@@ -52,6 +52,20 @@ class Organisation(SocleTracabilite):
     logo = models.ImageField(_('Logo'), upload_to='organisations/logos/', null=True, blank=True)
     type = models.CharField(_('Type'), max_length=30, choices=TypeOrganisation.choices, default=TypeOrganisation.AUTRE)
     description = models.TextField(_('Description'), blank=True)
+    site_web = models.URLField(
+        _('Site web'), max_length=300, blank=True,
+        help_text=_("Lien externe principal de l'organisation, affiché sur sa carte d'identité (news card)."),
+    )
+    reseaux_sociaux = models.JSONField(
+        _('Réseaux sociaux'), default=dict, blank=True,
+        help_text=_(
+            "Dictionnaire libre {plateforme: url}, ex: "
+            "{'facebook': 'https://...', 'instagram': 'https://...', 'twitter': 'https://...', "
+            "'linkedin': 'https://...', 'youtube': 'https://...', 'whatsapp': 'https://...'}. "
+            "Clés non contraintes côté modèle : le frontend affiche uniquement les plateformes "
+            "reconnues (voir ORGANISATION_SOCIAL_ICONS côté frontend) et ignore le reste."
+        ),
+    )
 
     class Meta:
         verbose_name = _('Organisation')

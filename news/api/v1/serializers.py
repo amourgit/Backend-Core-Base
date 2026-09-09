@@ -26,12 +26,15 @@ class CategorieNesteeSerializer(serializers.ModelSerializer):
 
 
 class OrganisationNesteeSerializer(serializers.ModelSerializer):
+    """Objet organisation imbriqué dans une News — voir NewsCardAuthorBadge.tsx
+    côté frontend (coin haut-gauche de la card), qui affiche `site_web` et
+    `reseaux_sociaux` dans le contenu du panneau au clic."""
     id = serializers.CharField(source='pk', read_only=True)
     logo = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
-        fields = ('id', 'nom', 'logo', 'type', 'description')
+        fields = ('id', 'nom', 'logo', 'type', 'description', 'site_web', 'reseaux_sociaux')
 
     def get_logo(self, obj):
         if not obj.logo:
