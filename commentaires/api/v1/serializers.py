@@ -87,8 +87,7 @@ class CommentaireSerializer(serializers.ModelSerializer):
         return vote.direction if vote else None
 
     def get_est_administrateur(self, obj):
-        from adhesions.api.v1.services import AdhesionService
-        return AdhesionService.get_role(obj.auteur_id) in ('administrateur', 'moderateur')
+        return getattr(obj.auteur, 'role', None) in ('administrateur', 'moderateur')
 
 
 class CommentaireEcritureSerializer(serializers.ModelSerializer):

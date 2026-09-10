@@ -91,7 +91,7 @@ class TenantMiddleware(TenantMainMiddleware):
     # la première requête SQL (ex: relation "news_news" does not
     # exist), au lieu d'un 400 clair et exploitable.
     TENANT_ONLY_APPS = (
-        'adhesions', 'news', 'commentaires', 'sondages', 'liens',
+        'news', 'commentaires', 'sondages', 'liens',
         'notifications', 'journal', 'moderation', 'statistiques',
     )
 

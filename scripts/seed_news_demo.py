@@ -46,7 +46,7 @@ from sondages.models import Sondage, ChoixSondage, VoteSondage
 from liens.models import LienPublication, LienAcces
 from moderation.models import Signalement
 from notifications.models import Notification
-from adhesions.models import Badge, MembreTenant, RoleUtilisateur
+from users.models import Badge
 
 User = get_user_model()
 
@@ -118,11 +118,9 @@ def get_or_bootstrap_author():
         first_name="Rédaction",
         last_name="CIVITAS NEWS",
         password=mot_de_passe,
+        role="administrateur",
         is_verified=True,
     )
-    # Rôle applicatif désormais porté par adhesions.MembreTenant (tenant
-    # courant), plus par User (identité globale, schéma public).
-    MembreTenant.objects.get_or_create(user_id=auteur.id, defaults={"role": RoleUtilisateur.ADMINISTRATEUR})
     print(
         "\n⚠️  Aucun utilisateur n'existait dans ce tenant -- compte de "
         "secours créé pour servir d'auteur :\n"
@@ -161,6 +159,7 @@ def seed_utilisateurs(data, badges):
                 "email": u["email"],
                 "first_name": u["first_name"],
                 "last_name": u["last_name"],
+                "role": u["role"],
                 "is_verified": True,
             },
         )
@@ -169,16 +168,11 @@ def seed_utilisateurs(data, badges):
             obj.save(update_fields=["password"])
         utilisateurs[u["ref"]] = obj
 
-        # Rôle applicatif + badges désormais portés par adhesions.MembreTenant
-        # (tenant courant), plus par User (identité globale) -- get_or_create
-        # pour ne jamais écraser un rôle déjà attribué lors d'un rejeu.
-        membre, _ = MembreTenant.objects.get_or_create(user_id=obj.id, defaults={"role": u["role"]})
-
         badge_refs = u.get("badges", [])
         if badge_refs:
-            membre.badges.add(*[badges[ref] for ref in badge_refs])
+            obj.badges.add(*[badges[ref] for ref in badge_refs])
 
-        log(f"{'✅ créé' if created else 'ℹ️  déjà présent'} — {membre.get_role_display()} « {obj.username} »")
+        log(f"{'✅ créé' if created else 'ℹ️  déjà présent'} — {obj.get_role_display()} « {obj.username} »")
 
     return utilisateurs
 

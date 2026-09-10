@@ -175,7 +175,6 @@ BASE_VERSIONED_AUTHENTICATED_ROUTES = [
     'notifications',   # /api/notifications/vX  (notifications, {id}/read, read-all — propres à chaque utilisateur)
     'journal',         # /api/journal/vX        (evenements — journal d'audit, lecture seule, modérateurs/admins)
     'moderation',      # /api/moderation/vX     (signalements, {id}/traiter, utilisateurs — modérateurs/admins)
-    'adhesions',       # /api/adhesions/vX      (membres du tenant, adhésion — moi accessible à tout authentifié, le reste modérateurs/admins)
 ]
 # Configuration des routes Authentifiées non versionnées avec leurs sous-chemins
 BASE_NON_VERSIONED_AUTHENTICATED_ROUTES = [

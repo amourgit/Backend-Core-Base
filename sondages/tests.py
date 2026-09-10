@@ -20,7 +20,6 @@ from django_tenants.test.cases import TenantTestCase
 
 from news.models import News, NewsType
 from referentiels.models import Categorie
-from adhesions.models import MembreTenant, RoleUtilisateur
 from .api.v1 import services
 from .models import (
     Sondage, ChoixSondage, VoteSondage, TypeVoteSondage, VisibiliteResultatSondage,
@@ -55,15 +54,10 @@ class SondageTenantTestCase(TenantTestCase):
 
 class SondageTestCaseMixin:
     def setUp(self):
-        # Rôle applicatif désormais porté par adhesions.MembreTenant (tenant
-        # courant), plus par User (identité globale, schéma public) --
-        # voir la réforme identité globale / adhésion tenant.
-        self.auteur = User.objects.create_user(username='auteur', password='x')
+        self.auteur = User.objects.create_user(username='auteur', password='x', role='organisation')
         self.alice = User.objects.create_user(username='alice', password='x')
         self.bob = User.objects.create_user(username='bob', password='x')
-        self.moderateur = User.objects.create_user(username='mod', password='x')
-        MembreTenant.objects.create(user_id=self.auteur.id, role=RoleUtilisateur.ORGANISATION)
-        MembreTenant.objects.create(user_id=self.moderateur.id, role=RoleUtilisateur.MODERATEUR)
+        self.moderateur = User.objects.create_user(username='mod', password='x', role='moderateur')
 
         self.categorie = Categorie.objects.create(nom='Vie académique')
         self.news = News.objects.create(

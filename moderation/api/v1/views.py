@@ -6,8 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from common.drf import SocleModelViewSet
 from common.permissions import EstModerateurOuAdmin
 from journal.models import EvenementJournal, TypeActionJournal
-from adhesions.models import MembreTenant
-from adhesions.api.v1.serializers import MembreTenantSerializer
+from users.api.v1.serializers import UtilisateurPublicSerializer
 from ... import models
 from .permissions import SignalementPermission
 from .serializers import SignalementSerializer, SignalementEcritureSerializer
@@ -74,20 +73,14 @@ class SignalementViewSet(SocleModelViewSet):
 
 
 class UtilisateursAdminViewSet(viewsets.ReadOnlyModelViewSet):
-    """GET /moderation/v1/utilisateurs/ — annuaire des MEMBRES DE CE TENANT
-    pour le panneau d'administration (distinct de users/v1/users/, réservé
-    aux superusers pour la gestion de comptes GLOBAUX). Depuis la réforme
-    identité globale / adhésion tenant, le rôle/rattachement d'un
-    utilisateur est propre à ce tenant -- voir `adhesions.MembreTenant`."""
-    serializer_class = MembreTenantSerializer
+    """GET /moderation/v1/utilisateurs/ — annuaire utilisateurs pour le
+    panneau d'administration (distinct de users/v1/users/, réservé aux
+    superusers pour la gestion de comptes)."""
+    serializer_class = UtilisateurPublicSerializer
     permission_classes = [EstModerateurOuAdmin]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['role']
 
     def get_queryset(self):
-        return (
-            MembreTenant.objects
-            .select_related('etablissement', 'organisation')
-            .prefetch_related('badges')
-            .order_by('-cree_le')
-        )
+        from django.contrib.auth import get_user_model
+        return get_user_model().objects.all().select_related('etablissement').prefetch_related('badges').order_by('username')

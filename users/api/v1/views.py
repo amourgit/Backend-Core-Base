@@ -43,7 +43,7 @@ class UserViewSet(viewsets.ModelViewSet):
     passage une élévation de privilège : n'importe quel compte pouvait
     PATCHer `role`/`is_active` de N'IMPORTE QUEL AUTRE compte).
     """
-    queryset = User.objects.all()
+    queryset = User.objects.all().select_related('etablissement', 'organisation').prefetch_related('badges')
     serializer_class = UserSerializer
     permission_classes = [EstModerateurOuAdministrateur]
 

@@ -24,14 +24,12 @@ Avec auto_create_schema=True sur le modèle Tenant (voir tenants/models.py),
 la création déclenche automatiquement la création ET la migration du
 schéma PostgreSQL correspondant -- aucune étape manuelle supplémentaire.
 
-`--create-admin` crée (ou réutilise s'il existe déjà) un utilisateur
-GLOBAL -- schéma PUBLIC, superutilisateur Django (is_staff/is_superuser,
-accès à /admin/ sur N'IMPORTE QUEL schéma qu'il navigue -- ce flag n'est
-plus par-tenant depuis la réforme identité globale / adhésion tenant) --
-PUIS lui crée une adhésion (adhesions.MembreTenant) DANS le schéma de ce
-tenant avec role=RoleUtilisateur.ADMINISTRATEUR (le rôle APPLICATIF
-réellement lu par common.permissions.a_role côté API, propre à ce
-tenant).
+`--create-admin` crée, DANS le schéma de ce tenant (pas dans le schéma
+public -- voir README.md pour l'équivalent manuel via `manage.py shell`
+que cette option remplace), un utilisateur superutilisateur Django
+(is_staff/is_superuser, accès à /admin/) ET applicativement administrateur
+(role=RoleUtilisateur.ADMINISTRATEUR, pour les permissions fines
+common.permissions.a_role côté API).
 
 `--extra-domain` (répétable) enregistre un domaine SUPPLÉMENTAIRE pour ce
 tenant, en plus de <sous-domaine>.MAIN_DOMAIN -- indispensable dès que le
@@ -173,35 +171,22 @@ class Command(BaseCommand):
     def _create_admin(self, schema_name, username, email, password):
         from django.contrib.auth import get_user_model
         from django_tenants.utils import schema_context
-        from adhesions.models import MembreTenant, RoleUtilisateur
+        from users.models import RoleUtilisateur
 
         User = get_user_model()
 
-        # 1. Identité GLOBALE : créée (ou réutilisée) dans le schéma PUBLIC
-        # -- `users` n'est plus qu'un SHARED_APP, `User.objects` résout donc
-        # toujours la table publique quel que soit le schéma actif, mais on
-        # est explicite ici pour la lisibilité de la commande.
-        with schema_context('public'):
-            user = User.objects.filter(username=username).first()
-            if user is None:
-                user = User.objects.create_superuser(username=username, email=email, password=password)
-                self.stdout.write(self.style.SUCCESS(f"✅ Utilisateur global '{username}' créé (schéma public)."))
-            else:
-                self.stdout.write(self.style.WARNING(f"ℹ️ Utilisateur global '{username}' déjà présent."))
-
-        # 2. Adhésion DANS ce tenant : rôle applicatif réellement lu par
-        # common.permissions.a_role côté API.
         with schema_context(schema_name):
-            membre, created = MembreTenant.objects.get_or_create(
-                user_id=user.id,
-                defaults={'role': RoleUtilisateur.ADMINISTRATEUR},
-            )
-            if created:
-                self.stdout.write(self.style.SUCCESS(
-                    f"✅ Adhésion créée pour '{username}' sur le tenant '{schema_name}' "
-                    f"(role='{RoleUtilisateur.ADMINISTRATEUR}')."
-                ))
-            else:
+            if User.objects.filter(username=username).exists():
                 self.stdout.write(self.style.WARNING(
-                    f"ℹ️ '{username}' a déjà une adhésion sur le tenant '{schema_name}' (role='{membre.role}')."
+                    f"ℹ️ Un utilisateur '{username}' existe déjà sur le schéma '{schema_name}'."
                 ))
+                return
+
+            User.objects.create_superuser(
+                username=username, email=email, password=password,
+                role=RoleUtilisateur.ADMINISTRATEUR,
+            )
+            self.stdout.write(self.style.SUCCESS(
+                f"✅ Administrateur '{username}' créé sur le tenant '{schema_name}' "
+                f"(superutilisateur Django + role='{RoleUtilisateur.ADMINISTRATEUR}')."
+            ))

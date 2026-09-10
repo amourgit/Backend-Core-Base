@@ -1,33 +1,42 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import User
+from .models import User, Badge
 from .forms import CustomUserCreationForm, CustomUserChangeForm
+
+
+@admin.register(Badge)
+class BadgeAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'icone', 'description')
+    search_fields = ('nom',)
 
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     """
-    Interface d'administration des comptes -- GLOBALE (schéma public
-    uniquement, `users` n'étant plus listé que dans SHARED_APPS). Le
-    rôle applicatif et les rattachements (organisation/établissement/
-    badges), propres à chaque tenant, se gèrent désormais dans
-    l'admin de chaque tenant via `adhesions.MembreTenant`
-    (voir adhesions/admin.py), pas ici.
+    Interface d'administration des utilisateurs. Chaque tenant (schéma)
+    ne voit que ses propres utilisateurs — l'isolation est assurée par
+    django-tenants au niveau du schéma PostgreSQL, pas par un filtre
+    applicatif ici.
     """
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = User
 
-    list_display = ('username', 'email', 'nom_complet', 'is_staff', 'is_active', 'date_joined')
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'is_verified', 'groups')
+    list_display = ('username', 'email', 'nom_complet', 'role', 'etablissement', 'is_staff', 'is_active', 'date_joined')
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'is_verified', 'role', 'groups')
     search_fields = ('username', 'first_name', 'last_name', 'email', 'phone_number')
     ordering = ('username',)
+    autocomplete_fields = ['etablissement', 'organisation', 'badges']
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Informations personnelles'), {
             'fields': ('first_name', 'last_name', 'email', 'phone_number', 'address', 'date_of_birth', 'profile_picture'),
+        }),
+        (_('CIVITAS NEWS'), {
+            'description': _("Rôle applicatif et rattachement — pilote les permissions frontend et backend."),
+            'fields': ('role', 'etablissement', 'organisation', 'badges'),
         }),
         (_('Préférences'), {
             'classes': ('collapse',),
@@ -45,7 +54,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2'),
+            'fields': ('username', 'email', 'role', 'password1', 'password2'),
         }),
     )
 

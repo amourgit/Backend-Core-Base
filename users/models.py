@@ -5,20 +5,36 @@ import re
 from django.core.exceptions import ValidationError
 
 
+class RoleUtilisateur(models.TextChoices):
+    """Rôle applicatif de l'utilisateur — pilote les permissions frontend
+    fines (voir src/lib/permissions/ côté frontend) et backend
+    (voir common/permissions.py). 'anonyme' n'est jamais stocké : il ne
+    s'applique qu'aux requêtes non authentifiées, côté frontend."""
+    ETUDIANT = 'etudiant', _('Étudiant')
+    MODERATEUR = 'moderateur', _('Modérateur')
+    ADMINISTRATEUR = 'administrateur', _('Administrateur')
+    ORGANISATION = 'organisation', _('Organisation')
+
+
+class Badge(models.Model):
+    """Distinction attribuée à un utilisateur (référentiel simple, peu volatil)."""
+    nom = models.CharField(_('Nom'), max_length=100, unique=True)
+    icone = models.CharField(_('Icône'), max_length=10, default='🏅', help_text=_('Emoji ou code icône court.'))
+    description = models.CharField(_('Description'), max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = _('Badge')
+        verbose_name_plural = _('Badges')
+        ordering = ['nom']
+
+    def __str__(self):
+        return self.nom
+
+
 class User(AbstractUser):
     """
-    Compte GLOBAL, unique, vivant UNIQUEMENT dans le schéma public
-    (`users` n'est plus listé que dans SHARED_APPS -- voir
-    config/settings.py). On s'authentifie une seule fois, de façon
-    globale : ce modèle ne porte plus aucune métadonnée propre à un
-    tenant particulier.
-
-    Le rôle applicatif, l'organisation/établissement de rattachement et
-    les badges -- propres à CHAQUE tenant dans lequel cette personne
-    est enregistrée -- vivent désormais dans `adhesions.MembreTenant`
-    (une ligne par tenant, dans le schéma de ce tenant, référençant cet
-    utilisateur par `user_id` simple, jamais par ForeignKey physique --
-    voir adhesions/models.py pour le détail et la justification).
+    Custom user model.
+    Each instance is automatically isolated in the tenant's schema.
     """
     # `email`/`phone_number` doivent être uniques (nullable pour laisser
     # les deux optionnels indépendamment l'un de l'autre : un compte créé
@@ -38,11 +54,27 @@ class User(AbstractUser):
     language_preference = models.CharField(_('Preferred language'), max_length=10, default='en')
     timezone = models.CharField(_('Timezone'), max_length=50, default='UTC')
 
+    # --- Champs applicatifs CIVITAS NEWS ---
+    role = models.CharField(
+        _('Rôle'), max_length=20, choices=RoleUtilisateur.choices, default=RoleUtilisateur.ETUDIANT, db_index=True,
+    )
+    etablissement = models.ForeignKey(
+        'referentiels.Etablissement', verbose_name=_('Établissement'),
+        null=True, blank=True, on_delete=models.SET_NULL, related_name='utilisateurs',
+    )
+    organisation = models.ForeignKey(
+        'referentiels.Organisation', verbose_name=_('Organisation'),
+        null=True, blank=True, on_delete=models.SET_NULL, related_name='membres',
+        help_text=_('Renseigné si le compte représente/gère une organisation publiante.'),
+    )
+    badges = models.ManyToManyField(Badge, verbose_name=_('Badges'), blank=True, related_name='utilisateurs')
+
     class Meta:
         indexes = [
            models.Index(fields=['username']),
            models.Index(fields=['email']),
            models.Index(fields=['is_active']),
+           models.Index(fields=['role']),
         ]
         verbose_name = _('User')
         verbose_name_plural = _('Users')
@@ -59,6 +91,9 @@ class User(AbstractUser):
         return full_name.strip() or self.username
 
     def save(self, *args, **kwargs):
+        """
+        Override save method to handle tenant.
+        """
         # Normalise '' -> None pour email/phone_number : ce sont les deux
         # SEULS identifiants de connexion (voir
         # UsersService.get_user_by_identifiant) et donc UNIQUES en base --
@@ -76,8 +111,11 @@ class User(AbstractUser):
             self.email = None
         if self.phone_number == '':
             self.phone_number = None
+        # if not self.pk and hasattr(self, '_tenant'):
+        #     # If it's a new instance and a tenant has been set
+        #     self.tenant = self._tenant
         super().save(*args, **kwargs)
-
+    
     def clean(self):
        super().clean()
        if self.phone_number:
