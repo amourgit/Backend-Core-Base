@@ -79,26 +79,42 @@ class Tenant(TenantMixin):
         return self.is_active and self.schema_name
 
     @classmethod
-    def create_with_domain(cls, name: str, sous_domaine: str, admin_email: str, admin_password: str = None, admin_username: str = None, **kwargs):
+    def create_with_domain(cls, name: str, sous_domaine: str, identifiant: str, password: str = None, description: str = '', **kwargs):
         """
-        Factory method pour créer un tenant avec son domaine et un superuser.
+        Factory method pour créer un tenant avec son domaine et son
+        premier administrateur -- créé DANS le schéma du tenant (chaque
+        tenant est autonome pour ses utilisateurs, voir config/settings.py :
+        users/auth/admin double-listés SHARED_APPS + TENANT_APPS), avec
+        à la fois is_staff=is_superuser=True (accès Django admin complet
+        sur ce schéma) ET role=RoleUtilisateur.ADMINISTRATEUR (rôle
+        APPLICATIF vérifié par common.permissions.a_role -- les deux sont
+        indépendants, voir bootstrap_tenant.py::_create_admin qui suit le
+        même principe).
+
+        `identifiant` : email OU numéro de téléphone (même détection
+        automatique qu'à l'inscription self-service, voir
+        UsersService/IdentifiantRegisterSerializer) -- remplace les
+        anciens admin_email/admin_username séparés, pour rester cohérent
+        avec le SEUL mode de création de compte qui existe ailleurs dans
+        l'app.
         """
         from domain.models import Domain
+        from users.api.v1.services import UsersService, normaliser_identifiant, is_email, is_telephone_valide
+        from users.models import RoleUtilisateur
         import secrets
         import string
         
         try:
             # 1. Validation des paramètres
-            if not name or not sous_domaine or not admin_email:
-                raise ValidationError("Nom, sous-domaine et email administrateur requis")
+            if not name or not sous_domaine or not identifiant:
+                raise ValidationError("Nom, sous-domaine et identifiant administrateur requis")
             
             if not settings.MAIN_DOMAIN:
                 raise ValidationError("MAIN_DOMAIN non configuré dans les paramètres")
-            
-            if not admin_username:
-                raise ValidationError("Le nom d'utilisateur administrateur est requis")
-            if not admin_email:
-                raise ValidationError("L'email administrateur est requis")
+
+            identifiant = normaliser_identifiant(identifiant)
+            if not identifiant or not (is_email(identifiant) or is_telephone_valide(identifiant)):
+                raise ValidationError("L'identifiant administrateur doit être un email ou un numéro de téléphone valide")
             
             # 2. Préparation des données
             schema_name = slugify(sous_domaine).replace('-', '_')
@@ -121,6 +137,7 @@ class Tenant(TenantMixin):
                     name=name,
                     sous_domaine=sous_domaine,
                     schema_name=schema_name,
+                    description=description,
                     **kwargs
                 )
                 tenant.full_clean()
@@ -157,29 +174,29 @@ class Tenant(TenantMixin):
                         print(f"❌ Erreur lors de l'application des migrations: {str(e)}")
                         raise ValidationError(f"Erreur lors de l'application des migrations: {str(e)}")
                 
-                # 7. Création du superuser dans le schéma du tenant
+                # 7. Création de l'administrateur DANS le schéma du tenant
+                # (superuser Django + role applicatif ADMINISTRATEUR --
+                # voir docstring de la méthode).
                 admin_credentials = {}
                 with schema_context(schema_name):
                     # Génération du mot de passe si non fourni
-                    if not admin_password:
-                        admin_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+                    if not password:
+                        password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
                     
-                    # Création du superuser
                     try:
-                        print(f"👤 Création du superuser pour {schema_name}")
-                        admin = User.objects.create_superuser(
-                            username=admin_username,
-                            email=admin_email,
-                            password=admin_password
+                        print(f"👤 Création de l'administrateur pour {schema_name}")
+                        UsersService.creer_utilisateur_depuis_identifiant(
+                            identifiant, password,
+                            is_staff=True, is_superuser=True, role=RoleUtilisateur.ADMINISTRATEUR,
                         )
                         admin_credentials = {
-                            'email': admin_email,
-                            'password': admin_password
+                            'identifiant': identifiant,
+                            'password': password,
                         }
-                        print(f"✅ Superuser créé avec succès pour {schema_name}")
+                        print(f"✅ Administrateur créé avec succès pour {schema_name}")
                     except Exception as e:
-                        print(f"❌ Erreur lors de la création du superuser: {str(e)}")
-                        raise ValidationError(f"Erreur lors de la création du superuser: {str(e)}")
+                        print(f"❌ Erreur lors de la création de l'administrateur: {str(e)}")
+                        raise ValidationError(f"Erreur lors de la création de l'administrateur: {str(e)}")
                 
                 return tenant, domain, admin_credentials
                 

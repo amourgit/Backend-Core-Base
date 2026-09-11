@@ -201,7 +201,7 @@ class UsersService:
 
     @staticmethod
     @transaction.atomic
-    def creer_utilisateur_depuis_identifiant(identifiant, password):
+    def creer_utilisateur_depuis_identifiant(identifiant, password, *, is_staff=False, is_superuser=False, role=None):
         """
         Inscription simplifiée : un SEUL identifiant (email OU téléphone)
         + mot de passe -- voir IdentifiantRegisterSerializer
@@ -210,14 +210,25 @@ class UsersService:
         CustomTokenObtainPairView lorsque l'utilisateur confirme vouloir
         créer un compte après un login sur un identifiant introuvable
         (voir token_manager/api/v1/views.py).
+
+        `is_staff`/`is_superuser`/`role` : par défaut un compte membre
+        ordinaire (inchangé pour les deux appelants ci-dessus). Réutilisé
+        TEL QUEL par Tenant.create_with_domain (tenants/models.py) pour
+        créer le premier administrateur d'un nouveau tenant -- même
+        normalisation/génération de username, pas de logique dupliquée --
+        avec is_staff=is_superuser=True et role=RoleUtilisateur.ADMINISTRATEUR.
         """
         identifiant = normaliser_identifiant(identifiant)
         username = UsersService.generer_username_depuis_identifiant(identifiant)
         champs_contact = {'email': identifiant} if is_email(identifiant) else {'phone_number': identifiant}
+        if role is not None:
+            champs_contact['role'] = role
         return User.objects.create_user(
             username=username,
             password=password,
             is_active=True,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
             date_joined=timezone.now(),
             **champs_contact,
         )

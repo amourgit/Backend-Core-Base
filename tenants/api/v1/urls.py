@@ -8,5 +8,6 @@ from . import views
 
 urlpatterns = [
     # path('', include(router.urls)),
-    path('', views.TenantCreateAPIView.as_view(), name='tenant-create'),
+    path('disponibilite/', views.TenantDisponibiliteAPIView.as_view(), name='tenant-disponibilite'),
+    path('', views.TenantCreateAPIView.as_view(), name='tenant-create-list'),
 ]

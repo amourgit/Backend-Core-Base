@@ -1,8 +1,9 @@
+import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from tenants.models import Tenant
-from .serializers import TenantSerializer, TenantCreateSerializer
+from .serializers import TenantSerializer, TenantCreateSerializer, TenantPublicSerializer
 from rest_framework.permissions import AllowAny
 from django.core.exceptions import ValidationError
 from django_tenants.utils import schema_context
@@ -17,18 +18,41 @@ from django.utils import timezone
 
 
 class TenantCreateAPIView(APIView):
-    permission_classes = [AllowAny]  # accessible publiquement
+    """
+    GET  : annuaire public des tenants actifs -- civitas-news l'affiche
+           sur sa page d'accueil, section "Organisations" (chaque tenant
+           EST une organisation, voir OrganisationsSection.tsx côté
+           frontend ; referentiels.Organisation reste un tout autre
+           concept -- un contenu publiable À L'INTÉRIEUR d'un tenant).
+    POST : création self-service d'un nouveau tenant + de son premier
+           administrateur -- architecture tenant-autonome restaurée,
+           voir Tenant.create_with_domain (tenants/models.py) : chaque
+           tenant a ses PROPRES utilisateurs, isolés, l'admin créé ici
+           n'existe que dans le schéma de CE tenant.
+    """
+    permission_classes = [AllowAny]  # accessible publiquement, y compris sans aucun tenant résolu
+    authentication_classes = []
+
+    def get(self, request):
+        # Tenant/Domain vivent en schéma public (SHARED_APPS) : accessible
+        # tel quel, sans schema_context explicite, quel que soit le
+        # schéma actif sur la connexion (voir résolution du tenant par
+        # TenantMiddleware -- toujours public+courant sur le search_path).
+        tenants = Tenant.objects.filter(is_active=True).order_by('name')
+        serializer = TenantPublicSerializer(tenants, many=True)
+        return Response(serializer.data)
+
     @swagger_auto_schema(
-        operation_description="Créer un nouveau tenant avec un administrateur",
+        operation_description="Créer un nouveau tenant avec son premier administrateur (compte propre à ce tenant).",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=['name', 'sous_domaine', 'admin_email'],
+            required=['name', 'sous_domaine', 'identifiant', 'password'],
             properties={
                 'name': openapi.Schema(type=openapi.TYPE_STRING, description="Nom du tenant"),
-                'sous_domaine': openapi.Schema(type=openapi.TYPE_STRING, description="Sous-domaine pour le tenant (ex: 'mon-tenant' pour mon-tenant.localhost)"),
-                'admin_email': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_EMAIL, description="Email de l'administrateur"),
-                'admin_password': openapi.Schema(type=openapi.TYPE_STRING, description="Mot de passe de l'administrateur (optionnel, généré automatiquement si non fourni)"),
-                'admin_username': openapi.Schema(type=openapi.TYPE_STRING, description="Nom d'utilisateur de l'administrateur (optionnel, généré à partir de l'email si non fourni)"),
+                'sous_domaine': openapi.Schema(type=openapi.TYPE_STRING, description="Sous-domaine pour le tenant (ex: 'mon-tenant' pour mon-tenant.MAIN_DOMAIN)"),
+                'description': openapi.Schema(type=openapi.TYPE_STRING, description="Description publique (optionnelle)"),
+                'identifiant': openapi.Schema(type=openapi.TYPE_STRING, description="Email OU numéro de téléphone de l'administrateur"),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, description="Mot de passe de l'administrateur"),
             },
         ),
         responses={
@@ -37,25 +61,11 @@ class TenantCreateAPIView(APIView):
                 schema=openapi.Schema(
                     type=openapi.TYPE_OBJECT,
                     properties={
-                        'tenant': openapi.Schema(
-                            type=openapi.TYPE_OBJECT,
-                            properties={
-                                'id': openapi.Schema(type=openapi.TYPE_INTEGER),
-                                'name': openapi.Schema(type=openapi.TYPE_STRING),
-                                'sous_domaine': openapi.Schema(type=openapi.TYPE_STRING),
-                                'schema_name': openapi.Schema(type=openapi.TYPE_STRING),
-                                'is_active': openapi.Schema(type=openapi.TYPE_BOOLEAN),
-                                'created_at': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_DATETIME),
-                                'updated_at': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_DATETIME),
-                            }
-                        ),
-                        'admin_credentials': openapi.Schema(
-                            type=openapi.TYPE_OBJECT,
-                            properties={
-                                'username': openapi.Schema(type=openapi.TYPE_STRING),
-                                'password': openapi.Schema(type=openapi.TYPE_STRING),
-                            }
-                        ),
+                        'tenant': openapi.Schema(type=openapi.TYPE_OBJECT),
+                        'domaine': openapi.Schema(type=openapi.TYPE_STRING),
+                        'admin': openapi.Schema(type=openapi.TYPE_OBJECT, properties={
+                            'identifiant': openapi.Schema(type=openapi.TYPE_STRING),
+                        }),
                     }
                 )
             ),
@@ -64,33 +74,61 @@ class TenantCreateAPIView(APIView):
         }
     )
     def post(self, request):
-        # Validation des données avec le serializer
         serializer = TenantCreateSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
 
-        # Forcer l'utilisation du schéma public pour la création
+        # Forcer l'utilisation du schéma public pour la création : la
+        # requête a pu résoudre un tenant existant via X-Tenant-Domain
+        # (ex: le domaine du frontend qui héberge ce formulaire), mais
+        # Tenant/Domain ne vivent QUE dans le schéma public.
         with schema_context('public'):
             try:
                 tenant, domain, admin_credentials = Tenant.create_with_domain(
                     name=serializer.validated_data['name'],
                     sous_domaine=serializer.validated_data['sous_domaine'],
-                    admin_email=serializer.validated_data['admin_email'],
-                    admin_password=serializer.validated_data.get('admin_password'),
-                    admin_username=serializer.validated_data.get('admin_username'),
+                    description=serializer.validated_data.get('description', ''),
+                    identifiant=serializer.validated_data['identifiant'],
+                    password=serializer.validated_data['password'],
                 )
             except ValidationError as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-            except Exception as e:
+            except Exception:
                 return Response({"detail": "Erreur interne."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            # Sérialisation du tenant créé
-            tenant_data = TenantSerializer(tenant).data
-
             return Response({
-                "tenant": tenant_data,
-                "admin_credentials": admin_credentials  # utile si mot de passe généré automatiquement
+                "tenant": TenantPublicSerializer(tenant).data,
+                "domaine": domain.domain,
+                # Mot de passe volontairement absent : celui du formulaire
+                # est déjà connu du frontend qui vient de l'envoyer --
+                # jamais renvoyé en clair par l'API.
+                "admin": {"identifiant": admin_credentials['identifiant']},
             }, status=status.HTTP_201_CREATED)
+
+
+class TenantDisponibiliteAPIView(APIView):
+    """
+    GET /tenants/v1/disponibilite/?sous_domaine=xxx -- vérification EN
+    DIRECT (pendant la saisie, avant soumission) de la disponibilité
+    d'un sous-domaine pour le formulaire de création de tenant. Revalidé
+    de toute façon côté serveur à la soumission (TenantCreateSerializer)
+    -- cet endpoint n'est qu'un retour immédiat pour l'UX, jamais la
+    seule ligne de défense contre un doublon (fenêtre de course possible
+    entre la vérification et la soumission réelle).
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        sous_domaine = (request.query_params.get('sous_domaine') or '').strip().lower()
+        if not sous_domaine:
+            return Response({"detail": "Paramètre 'sous_domaine' requis."}, status=status.HTTP_400_BAD_REQUEST)
+        format_valide = bool(re.match(r'^[a-z0-9-]+$', sous_domaine)) and len(sous_domaine) >= 3
+        disponible = format_valide and not TenantService.exists_by_sous_domaine(sous_domaine)
+        return Response({
+            "sous_domaine": sous_domaine,
+            "disponible": disponible,
+            "format_valide": format_valide,
+        })
 
     def put(self, request):
         formatReponse, stat, settings_token_actif = check_token_settings()
