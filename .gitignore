@@ -13,3 +13,12 @@ db.sqlite3
 staticfiles/
 media/
 logs/
+
+# Migrations Django : générées localement dans CHAQUE environnement via
+# `python manage.py makemigrations` (voir build.sh, qui le fait avant
+# migrate_schemas) -- jamais committées, pour éviter qu'un historique de
+# migrations figé dans git ne diverge de l'état réel des modèles.
+# __init__.py explicitement inclus (c'est un *.py comme un autre) :
+# `makemigrations` recrée le paquet migrations/ tout seul s'il manque.
+*/migrations/*.py
+**/migrations/*.py
