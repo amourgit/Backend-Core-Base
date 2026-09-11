@@ -18,7 +18,11 @@ logs/
 # `python manage.py makemigrations` (voir build.sh, qui le fait avant
 # migrate_schemas) -- jamais committées, pour éviter qu'un historique de
 # migrations figé dans git ne diverge de l'état réel des modèles.
-# __init__.py explicitement inclus (c'est un *.py comme un autre) :
-# `makemigrations` recrée le paquet migrations/ tout seul s'il manque.
+# __init__.py RESTE tracké (voir règle ! ci-dessous) : sans lui, le
+# dossier migrations/ n'existe pas dans un clone frais, et
+# `makemigrations` SANS argument d'app saute alors silencieusement
+# l'app entière au lieu de lui générer un 0001_initial (vérifié) --
+# seul makemigrations <app> ciblé le fait. __init__.py (vide) doit donc
+# être committé pour CHAQUE app, en plus de cette règle.
 */migrations/*.py
-**/migrations/*.py
+!*/migrations/__init__.py
