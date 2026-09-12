@@ -7,7 +7,6 @@ from django.db import connection
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.conf import settings
-from django.core.management import call_command
 from django_tenants.utils import schema_context
 import re
 import secrets
@@ -28,7 +27,7 @@ class Tenant(TenantMixin):
     name = models.CharField(_('Nom'), max_length=100)
     sous_domaine = models.CharField(_('Sous-domaine'), max_length=100, unique=True)
     schema_name = models.CharField(_('Nom du schéma'), max_length=63, unique=True)
-    is_active = models.BooleanField(_('Actif'), default=True)
+    is_active = models.BooleanField(_('Actif'), default=False)
     created_at = models.DateTimeField(_('Créé le'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Mis à jour le'), auto_now=True)
     description = models.TextField(_('Description'), blank=True)
@@ -150,31 +149,23 @@ class Tenant(TenantMixin):
                     is_primary=True
                 )
                 
-                # 5. Création du schéma s'il n'existe pas
-                try:
-                    print(f"🔄 Création du schéma {schema_name}")
-                    with connection.cursor() as cursor:
-                        cursor.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}";')
-                    print(f"✅ Schéma {schema_name} créé avec succès")
-                except Exception as e:
-                    print(f"❌ Erreur lors de la création du schéma: {str(e)}")
-                    raise ValidationError(f"Erreur lors de la création du schéma: {str(e)}")
-                
-                # 6. Application des migrations si le tenant est actif
-                if tenant.is_active:
-                    try:
-                        print(f"🔄 Application des migrations pour le schéma {schema_name}")
-                        
-                        # Appliquer les migrations de base d'abord
-                        print("📦 Application des migrations de base...")
-                        call_command('migrate', '--noinput', schema=schema_name)
-                        
-                        print(f"✅ Migrations appliquées avec succès pour {schema_name}")
-                    except Exception as e:
-                        print(f"❌ Erreur lors de l'application des migrations: {str(e)}")
-                        raise ValidationError(f"Erreur lors de l'application des migrations: {str(e)}")
-                
-                # 7. Création de l'administrateur DANS le schéma du tenant
+                # 5. Le schéma et ses migrations sont déjà en place à ce
+                # stade : `tenant.save()` (étape 4 ci-dessus) les a créés
+                # automatiquement via TenantMixin (auto_create_schema=True,
+                # voir django_tenants/models.py::save -> create_schema()
+                # -> migrate_schemas). Répéter ici une création de schéma
+                # + un migrate explicite était totalement redondant --
+                # ça faisait tourner TOUTES les migrations DEUX FOIS sur
+                # la même requête HTTP, ce qui pouvait à lui seul dépasser
+                # le WORKER TIMEOUT de gunicorn (voir gunicorn.conf.py) et
+                # faire échouer la création avec un 500. Supprimé.
+                #
+                # Le tenant est créé is_active=False par défaut (voir le
+                # champ du modèle) : c'est désormais l'administrateur
+                # global qui l'active depuis l'admin Django natif (schéma
+                # public), jamais automatiquement à la création.
+
+                # 6. Création de l'administrateur DANS le schéma du tenant
                 # (superuser Django + role applicatif ADMINISTRATEUR --
                 # voir docstring de la méthode).
                 admin_credentials = {}

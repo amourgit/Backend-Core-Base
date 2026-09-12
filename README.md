@@ -83,3 +83,26 @@ python manage.py migrate_schemas
 Pour la création du tenant et de ses administrateurs, voir la section
 "Amorçage complet" ci-dessus -- `bootstrap_public` et `bootstrap_tenant`
 remplacent l'ancien flux `create_tenant` (interactif) + `manage.py shell`.
+
+## Déploiement Render -- timeout gunicorn
+
+`POST /api/tenants/v1/` (création self-service d'un tenant) crée un
+schéma Postgres et lui applique toutes les migrations de façon
+synchrone : plus long que le timeout gunicorn par défaut (30s) sur les
+ressources limitées du plan gratuit, d'où d'éventuels `WORKER TIMEOUT`
+/ 500 pendant cette requête précise. `gunicorn.conf.py` (racine du
+dépôt) relève ce délai, mais n'est pris en compte que si la Start
+Command Render l'utilise explicitement :
+
+```
+gunicorn config.wsgi:application -c gunicorn.conf.py
+```
+
+Alternative sans toucher à la Start Command : ajouter la variable
+d'environnement `GUNICORN_CMD_ARGS=--timeout 300` dans Render >
+Environment. Voir les commentaires de `gunicorn.conf.py` pour le détail.
+
+Rappel : un tenant nouvellement créé est désormais `is_active=False`
+par défaut -- c'est l'administrateur plateforme qui l'active depuis
+l'admin Django natif (schéma public, modèle Tenant), jamais
+automatiquement à la création.
