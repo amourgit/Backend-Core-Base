@@ -126,6 +126,17 @@ TENANT_DOMAIN_MODEL = 'domain.Domain'  # Chemin complet vers le modèle Domain
 TENANT_MODEL = 'tenants.Tenant'  # Chemin complet vers le modèle Tenant
 
 MIDDLEWARE = [
+    # Doit être le TOUT PREMIER de la liste : Django traite la réponse
+    # sortante dans l'ordre INVERSE de cette liste, donc être en tête
+    # ici garantit que la compression s'applique EN DERNIER, une fois le
+    # corps de la réponse définitivement figé par tous les autres
+    # middlewares (recommandation officielle Django). Réduit
+    # sensiblement la taille des réponses JSON de l'API (listes News/
+    # Commentaires en particulier) et donc la latence perçue, surtout
+    # sur des connexions lentes -- sans configuration côté frontend :
+    # le navigateur négocie ça tout seul via Accept-Encoding.
+    'django.middleware.gzip.GZipMiddleware',
+
     # CorsMiddleware DOIT être avant tout middleware custom susceptible de
     # court-circuiter la requête (TenantMiddleware / TenantJWTMiddleware).
     # CorsMiddleware.__call__ intercepte lui-même les preflights OPTIONS
@@ -291,6 +302,27 @@ DATABASES = {
     "default": dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
         engine="django_tenants.postgresql_backend",
+        # Sans ça (défaut Django : 0), une connexion TCP+TLS+auth neuve
+        # vers Postgres est ouverte puis refermée à CHAQUE requête --
+        # payée sur la latence de chaque réponse, alors que réutiliser
+        # une connexion existante est quasi gratuit. Sûr avec
+        # django-tenants : son backend positionne le search_path au
+        # niveau du CURSEUR, pas de la connexion (voir
+        # django_tenants/postgresql_backend/base.py::_cursor, appelé à
+        # CHAQUE requête SQL) -- donc une connexion réutilisée d'un
+        # tenant à l'autre entre deux requêtes HTTP est re-scopée
+        # correctement avant la moindre requête, sans risque de fuite
+        # entre schémas. 60s : assez pour amortir l'essentiel du trafic
+        # (workers gunicorn peu nombreux, voir gunicorn.conf.py) sans
+        # garder des connexions ouvertes indéfiniment.
+        conn_max_age=60,
+        # Un ping léger en début de requête avant de réutiliser une
+        # connexion persistante -- capital sur un Postgres hébergé qui
+        # peut couper les connexions idle ou redémarrer (plan gratuit/
+        # partagé) : sans ça, la première requête suivant une telle
+        # coupure échouerait avec une connexion morte au lieu de se
+        # reconnecter proprement.
+        conn_health_checks=True,
     )
 }
 
