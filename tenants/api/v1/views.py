@@ -105,6 +105,37 @@ class TenantCreateAPIView(APIView):
             }, status=status.HTTP_201_CREATED)
 
 
+class TenantPublicsAPIView(APIView):
+    """
+    GET /tenants/v1/publics/ -- liste des tenants `is_public=True` actifs,
+    destinée au frontend pour la réforme multi-tenant des requêtes GET :
+    au démarrage (puis à intervalle), le frontend appelle cet endpoint et
+    garde le résultat en store + localStorage ; pour CHAQUE requête GET
+    suivante, il ajoute le champ `domain` de chacun de ces tenants (voir
+    TenantPublicSerializer.get_domain) à l'en-tête X-Tenant-Domain, en
+    plus du domaine du tenant courant de l'utilisateur -- le backend
+    (tenants.middleware.TenantMiddleware._fan_out_get) boucle alors sur
+    la liste complète et renvoie les données de chaque tenant séparément.
+
+    Volontairement un endpoint DÉDIÉ plutôt qu'un filtre `?is_public=true`
+    sur GET /tenants/v1/ : cette dernière route reste l'annuaire complet
+    utilisé par la page d'accueil (OrganisationsSection.tsx), un usage
+    différent qui ne doit pas changer de forme selon un query param.
+
+    Accessible sans authentification ni tenant résolu (AllowAny, schéma
+    public) -- exactement comme TenantCreateAPIView.get, dont elle
+    partage le même besoin d'être appelable AVANT que le frontend ne
+    sache quoi que ce soit sur l'utilisateur ou son tenant.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        tenants = Tenant.objects.filter(is_active=True, is_public=True).order_by('name')
+        serializer = TenantPublicSerializer(tenants, many=True)
+        return Response(serializer.data)
+
+
 class TenantDisponibiliteAPIView(APIView):
     """
     GET /tenants/v1/disponibilite/?sous_domaine=xxx -- vérification EN

@@ -4,6 +4,7 @@ from tenants.models import Tenant
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.core.cache import cache
+from common.camel_case import to_camel_case
 from config.config import (
     GLOBAL_PUBLIC_ROUTES, 
     TENANT_PUBLIC_ROUTES, 
@@ -15,8 +16,10 @@ from config.fonction import (
     resolve_request_hostname,
     get_host_header_hostname,
     get_tenant_header_hostname,
+    get_tenant_header_hostnames,
 )
 import re
+import json
 import logging
 
 logger = logging.getLogger(__name__)
@@ -611,7 +614,16 @@ class TenantMiddleware(TenantMainMiddleware):
         """
         # Configuration du tenant pour la requête
         self._set_request_tenant(request, tenant, hostname)
-        
+
+        # Réforme multi-tenant : TOUTE requête GET sur une route
+        # TENANT_PUBLIC/AUTHENTICATED est traitée comme une liste de
+        # tenants -- même à un seul élément, toujours bouclée, voir
+        # _fan_out_get -- au lieu d'un unique tenant. Les vues/services
+        # métier ne changent pas : elles sont simplement rejouées une
+        # fois par tenant de la liste, sans savoir qu'elles le sont.
+        if request.method == "GET" and route_type in ("TENANT_PUBLIC", "AUTHENTICATED"):
+            return self._fan_out_get(request, tenant, hostname)
+
         if route_type == "TENANT_PUBLIC":
             logger.debug(f"[MultiTenant] 🌐 Route TENANT_PUBLIC : {request.path} | Tenant: {tenant.name}")
             return None
@@ -628,6 +640,139 @@ class TenantMiddleware(TenantMainMiddleware):
             "UNHANDLED_ROUTE_TYPE",
             404
         )
+
+    def _fan_out_get(self, request, primary_tenant, primary_hostname):
+        """
+        Cœur de la réforme multi-tenant des requêtes GET.
+
+        Principe : on NE TOUCHE PAS aux vues/services métier -- elles ne
+        savent même pas qu'elles sont rejouées plusieurs fois. On boucle
+        ICI, dans le middleware, en rappelant `self.get_response(request)`
+        (la suite de la chaîne downstream : TenantJWTMiddleware, puis
+        Session/Common/Csrf/Auth/Message/XFrame, puis résolution d'URL et
+        vue DRF) une fois par tenant à interroger, en changeant le schéma
+        PostgreSQL actif (`connection.set_tenant`) et `request.tenant`
+        entre chaque appel. Chaque appel est donc une requête HTTP
+        interne complète et indépendante, exactement comme si le client
+        l'avait envoyée séparément avec un seul tenant dans l'en-tête --
+        sauf qu'on la rejoue nous-mêmes N fois sur la MÊME requête entrante.
+
+        Liste des tenants interrogés (dans l'ordre) :
+          1. `primary_tenant`, déjà résolu par `_resolve_tenant_dual`
+             (sous-domaine et/ou en-tête, premier hostname de la liste).
+          2. Tout hostname supplémentaire de X-Tenant-Domain (voir
+             get_tenant_header_hostnames) qui résout un AUTRE tenant réel
+             -- typiquement, côté frontend, les tenants `is_public=True`
+             ajoutés en plus du tenant courant de l'utilisateur. Un
+             hostname qui ne résout aucun tenant est ignoré (log warning),
+             il ne fait jamais échouer la requête entière.
+          3. Si l'en-tête ne contient qu'un seul hostname (ou est absent
+             et que la résolution vient du Host) : liste à un seul
+             élément -- toujours enveloppée dans le même format, par
+             cohérence (voir _tenant_envelope_entry).
+
+        Réponse : toujours un tableau JSON `[{tenant, status_code, data}, ...]`,
+        un élément par tenant, dans le même ordre que la liste ci-dessus.
+        `status_code` et `data` reflètent la réponse RÉELLE de la vue pour
+        CE tenant (403/404/200/...) -- une erreur sur un tenant ne fait
+        jamais échouer les autres, le frontend peut afficher les tenants
+        en succès et ignorer/signaler ceux en erreur individuellement.
+
+        Limite connue, assumée : les middlewares/décorateurs sensibles au
+        NOMBRE de requêtes (throttling DRF, django-ratelimit, django-axes)
+        voient N requêtes internes au lieu d'une seule pour un client
+        listant N tenants -- comportement voulu ici (chaque tenant est
+        réellement interrogé), à garder en tête si un throttle strict est
+        un jour activé sur une route TENANT_PUBLIC/AUTHENTICATED.
+        """
+        header_hostnames = get_tenant_header_hostnames(request)
+
+        tenants_a_interroger = [primary_tenant]
+        pks_deja_vus = {primary_tenant.pk}
+        for hostname in header_hostnames:
+            if hostname == primary_hostname:
+                continue  # déjà couvert par primary_tenant
+            autre_tenant = self._resolve_tenant_with_cache(hostname)
+            if autre_tenant is None:
+                logger.warning(
+                    f"[MultiTenant] Hostname ignoré dans le fan-out GET "
+                    f"(aucun tenant correspondant) : {hostname}"
+                )
+                continue
+            if autre_tenant.pk in pks_deja_vus:
+                continue
+            pks_deja_vus.add(autre_tenant.pk)
+            tenants_a_interroger.append(autre_tenant)
+
+        enveloppe = []
+        for tenant_courant in tenants_a_interroger:
+            self._set_request_tenant(request, tenant_courant, tenant_courant.sous_domaine)
+            try:
+                sous_reponse = self.get_response(request)
+                enveloppe.append(self._tenant_envelope_entry(
+                    tenant_courant, sous_reponse.status_code, self._extract_json(sous_reponse)
+                ))
+            except Exception:
+                logger.error(
+                    f"[MultiTenant] ❌ Échec du fan-out GET pour le tenant "
+                    f"'{tenant_courant.schema_name}' sur {request.path}",
+                    exc_info=True
+                )
+                enveloppe.append(self._tenant_envelope_entry(tenant_courant, 500, None))
+
+        # On restaure le tenant PRINCIPAL sur la requête pour la suite de
+        # la pile (process_response de ce middleware et des middlewares
+        # précédents, ex: X-Tenant-Name) et pour laisser la connexion
+        # dans un état cohérent avec ce que le reste du code attend.
+        self._set_request_tenant(request, primary_tenant, primary_hostname)
+
+        return JsonResponse(self._camelize(enveloppe), safe=False)
+
+    @staticmethod
+    def _camelize(data):
+        """
+        Aligne la casse des clés que CE middleware ajoute lui-même
+        (`tenant`, `status_code`, `sous_domaine`, `schema_name`...) sur la
+        convention camelCase du reste de l'API (voir common/camel_case.py
+        -- CamelCaseJSONRenderer, déjà appliqué à chaque vue DRF). Idempotent
+        sur `data` : son contenu est déjà camelCasé par ce même renderer
+        lors du rendu de chaque sous-réponse, `to_camel_case` ne modifie
+        pas une clé déjà en camelCase (pas d'underscore à convertir).
+        """
+        if isinstance(data, dict):
+            return {to_camel_case(key): TenantMiddleware._camelize(value) for key, value in data.items()}
+        if isinstance(data, (list, tuple)):
+            return [TenantMiddleware._camelize(item) for item in data]
+        return data
+
+    def _tenant_envelope_entry(self, tenant, status_code, data):
+        """Un élément du tableau renvoyé par _fan_out_get. `schema_name`
+        n'est inclus qu'en DEBUG, à l'identique de process_response
+        ci-dessous (pas de détail d'infrastructure exposé en prod)."""
+        tenant_data = {
+            'id': tenant.id,
+            'name': tenant.name,
+            'sous_domaine': tenant.sous_domaine,
+            'is_public': tenant.is_public,
+        }
+        if settings.DEBUG:
+            tenant_data['schema_name'] = tenant.schema_name
+        return {'tenant': tenant_data, 'status_code': status_code, 'data': data}
+
+    @staticmethod
+    def _extract_json(response):
+        """Corps JSON d'une sous-réponse du fan-out, ou None si elle n'en
+        porte pas (ex: 204 No Content, réponse binaire/média -- ce
+        middleware ne s'applique de toute façon qu'aux routes API JSON,
+        voir get_route_type/TENANT_ONLY_APPS, mais on reste défensif)."""
+        content_type = response.get('Content-Type', '')
+        if 'application/json' not in content_type:
+            return None
+        try:
+            return json.loads(response.content.decode(response.charset or 'utf-8'))
+        except (ValueError, UnicodeDecodeError, AttributeError):
+            logger.warning("[MultiTenant] Réponse tenant non-JSON ignorée dans le fan-out GET")
+            return None
 
     def process_response(self, request, response):
         """

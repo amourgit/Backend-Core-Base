@@ -28,6 +28,19 @@ class Tenant(TenantMixin):
     sous_domaine = models.CharField(_('Sous-domaine'), max_length=100, unique=True)
     schema_name = models.CharField(_('Nom du schéma'), max_length=63, unique=True)
     is_active = models.BooleanField(_('Actif'), default=False)
+    is_public = models.BooleanField(
+        _('Public'),
+        default=False,
+        help_text=_(
+            "Si activé, ce tenant est inclus automatiquement dans la liste "
+            "de tenants que le frontend ajoute à CHAQUE requête GET (en plus "
+            "du tenant courant de l'utilisateur) -- voir "
+            "tenants.middleware.TenantMiddleware._fan_out_get. Réservé aux "
+            "organisations dont le contenu doit être visible par tous les "
+            "usagers de la plateforme, quel que soit leur propre tenant "
+            "d'appartenance (ex: Ministères, Mutuelles)."
+        ),
+    )
     created_at = models.DateTimeField(_('Créé le'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Mis à jour le'), auto_now=True)
     description = models.TextField(_('Description'), blank=True)

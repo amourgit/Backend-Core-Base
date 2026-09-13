@@ -10,6 +10,17 @@ from rest_framework import status
 # réécrire le Host avant qu'il n'atteigne Django.
 TENANT_DOMAIN_HEADER = 'HTTP_X_TENANT_DOMAIN'
 
+# Garde-fou anti-abus : X-Tenant-Domain porte désormais une LISTE de
+# hostnames (séparés par des virgules) -- le tenant courant de
+# l'utilisateur, suivi -- pour les requêtes GET -- de tous les tenants
+# `is_public=True` connus du frontend (voir tenants/middleware.py:
+# TenantMiddleware._fan_out_get, qui boucle une fois par hostname résolu
+# en Tenant réel). Chaque hostname supplémentaire coûte une traversée
+# complète de la chaîne downstream (get_response) ; cette limite borne
+# ce coût, indépendamment de ce qu'un client choisit de mettre dans
+# l'en-tête.
+MAX_TENANTS_PER_REQUEST = 20
+
 
 def get_host_header_hostname(request):
     """Hostname dérivé STRICTEMENT du Host HTTP standard (jamais de repli
@@ -19,10 +30,37 @@ def get_host_header_hostname(request):
     return request.get_host().split(':')[0].strip().lower()
 
 
+def get_tenant_header_hostnames(request):
+    """
+    Liste ORDONNÉE et dédupliquée (ordre préservé) des hostnames portés
+    par X-Tenant-Domain -- le frontend y place TOUJOURS une liste, même
+    à un seul élément (le tenant courant en premier ; pour un GET,
+    suivi de tous les tenants publics). Liste vide si l'en-tête est
+    absent ou ne contient que des valeurs vides.
+
+    Tronquée à MAX_TENANTS_PER_REQUEST éléments (voir cette constante).
+    """
+    valeur_brute = request.META.get(TENANT_DOMAIN_HEADER, '')
+    deja_vus = set()
+    hostnames = []
+    for partie in valeur_brute.split(','):
+        hostname = partie.strip().lower()
+        if hostname and hostname not in deja_vus:
+            deja_vus.add(hostname)
+            hostnames.append(hostname)
+        if len(hostnames) >= MAX_TENANTS_PER_REQUEST:
+            break
+    return hostnames
+
+
 def get_tenant_header_hostname(request):
-    """Hostname dérivé STRICTEMENT de l'en-tête X-Tenant-Domain, sans
-    repli sur le Host -- chaîne vide si l'en-tête est absent."""
-    return request.META.get(TENANT_DOMAIN_HEADER, '').strip().lower()
+    """Premier hostname de la liste X-Tenant-Domain (le tenant "courant",
+    toujours en tête de liste par convention frontend) -- chaîne vide si
+    l'en-tête est absent. Signature historique (valeur UNIQUE) conservée
+    pour tout le code qui ne s'intéresse qu'au tenant courant
+    (resolve_request_hostname, DomainService, TenantMiddleware._resolve_tenant_dual)."""
+    hostnames = get_tenant_header_hostnames(request)
+    return hostnames[0] if hostnames else ''
 
 
 def resolve_request_hostname(request):

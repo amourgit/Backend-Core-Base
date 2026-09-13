@@ -56,20 +56,35 @@ class TenantSerializer(serializers.ModelSerializer):
     logo = serializers.CharField(required=False, allow_null=True)
     class Meta:
         model = Tenant
-        fields = ['logo', 'id', 'name', 'sous_domaine', 'schema_name', 'is_active', 'created_at', 'updated_at', 'description', 'settings']
+        fields = ['logo', 'id', 'name', 'sous_domaine', 'schema_name', 'is_active', 'is_public', 'created_at', 'updated_at', 'description', 'settings']
         read_only_fields = ('schema_name',)
 
 
 class TenantPublicSerializer(serializers.ModelSerializer):
     """
-    Vue PUBLIQUE (annuaire, GET /tenants/v1/ ; réponse de POST
-    /tenants/v1/) -- délibérément dépourvue de schema_name/settings/
-    is_active/updated_at : détails internes sans valeur pour un visiteur,
-    voir OrganisationsSection.tsx côté civitas-news qui affiche cette
-    liste comme "Organisations" de la page d'accueil.
+    Vue PUBLIQUE (annuaire, GET /tenants/v1/ ; GET /tenants/v1/publics/ ;
+    réponse de POST /tenants/v1/) -- délibérément dépourvue de
+    schema_name/settings/updated_at : détails internes sans valeur pour
+    un visiteur, voir OrganisationsSection.tsx côté civitas-news qui
+    affiche cette liste comme "Organisations" de la page d'accueil.
+
+    `is_public` et `domain` sont exposés (contrairement au reste des
+    champs internes ci-dessus) car le frontend en a explicitement besoin
+    pour la réforme multi-tenant des requêtes GET : `domain` est la
+    valeur EXACTE à ajouter à l'en-tête X-Tenant-Domain pour ce tenant
+    (voir config/fonction.py:get_tenant_header_hostnames côté backend),
+    `is_public` permet au frontend de filtrer/afficher sans avoir à
+    deviner la règle à partir d'autre chose.
     """
     logo = serializers.CharField(required=False, allow_null=True)
+    domain = serializers.SerializerMethodField()
+
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'sous_domaine', 'logo', 'description', 'created_at']
+        fields = ['id', 'name', 'sous_domaine', 'domain', 'logo', 'description', 'is_public', 'created_at']
         read_only_fields = fields
+
+    def get_domain(self, tenant):
+        from domain.models import Domain
+        primaire = Domain.get_primary_domain(tenant)
+        return primaire.domain if primaire else None
