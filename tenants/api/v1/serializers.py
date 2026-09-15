@@ -13,7 +13,10 @@ from tenants.models import (
     TypeDocumentRequis,
     PeriodiciteDocument,
     valider_fichier_selon_contraintes,
+    TenantTutelle,
+    TypeRelationTutelle,
 )
+from common.admin import est_schema_public
 from domain.api.v1.serializers import DomainSerializer
 from .services import TenantService
 from users.api.v1.services import normaliser_identifiant, is_email, is_telephone_valide
@@ -281,3 +284,115 @@ class TypeDocumentRequisCatalogueSerializer(serializers.Serializer):
     taille_max_mo = serializers.IntegerField(allow_null=True)
     periodicite = serializers.CharField()
     periodicite_libelle = serializers.CharField()
+
+
+class TenantTutelleSerializer(serializers.ModelSerializer):
+    """
+    Représentation complète d'une relation de tutelle — voir
+    `tenants.models.TenantTutelle`. Les tenants impliqués sont imbriqués
+    en lecture (`TenantPublicSerializer`, déjà sans donnée sensible :
+    id/nom/sous-domaine/logo/description). La création passe par
+    `TenantTutelleCreateSerializer` (rôle + tenant cible, plutôt que les
+    deux FK directement) ; les transitions (valider/refuser/rompre) par
+    les actions dédiées de `TenantTutelleViewSet`, jamais par un PATCH
+    générique sur cette représentation (tout est en lecture seule ici).
+    """
+    id = serializers.CharField(source='pk', read_only=True)
+    tenant_tutelle = TenantPublicSerializer(read_only=True)
+    tenant_sous_tutelle = TenantPublicSerializer(read_only=True)
+    tenant_initiateur = TenantPublicSerializer(read_only=True)
+    tenant_destinataire = TenantPublicSerializer(read_only=True)
+    type_relation_affiche = serializers.CharField(source='get_type_relation_display', read_only=True)
+    statut_affiche = serializers.CharField(source='get_statut_display', read_only=True)
+
+    class Meta:
+        model = TenantTutelle
+        fields = [
+            'id', 'statut', 'statut_affiche',
+            'tenant_tutelle', 'tenant_sous_tutelle', 'tenant_initiateur', 'tenant_destinataire',
+            'type_relation', 'type_relation_affiche', 'intitule', 'description', 'reference_juridique',
+            'date_effet', 'date_fin',
+            'initiateur_a_valide_le', 'valide_par_destinataire_le', 'motif_refus', 'motif_rupture',
+            'cree_le', 'modifie_le',
+        ]
+        read_only_fields = fields
+
+
+class TenantTutelleCreateSerializer(serializers.Serializer):
+    """
+    Entrée pour PROPOSER une tutelle. `role_initiateur` indique le rôle
+    joué par le tenant COURANT (`request.tenant`, toujours l'initiateur —
+    voir `TenantTutelle` : l'initiateur a de facto déjà "dit oui" en
+    soumettant la proposition) ; `tenant_cible` est l'AUTRE tenant, qui
+    jouera le rôle complémentaire et devra valider ou refuser (voir
+    `TenantTutelleViewSet.create`).
+    """
+    ROLE_TUTELLE = 'tutelle'
+    ROLE_SOUS_TUTELLE = 'sous_tutelle'
+    ROLE_CHOICES = [
+        (ROLE_TUTELLE, _('Je suis le tuteur (j’exerce la tutelle sur le tenant cible)')),
+        (ROLE_SOUS_TUTELLE, _('Je suis sous tutelle (le tenant cible exerce la tutelle sur moi)')),
+    ]
+
+    role_initiateur = serializers.ChoiceField(choices=ROLE_CHOICES)
+    tenant_cible = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.filter(is_active=True))
+    type_relation = serializers.ChoiceField(choices=TypeRelationTutelle.choices)
+    intitule = serializers.CharField(required=False, allow_blank=True, max_length=255)
+    description = serializers.CharField(required=False, allow_blank=True)
+    reference_juridique = serializers.CharField(required=False, allow_blank=True, max_length=255)
+    date_effet = serializers.DateField(required=False, allow_null=True)
+    date_fin = serializers.DateField(required=False, allow_null=True)
+
+    def validate(self, attrs):
+        request = self.context['request']
+        tenant_courant = getattr(request, 'tenant', None)
+        if not tenant_courant:
+            raise serializers.ValidationError(_('Tenant non résolu pour cette requête.'))
+        if attrs['tenant_cible'].pk == tenant_courant.pk:
+            raise serializers.ValidationError({'tenant_cible': _('Impossible de proposer une tutelle avec son propre tenant.')})
+        date_effet = attrs.get('date_effet')
+        date_fin = attrs.get('date_fin')
+        if date_effet and date_fin and date_effet > date_fin:
+            raise serializers.ValidationError({'date_fin': _('La date de fin doit être postérieure à la date d’effet.')})
+        return attrs
+
+    def create(self, validated_data):
+        request = self.context['request']
+        tenant_courant = request.tenant
+        tenant_cible = validated_data.pop('tenant_cible')
+        role_initiateur = validated_data.pop('role_initiateur')
+        if role_initiateur == self.ROLE_TUTELLE:
+            tenant_tutelle, tenant_sous_tutelle = tenant_courant, tenant_cible
+        else:
+            tenant_tutelle, tenant_sous_tutelle = tenant_cible, tenant_courant
+
+        relation = TenantTutelle(
+            tenant_tutelle=tenant_tutelle,
+            tenant_sous_tutelle=tenant_sous_tutelle,
+            tenant_initiateur=tenant_courant,
+            **validated_data,
+        )
+        # Traçabilité sûre du point de vue schéma -- voir la note
+        # d'architecture en tête de tenants/models.py.
+        if est_schema_public():
+            relation.cree_par = request.user if request.user.is_authenticated else None
+        else:
+            nom = request.user.get_username() or str(request.user.pk)
+            relation.cree_par_systeme = f"tenant:{tenant_courant.schema_name}:{nom}"
+        try:
+            relation.full_clean()
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(
+                exc.message_dict if hasattr(exc, 'message_dict') else {'detail': exc.messages}
+            )
+        relation.save()
+        return relation
+
+    def to_representation(self, instance):
+        return TenantTutelleSerializer(instance, context=self.context).data
+
+
+class TenantTutelleMotifSerializer(serializers.Serializer):
+    """Entrée pour les actions `refuser`/`rompre` de `TenantTutelleViewSet` —
+    un simple motif texte, optionnel."""
+    motif = serializers.CharField(required=False, allow_blank=True)

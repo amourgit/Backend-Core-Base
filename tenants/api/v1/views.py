@@ -1,8 +1,10 @@
 import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from tenants.models import Tenant, TenantDocumentRequis, TenantDocumentGenerique
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from django.db.models import Q
+from tenants.models import Tenant, TenantDocumentRequis, TenantDocumentGenerique, TenantTutelle, StatutTutelle
 from .serializers import (
     TenantSerializer,
     TenantCreateSerializer,
@@ -11,14 +13,18 @@ from .serializers import (
     TenantDocumentRequisSerializer,
     TenantDocumentGeneriqueSerializer,
     TypeDocumentRequisCatalogueSerializer,
+    TenantTutelleSerializer,
+    TenantTutelleCreateSerializer,
+    TenantTutelleMotifSerializer,
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.core.exceptions import ValidationError
 from django_tenants.utils import schema_context
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .services import TenantService, TenantDossierService
+from .services import TenantService, TenantDossierService, TenantTutelleService
 from .mixins import SharedTenantScopedModelViewSet
+from common.drf import SocleModelViewSet
 from .permissions import EstAdministrateurDuTenant
 from token_manager.api.v1.utils import check_token_settings
 from token_manager.api.v1.permissions import IsAccessTokenTenant
@@ -375,5 +381,126 @@ class TenantDossierAPIView(APIView):
             'documents_generiques': TenantDocumentGeneriqueSerializer(
                 dossier['documents_generiques'], many=True, context={'request': request},
             ).data,
+        })
+
+
+class TenantTutelleViewSet(SocleModelViewSet):
+    """
+    Relations de tutelle du TENANT COURANT -- voir
+    `tenants.models.TenantTutelle` pour le workflow de double
+    consentement et la logique de cascade flexible. Contrairement aux
+    documents (un seul champ `tenant`), une tutelle en engage DEUX : le
+    queryset est filtré "le tenant courant apparaît dans l'un ou l'autre
+    rôle" plutôt que via `SharedTenantScopedModelViewSet`
+    (tenants/api/v1/mixins.py, pensé pour un seul champ `tenant`).
+
+      - `list`/`retrieve` : toutes les relations (tous statuts) où le
+        tenant courant est impliqué (tuteur, sous tutelle ou initiateur).
+      - `create` : propose une tutelle (voir `TenantTutelleCreateSerializer`) --
+        le tenant courant est TOUJOURS l'initiateur.
+      - `valider`/`refuser` : réservées au tenant DESTINATAIRE (celui qui
+        n'a PAS initié) d'une proposition EN_ATTENTE_VALIDATION.
+      - `rompre` : ouverte aux DEUX parties d'une relation ACTIVE/SUSPENDUE.
+      - `en_attente` : uniquement les propositions où le tenant courant
+        doit précisément agir (lui, le destinataire).
+      - `hierarchie` : chaîne ascendante + descendants du tenant courant.
+
+    Pas de `update`/`destroy` génériques (voir `http_method_names`) :
+    toute évolution passe par les transitions métier explicites
+    ci-dessus, jamais par un PATCH/DELETE qui contournerait le
+    consentement de l'autre partie ou l'historique du Socle de
+    Traçabilité.
+    """
+    permission_classes = [IsAuthenticated, IsAccessTokenTenant, EstAdministrateurDuTenant]
+    http_method_names = ['get', 'post', 'head', 'options']
+
+    def get_queryset(self):
+        tenant = getattr(self.request, 'tenant', None)
+        if not tenant:
+            return TenantTutelle.objects.none()
+        return TenantTutelleService.relations_du_tenant(tenant).filter(supprime_le__isnull=True)
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return TenantTutelleCreateSerializer
+        if self.action in ('refuser', 'rompre'):
+            return TenantTutelleMotifSerializer
+        return TenantTutelleSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        relation = serializer.save()
+        return Response(TenantTutelleSerializer(relation).data, status=status.HTTP_201_CREATED)
+
+    @staticmethod
+    def _erreur_validation(exc):
+        messages = exc.messages if hasattr(exc, 'messages') else [str(exc)]
+        return Response({'detail': messages}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def valider(self, request, pk=None):
+        relation = self.get_object()
+        if relation.tenant_destinataire.id != request.tenant.id:
+            return Response(
+                {'detail': "Seul le tenant destinataire de cette proposition peut la valider."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            relation.valider()
+        except ValidationError as exc:
+            return self._erreur_validation(exc)
+        return Response(TenantTutelleSerializer(relation).data)
+
+    @action(detail=True, methods=['post'])
+    def refuser(self, request, pk=None):
+        relation = self.get_object()
+        if relation.tenant_destinataire.id != request.tenant.id:
+            return Response(
+                {'detail': "Seul le tenant destinataire de cette proposition peut la refuser."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            relation.refuser(motif=serializer.validated_data.get('motif', ''))
+        except ValidationError as exc:
+            return self._erreur_validation(exc)
+        return Response(TenantTutelleSerializer(relation).data)
+
+    @action(detail=True, methods=['post'])
+    def rompre(self, request, pk=None):
+        relation = self.get_object()
+        tenant = request.tenant
+        if tenant.id not in (relation.tenant_tutelle_id, relation.tenant_sous_tutelle_id):
+            return Response(
+                {'detail': "Seules les deux parties d'une tutelle peuvent y mettre fin."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            relation.rompre(motif=serializer.validated_data.get('motif', ''))
+        except ValidationError as exc:
+            return self._erreur_validation(exc)
+        return Response(TenantTutelleSerializer(relation).data)
+
+    @action(detail=False, methods=['get'])
+    def en_attente(self, request):
+        tenant = getattr(request, 'tenant', None)
+        if not tenant:
+            return Response({"detail": "Tenant non résolu pour cette requête."}, status=status.HTTP_400_BAD_REQUEST)
+        relations = TenantTutelleService.en_attente_de_validation_par(tenant)
+        return Response(TenantTutelleSerializer(relations, many=True).data)
+
+    @action(detail=False, methods=['get'])
+    def hierarchie(self, request):
+        tenant = getattr(request, 'tenant', None)
+        if not tenant:
+            return Response({"detail": "Tenant non résolu pour cette requête."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            'tenant': TenantPublicSerializer(tenant).data,
+            'ascendants': TenantPublicSerializer(TenantTutelleService.chaine_ascendante(tenant), many=True).data,
+            'descendants': TenantPublicSerializer(TenantTutelleService.descendants(tenant), many=True).data,
         })
 

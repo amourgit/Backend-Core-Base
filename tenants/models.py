@@ -8,6 +8,7 @@ from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django_tenants.utils import schema_context
+from django.utils import timezone
 import re
 import os
 import secrets
@@ -749,5 +750,214 @@ class TenantDocumentGenerique(SocleTracabilite, PeriodeValiditeMixin):
             if not self.nom_fichier_original:
                 self.nom_fichier_original = os.path.basename(getattr(self.fichier, 'name', '') or '')
         super().save(*args, **kwargs)
+
+
+# ---------------------------------------------------------------------------
+# Tutelle entre tenants -- relation de supervision/rattachement
+# institutionnel entre DEUX tenants (ex: une université sous la tutelle
+# d'un ministère, une mutuelle affiliée à une fédération). Vit elle aussi
+# dans l'app 'tenants' (SHARED_APPS, schéma PUBLIC) : une relation ENTRE
+# deux tenants ne peut, par construction, exister que là où les deux
+# lignes `Tenant` sont elles-mêmes visibles.
+#
+# Auto-référentielle (deux FK vers `Tenant`) plutôt qu'un champ de
+# profondeur/niveau fixe : une hiérarchie à N niveaux ("cascade
+# flexible") émerge de plusieurs lignes indépendantes -- un même tenant
+# peut être `tenant_tutelle` dans une ligne ET `tenant_sous_tutelle`
+# dans une autre (École sous tutelle d'Université, Université elle-même
+# sous tutelle d'un Ministère), sans limite de profondeur ni modèle
+# dédié par niveau. Voir `TenantTutelleService` (tenants/api/v1/services.py)
+# pour la reconstruction de la chaîne complète (ascendants/descendants),
+# et `_ancetres_tutelle` ci-dessous pour la détection de cycle.
+#
+# Double consentement obligatoire, quel que soit le sens de la relation :
+# `tenant_initiateur` (obligatoirement `tenant_tutelle` OU
+# `tenant_sous_tutelle`) a de facto déjà "dit oui" en créant la
+# proposition (`initiateur_a_valide_le`, horodaté à la création) ;
+# l'AUTRE tenant (`tenant_destinataire`, jamais stocké -- toujours
+# dérivé, voir la propriété plus bas) doit explicitement valider ou
+# refuser avant que la relation ne devienne ACTIVE.
+# ---------------------------------------------------------------------------
+
+class TypeRelationTutelle(models.TextChoices):
+    """
+    Nature de la relation de tutelle -- catalogue volontairement large,
+    inspiré de formes de supervision/rattachement institutionnel
+    reconnues à travers le monde (pas seulement le droit administratif
+    francophone) : tutelle étatique classique, supervision réglementaire,
+    affiliation fédérative, rattachement académique, accréditation,
+    contrôle actionnarial, tutelle confessionnelle, rattachement
+    territorial, réseau/consortium, partenariat contractuel. `AUTRE` +
+    `intitule` couvrent tout cas non anticipé, à la manière de
+    `TenantDocumentGenerique` pour les documents.
+    """
+    TUTELLE_ETATIQUE_MINISTERIELLE = 'tutelle_etatique_ministerielle', _("Tutelle étatique / ministérielle")
+    SUPERVISION_REGLEMENTAIRE = 'supervision_reglementaire', _('Supervision réglementaire (régulateur/autorité de contrôle)')
+    AFFILIATION_FEDERATIVE = 'affiliation_federative', _('Affiliation fédérative / confédérale')
+    RATTACHEMENT_ACADEMIQUE = 'rattachement_academique', _('Rattachement académique (école/faculté ↔ université)')
+    ACCREDITATION = 'accreditation', _("Accréditation par un organisme externe")
+    CONTROLE_ACTIONNARIAL = 'controle_actionnarial', _('Contrôle actionnarial / capitalistique (maison mère ↔ filiale)')
+    TUTELLE_CONFESSIONNELLE = 'tutelle_confessionnelle', _('Tutelle confessionnelle / religieuse')
+    RATTACHEMENT_TERRITORIAL = 'rattachement_territorial', _('Rattachement territorial / administration décentralisée')
+    RESEAU_CONSORTIUM = 'reseau_consortium', _('Réseau / consortium institutionnel')
+    PARTENARIAT_CONTRACTUEL = 'partenariat_contractuel', _('Partenariat contractuel (convention, sans subordination pleine)')
+    AUTRE = 'autre', _('Autre (voir intitulé)')
+
+
+class StatutTutelle(models.TextChoices):
+    """Cycle de vie MÉTIER propre à `TenantTutelle`, qui redéfinit
+    `statut` -- même principe que `StatutVerificationIdentite`/
+    `StatutValidationDocument` ci-dessus."""
+    EN_ATTENTE_VALIDATION = 'en_attente_validation', _('En attente de validation')
+    ACTIVE = 'active', _('Active')
+    REFUSEE = 'refusee', _('Refusée')
+    SUSPENDUE = 'suspendue', _('Suspendue')
+    ROMPUE = 'rompue', _('Rompue')
+
+
+def _ancetres_tutelle(tenant_id, exclure_pk=None, profondeur_max=50):
+    """Ensemble des ids de tenants qui exercent une tutelle ACTIVE
+    (directe ou indirecte, cascade comprise) sur `tenant_id`. Utilisé
+    UNIQUEMENT pour la détection de cycle dans `TenantTutelle.clean()` --
+    `profondeur_max` est un garde-fou (une hiérarchie réelle ne dépasse
+    jamais 50 niveaux), pas une limite métier."""
+    vus = set()
+    a_visiter = [tenant_id]
+    for _tour in range(profondeur_max):
+        if not a_visiter:
+            break
+        qs = TenantTutelle.objects.filter(tenant_sous_tutelle_id__in=a_visiter, statut=StatutTutelle.ACTIVE)
+        if exclure_pk:
+            qs = qs.exclude(pk=exclure_pk)
+        suivant = []
+        for tuteur_id in qs.values_list('tenant_tutelle_id', flat=True):
+            if tuteur_id not in vus:
+                vus.add(tuteur_id)
+                suivant.append(tuteur_id)
+        a_visiter = suivant
+    return vus
+
+
+class TenantTutelle(SocleTracabilite):
+    """
+    Relation de tutelle/supervision institutionnelle entre deux tenants.
+    Voir la note d'architecture ci-dessus pour la logique de cascade
+    flexible et le double consentement.
+    """
+    statut = models.CharField(
+        _('Statut'), max_length=30, choices=StatutTutelle.choices,
+        default=StatutTutelle.EN_ATTENTE_VALIDATION, db_index=True,
+    )
+
+    tenant_tutelle = models.ForeignKey(
+        Tenant, verbose_name=_('Tenant tuteur (exerce la tutelle)'),
+        on_delete=models.CASCADE, related_name='tutelles_exercees',
+    )
+    tenant_sous_tutelle = models.ForeignKey(
+        Tenant, verbose_name=_('Tenant sous tutelle (supervisé)'),
+        on_delete=models.CASCADE, related_name='tutelles_subies',
+    )
+    tenant_initiateur = models.ForeignKey(
+        Tenant, verbose_name=_('Tenant initiateur'),
+        on_delete=models.CASCADE, related_name='tutelles_initiees',
+        help_text=_('Doit être `tenant_tutelle` OU `tenant_sous_tutelle` — voir clean().'),
+    )
+
+    type_relation = models.CharField(_('Type de relation'), max_length=40, choices=TypeRelationTutelle.choices)
+    intitule = models.CharField(
+        _('Intitulé'), max_length=255, blank=True,
+        help_text=_('Libellé court -- surtout utile pour le type « Autre ».'),
+    )
+    description = models.TextField(_('Description'), blank=True, help_text=_("Détail de la relation, renseigné par l'initiateur."))
+    reference_juridique = models.CharField(
+        _('Référence juridique / administrative'), max_length=255, blank=True,
+        help_text=_('Ex: numéro de décret, arrêté, convention -- si applicable.'),
+    )
+    date_effet = models.DateField(_("Date d'effet"), null=True, blank=True)
+    date_fin = models.DateField(_('Date de fin'), null=True, blank=True, help_text=_('Si la relation est prévue pour une durée déterminée.'))
+
+    initiateur_a_valide_le = models.DateTimeField(_("Validée par l'initiateur le"), auto_now_add=True)
+    valide_par_destinataire_le = models.DateTimeField(_('Validée par le destinataire le'), null=True, blank=True)
+    motif_refus = models.TextField(_('Motif de refus'), blank=True, help_text=_('Renseigné par le destinataire en cas de refus.'))
+    motif_rupture = models.TextField(_('Motif de rupture'), blank=True, help_text=_('Renseigné lors du passage au statut « Rompue ».'))
+
+    class Meta:
+        verbose_name = _('Tutelle entre tenants')
+        verbose_name_plural = _('Tutelles entre tenants')
+        ordering = ['-cree_le']
+        indexes = [
+            models.Index(fields=['tenant_tutelle']),
+            models.Index(fields=['tenant_sous_tutelle']),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                check=~models.Q(tenant_tutelle=models.F('tenant_sous_tutelle')),
+                name='tutelle_tenants_distincts',
+            ),
+            models.UniqueConstraint(
+                fields=['tenant_tutelle', 'tenant_sous_tutelle', 'type_relation'],
+                condition=models.Q(statut__in=[
+                    StatutTutelle.EN_ATTENTE_VALIDATION, StatutTutelle.ACTIVE, StatutTutelle.SUSPENDUE,
+                ]),
+                name='unique_tutelle_active_ou_en_attente',
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.tenant_sous_tutelle.name} — sous tutelle de {self.tenant_tutelle.name} ({self.get_type_relation_display()})"
+
+    @property
+    def tenant_destinataire(self):
+        """Le tenant qui n'a PAS initié -- celui qui doit valider/refuser.
+        Jamais stocké : toujours dérivé de `tenant_initiateur`, pour ne
+        jamais pouvoir diverger des FK sources."""
+        if self.tenant_initiateur_id == self.tenant_tutelle_id:
+            return self.tenant_sous_tutelle
+        return self.tenant_tutelle
+
+    def clean(self):
+        super().clean()
+        if self.tenant_tutelle_id and self.tenant_sous_tutelle_id and self.tenant_tutelle_id == self.tenant_sous_tutelle_id:
+            raise ValidationError({'tenant_sous_tutelle': _('Un tenant ne peut pas être sous sa propre tutelle.')})
+        if self.tenant_initiateur_id and self.tenant_tutelle_id and self.tenant_sous_tutelle_id:
+            if self.tenant_initiateur_id not in (self.tenant_tutelle_id, self.tenant_sous_tutelle_id):
+                raise ValidationError({'tenant_initiateur': _("L'initiateur doit être l'un des deux tenants de la relation.")})
+        if self.date_effet and self.date_fin and self.date_effet > self.date_fin:
+            raise ValidationError({'date_fin': _('La date de fin doit être postérieure à la date d’effet.')})
+        if self.statut == StatutTutelle.ACTIVE and self.tenant_tutelle_id and self.tenant_sous_tutelle_id:
+            if self.tenant_sous_tutelle_id in _ancetres_tutelle(self.tenant_tutelle_id, exclure_pk=self.pk):
+                raise ValidationError(_(
+                    'Cette relation créerait un cycle de tutelle : le tenant sous tutelle exerce déjà, '
+                    'directement ou indirectement, une tutelle sur le tenant tuteur.'
+                ))
+
+    # --- Transitions métier -- voir la note sur le double consentement ---
+
+    def valider(self):
+        """Le DESTINATAIRE valide la proposition -- fait passer la
+        relation à ACTIVE."""
+        if self.statut != StatutTutelle.EN_ATTENTE_VALIDATION:
+            raise ValidationError(_('Cette proposition de tutelle a déjà été traitée.'))
+        self.statut = StatutTutelle.ACTIVE
+        self.valide_par_destinataire_le = timezone.now()
+        self.full_clean()
+        self.save()
+
+    def refuser(self, motif=''):
+        """Le DESTINATAIRE refuse la proposition."""
+        if self.statut != StatutTutelle.EN_ATTENTE_VALIDATION:
+            raise ValidationError(_('Cette proposition de tutelle a déjà été traitée.'))
+        self.statut = StatutTutelle.REFUSEE
+        self.valide_par_destinataire_le = timezone.now()
+        self.motif_refus = motif
+        self.save()
+
+    def rompre(self, motif=''):
+        """L'UNE OU L'AUTRE partie met fin à une tutelle ACTIVE/SUSPENDUE."""
+        if self.statut not in (StatutTutelle.ACTIVE, StatutTutelle.SUSPENDUE):
+            raise ValidationError(_('Seule une tutelle active ou suspendue peut être rompue.'))
+        self.statut = StatutTutelle.ROMPUE
+        self.motif_rupture = motif
+        self.save()
 
 

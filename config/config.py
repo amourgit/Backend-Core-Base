@@ -177,7 +177,7 @@ BASE_VERSIONED_AUTHENTICATED_ROUTES = [
     # 4 sous-chemins l'emportent donc bien sur le préfixe TENANT_PUBLIC
     # générique, sans avoir à en changer la classification pour les 3
     # endpoints publics existants (création, annuaire, disponibilité).
-    ('tenants', ['informations-primaires', 'dossier', 'documents-requis', 'documents-generiques']),
+    ('tenants', ['informations-primaires', 'dossier', 'documents-requis', 'documents-generiques', 'tutelles']),
 
     # --- Domaines métier CIVITAS NEWS 100% privés ---------------------------
     # Contrairement au groupe TENANT_PUBLIC ci-dessus, ces 3 apps n'ont

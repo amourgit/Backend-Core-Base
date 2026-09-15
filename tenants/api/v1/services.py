@@ -6,9 +6,12 @@ from tenants.models import (
     TypeDocumentRequis,
     ContraintesDocumentRequis,
     PeriodiciteDocument,
+    TenantTutelle,
+    StatutTutelle,
 )
 from django.utils import timezone
 from django.db import transaction
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -204,3 +207,77 @@ class TenantDossierService:
             'documents_requis': TenantDossierService.construire_checklist_documents_requis(tenant),
             'documents_generiques': TenantDocumentGenerique.objects.filter(tenant=tenant).order_by('-cree_le'),
         }
+
+
+class TenantTutelleService:
+    """
+    Service pour la relation de tutelle entre tenants (voir
+    `tenants.models.TenantTutelle`) : requêtage courant et
+    reconstruction de la hiérarchie ("cascade flexible" — voir la note
+    d'architecture en tête de tenants/models.py).
+    """
+
+    @staticmethod
+    def relations_du_tenant(tenant):
+        """Toutes les relations (tous statuts) où `tenant` apparaît,
+        quel que soit son rôle (tuteur, sous tutelle ou initiateur)."""
+        return TenantTutelle.objects.filter(
+            Q(tenant_tutelle=tenant) | Q(tenant_sous_tutelle=tenant)
+        ).select_related('tenant_tutelle', 'tenant_sous_tutelle', 'tenant_initiateur')
+
+    @staticmethod
+    def en_attente_de_validation_par(tenant):
+        """Propositions EN_ATTENTE_VALIDATION dont `tenant` est
+        précisément le DESTINATAIRE (celui qui doit agir) -- pas
+        seulement lié à la relation (l'initiateur a déjà validé de
+        facto en la créant)."""
+        candidates = TenantTutelle.objects.filter(
+            statut=StatutTutelle.EN_ATTENTE_VALIDATION,
+        ).filter(
+            Q(tenant_tutelle=tenant) | Q(tenant_sous_tutelle=tenant)
+        ).select_related('tenant_tutelle', 'tenant_sous_tutelle', 'tenant_initiateur')
+        return [relation for relation in candidates if relation.tenant_destinataire.id == tenant.id]
+
+    @staticmethod
+    def chaine_ascendante(tenant, profondeur_max=50):
+        """Liste ORDONNÉE des tenants qui exercent une tutelle ACTIVE sur
+        `tenant`, du plus proche au plus lointain -- ex: [Université,
+        Ministère] pour une École rattachée à cette Université."""
+        chaine = []
+        courant = tenant
+        vus = {tenant.id}
+        for _tour in range(profondeur_max):
+            relation = TenantTutelle.objects.filter(
+                tenant_sous_tutelle=courant, statut=StatutTutelle.ACTIVE,
+            ).select_related('tenant_tutelle').first()
+            if not relation or relation.tenant_tutelle_id in vus:
+                break
+            chaine.append(relation.tenant_tutelle)
+            vus.add(relation.tenant_tutelle_id)
+            courant = relation.tenant_tutelle
+        return chaine
+
+    @staticmethod
+    def descendants(tenant, profondeur_max=50):
+        """Tous les tenants sous la tutelle ACTIVE de `tenant`, directe
+        ou indirecte (cascade descendante complète) -- parcours en
+        largeur, sans doublon, ordre non garanti au-delà du premier
+        niveau."""
+        resultat = []
+        vus = {tenant.id}
+        a_visiter = [tenant.id]
+        for _tour in range(profondeur_max):
+            if not a_visiter:
+                break
+            enfants = list(Tenant.objects.filter(
+                tutelles_subies__tenant_tutelle_id__in=a_visiter,
+                tutelles_subies__statut=StatutTutelle.ACTIVE,
+            ).distinct())
+            suivant = []
+            for enfant in enfants:
+                if enfant.id not in vus:
+                    vus.add(enfant.id)
+                    resultat.append(enfant)
+                    suivant.append(enfant.id)
+            a_visiter = suivant
+        return resultat

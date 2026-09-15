@@ -10,6 +10,7 @@ from . import views
 router = DefaultRouter()
 router.register(r'documents-requis', views.TenantDocumentRequisViewSet, basename='tenant-document-requis')
 router.register(r'documents-generiques', views.TenantDocumentGeneriqueViewSet, basename='tenant-document-generique')
+router.register(r'tutelles', views.TenantTutelleViewSet, basename='tenant-tutelle')
 
 urlpatterns = [
     path('disponibilite/', views.TenantDisponibiliteAPIView.as_view(), name='tenant-disponibilite'),

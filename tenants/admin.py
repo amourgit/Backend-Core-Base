@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from common.admin import PublicSchemaOnlyAdminMixin, TenantScopedAdminMixin, SOCLE_FIELDSET_SANS_STATUT
+from common.admin import PublicSchemaOnlyAdminMixin, TenantScopedAdminMixin, DualTenantScopedAdminMixin, SOCLE_FIELDSET_SANS_STATUT
 from .models import (
     Tenant,
     TenantInformationsPrimaires,
     TenantDocumentRequis,
     TenantDocumentGenerique,
+    TenantTutelle,
 )
 
 @admin.register(Tenant)
@@ -129,4 +130,29 @@ class TenantDocumentGeneriqueAdmin(TenantScopedAdminMixin):
     @admin.display(description=_('Taille'))
     def taille_affichee(self, obj):
         return f"{(obj.taille or 0) / (1024 * 1024):.2f} Mo"
+
+
+@admin.register(TenantTutelle)
+class TenantTutelleAdmin(DualTenantScopedAdminMixin):
+    """Voir `common.admin.DualTenantScopedAdminMixin` : visible depuis
+    l'admin global (toutes relations) et depuis l'admin de CHAQUE tenant
+    impliqué (jamais celles concernant deux autres tenants)."""
+    list_display = (
+        'tenant_sous_tutelle', 'tenant_tutelle', 'type_relation', 'statut',
+        'tenant_initiateur', 'valide_par_destinataire_le', 'cree_le',
+    )
+    list_filter = ('type_relation',)
+    search_fields = ('tenant_tutelle__name', 'tenant_sous_tutelle__name', 'intitule', 'reference_juridique')
+    autocomplete_fields = ('tenant_tutelle', 'tenant_sous_tutelle', 'tenant_initiateur')
+    fieldsets = (
+        (None, {'fields': ('tenant_tutelle', 'tenant_sous_tutelle', 'tenant_initiateur', 'statut')}),
+        (_('Nature de la relation'), {
+            'fields': ('type_relation', 'intitule', 'description', 'reference_juridique'),
+        }),
+        (_('Période'), {'fields': ('date_effet', 'date_fin')}),
+        (_('Consentement'), {
+            'fields': ('initiateur_a_valide_le', 'valide_par_destinataire_le', 'motif_refus', 'motif_rupture'),
+        }),
+        SOCLE_FIELDSET_SANS_STATUT,
+    )
 
