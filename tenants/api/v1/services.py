@@ -1,4 +1,12 @@
-from tenants.models import Tenant
+from tenants.models import (
+    Tenant,
+    TenantInformationsPrimaires,
+    TenantDocumentRequis,
+    TenantDocumentGenerique,
+    TypeDocumentRequis,
+    ContraintesDocumentRequis,
+    PeriodiciteDocument,
+)
 from django.utils import timezone
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
@@ -125,4 +133,74 @@ class TenantService:
     @staticmethod
     @transaction.atomic
     def bulk_activate_tenants(tenant_ids):
-        return Tenant.objects.filter(id__in=tenant_ids, is_active=False).update(is_active=True, updated_at=timezone.now()) 
+        return Tenant.objects.filter(id__in=tenant_ids, is_active=False).update(is_active=True, updated_at=timezone.now())
+
+
+class TenantDossierService:
+    """
+    Service pour la fiche d'identité, les documents requis (catalogue
+    fixe) et les documents génériques d'un tenant — voir la note
+    d'architecture en tête de `tenants/models.py`.
+    """
+
+    @staticmethod
+    def get_or_create_informations(tenant):
+        """Fiche d'identité — une par tenant, créée à la volée au premier
+        accès plutôt que par signal (voir docstring de
+        `TenantInformationsPrimaires`)."""
+        informations, _cree = TenantInformationsPrimaires.objects.get_or_create(tenant=tenant)
+        return informations
+
+    @staticmethod
+    def construire_catalogue():
+        """Catalogue fixe des documents requis (`TypeDocumentRequis`),
+        avec leurs contraintes — ne touche PAS la base de données,
+        entièrement dérivé du code (voir `ContraintesDocumentRequis`).
+        Utilisé par `GET /tenants/v1/catalogue-documents-requis/`
+        (accessible publiquement, voir la vue) et par
+        `construire_dossier` ci-dessous."""
+        catalogue = []
+        for type_document in TypeDocumentRequis:
+            contraintes = ContraintesDocumentRequis.pour(type_document)
+            periodicite = contraintes.get('periodicite', PeriodiciteDocument.PERMANENT)
+            catalogue.append({
+                'type': type_document.value,
+                'libelle': str(type_document.label),
+                'extensions_autorisees': contraintes.get('extensions_autorisees', []),
+                'taille_max_mo': contraintes.get('taille_max_mo'),
+                'periodicite': periodicite.value,
+                'periodicite_libelle': str(periodicite.label),
+            })
+        return catalogue
+
+    @staticmethod
+    def construire_checklist_documents_requis(tenant):
+        """Pour chaque type du catalogue fixe, la ou les soumissions déjà
+        faites par ce tenant (triées de la plus récente à la plus
+        ancienne) -- une checklist "ce qui est fourni / ce qui manque",
+        utile à la plateforme ET au tenant lui-même (voir
+        `TenantDossierAPIView`)."""
+        soumissions_par_type = {}
+        for soumission in TenantDocumentRequis.objects.filter(tenant=tenant).order_by('-cree_le'):
+            soumissions_par_type.setdefault(soumission.type, []).append(soumission)
+
+        checklist = []
+        for entree in TenantDossierService.construire_catalogue():
+            soumissions = soumissions_par_type.get(entree['type'], [])
+            checklist.append({
+                **entree,
+                'soumissions': soumissions,
+                'fourni': bool(soumissions),
+            })
+        return checklist
+
+    @staticmethod
+    def construire_dossier(tenant):
+        """Vue d'ensemble complète du dossier d'un tenant : fiche
+        d'identité + checklist des documents requis + documents
+        génériques -- voir `TenantDossierAPIView`."""
+        return {
+            'informations': TenantDossierService.get_or_create_informations(tenant),
+            'documents_requis': TenantDossierService.construire_checklist_documents_requis(tenant),
+            'documents_generiques': TenantDocumentGenerique.objects.filter(tenant=tenant).order_by('-cree_le'),
+        }

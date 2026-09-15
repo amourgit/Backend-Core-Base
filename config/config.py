@@ -163,6 +163,22 @@ BASE_VERSIONED_AUTHENTICATED_ROUTES = [
     # config ne classait /api/domain/... -> 404 systématique là aussi.
     ('domain', ['domains']),          # /api/domain/vX/domains
 
+    # Fiche d'identité, documents requis (catalogue fixe) et documents
+    # génériques d'un tenant (tenants/models.py) : contrairement au
+    # groupe TENANT_PUBLIC de 'tenants' ci-dessus (annuaire public,
+    # création de compte, disponibilité de sous-domaine...), ces
+    # 4 sous-routes exposent des données légales/administratives privées
+    # du tenant courant -- IsAuthenticated + IsAccessTokenTenant +
+    # EstAdministrateurDuTenant sur chaque vue (tenants/api/v1/views.py).
+    # Plus SPÉCIFIQUE que l'entrée ('tenants', None) juste au-dessus
+    # (/api/tenants/vX) : la résolution de route de
+    # TenantMiddleware.get_route_type() retient le chemin classé le plus
+    # LONG qui matche (voir son tri par longueur décroissante) -- ces
+    # 4 sous-chemins l'emportent donc bien sur le préfixe TENANT_PUBLIC
+    # générique, sans avoir à en changer la classification pour les 3
+    # endpoints publics existants (création, annuaire, disponibilité).
+    ('tenants', ['informations-primaires', 'dossier', 'documents-requis', 'documents-generiques']),
+
     # --- Domaines métier CIVITAS NEWS 100% privés ---------------------------
     # Contrairement au groupe TENANT_PUBLIC ci-dessus, ces 3 apps n'ont
     # AUCUN chemin public : chaque vue exige request.user authentifié pour

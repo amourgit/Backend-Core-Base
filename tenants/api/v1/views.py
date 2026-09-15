@@ -2,19 +2,31 @@ import re
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from tenants.models import Tenant
-from .serializers import TenantSerializer, TenantCreateSerializer, TenantPublicSerializer
-from rest_framework.permissions import AllowAny
+from tenants.models import Tenant, TenantDocumentRequis, TenantDocumentGenerique
+from .serializers import (
+    TenantSerializer,
+    TenantCreateSerializer,
+    TenantPublicSerializer,
+    TenantInformationsPrimairesSerializer,
+    TenantDocumentRequisSerializer,
+    TenantDocumentGeneriqueSerializer,
+    TypeDocumentRequisCatalogueSerializer,
+)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.core.exceptions import ValidationError
 from django_tenants.utils import schema_context
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .services import TenantService
+from .services import TenantService, TenantDossierService
+from .mixins import SharedTenantScopedModelViewSet
+from .permissions import EstAdministrateurDuTenant
 from token_manager.api.v1.utils import check_token_settings
+from token_manager.api.v1.permissions import IsAccessTokenTenant
 from domain.api.v1.services import DomainService
 from django.utils.text import slugify
 from django.conf import settings
 from django.utils import timezone
+from common.admin import est_schema_public
 
 
 class TenantCreateAPIView(APIView):
@@ -230,4 +242,138 @@ class TenantDisponibiliteAPIView(APIView):
             return Response({
                 "tenant": tenant_data,  # utile si mot de passe généré automatiquement
             }, status=status.HTTP_201_CREATED)
+
+
+class TenantInformationsPrimairesAPIView(APIView):
+    """
+    GET/PUT/PATCH /tenants/v1/informations-primaires/ -- fiche d'identité
+    primaire du TENANT COURANT (résolu via `request.tenant`, voir
+    `tenants.middleware.TenantMiddleware`), créée à la volée au premier
+    accès (voir `TenantDossierService.get_or_create_informations`) : un
+    tenant n'a par construction QU'UNE seule fiche (`OneToOneField` sur
+    `TenantInformationsPrimaires`), donc jamais besoin d'identifiant dans
+    l'URL.
+
+    Accès réservé à l'ADMINISTRATEUR du tenant (`EstAdministrateurDuTenant`,
+    en plus de `IsAccessTokenTenant` qui vérifie que le token appartient
+    bien à CE tenant) : une fiche d'identité légale/administrative n'est
+    pas une donnée à exposer à n'importe quel membre du tenant.
+    """
+    permission_classes = [IsAuthenticated, IsAccessTokenTenant, EstAdministrateurDuTenant]
+
+    def _tenant_ou_erreur(self, request):
+        tenant = getattr(request, 'tenant', None)
+        if not tenant:
+            return None, Response({"detail": "Tenant non résolu pour cette requête."}, status=status.HTTP_400_BAD_REQUEST)
+        return tenant, None
+
+    def get(self, request):
+        tenant, erreur = self._tenant_ou_erreur(request)
+        if erreur:
+            return erreur
+        informations = TenantDossierService.get_or_create_informations(tenant)
+        return Response(TenantInformationsPrimairesSerializer(informations).data)
+
+    def _enregistrer(self, request, partial):
+        tenant, erreur = self._tenant_ou_erreur(request)
+        if erreur:
+            return erreur
+        informations = TenantDossierService.get_or_create_informations(tenant)
+        serializer = TenantInformationsPrimairesSerializer(informations, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        # Traçabilité sûre du point de vue schéma -- voir la note
+        # d'architecture en tête de tenants/models.py.
+        if est_schema_public():
+            serializer.save(modifie_par=request.user)
+        else:
+            nom = request.user.get_username() or str(request.user.pk)
+            serializer.save(modifie_par_systeme=f"tenant:{tenant.schema_name}:{nom}")
+        return Response(serializer.data)
+
+    def put(self, request):
+        return self._enregistrer(request, partial=False)
+
+    def patch(self, request):
+        return self._enregistrer(request, partial=True)
+
+
+class TenantDocumentRequisViewSet(SharedTenantScopedModelViewSet):
+    """
+    CRUD des soumissions de documents du catalogue fixe pour le TENANT
+    COURANT -- voir `SharedTenantScopedModelViewSet`
+    (tenants/api/v1/mixins.py) pour le filtrage/la traçabilité, et
+    `TenantDocumentRequisSerializer` pour les contraintes (taille,
+    formats, périodicité) exposées au frontend.
+    """
+    serializer_class = TenantDocumentRequisSerializer
+    queryset = TenantDocumentRequis.objects.select_related('tenant').all()
+    permission_classes = [IsAuthenticated, IsAccessTokenTenant, EstAdministrateurDuTenant]
+
+
+class TenantDocumentGeneriqueViewSet(SharedTenantScopedModelViewSet):
+    """CRUD des documents génériques (libres, hors catalogue fixe) pour
+    le TENANT COURANT."""
+    serializer_class = TenantDocumentGeneriqueSerializer
+    queryset = TenantDocumentGenerique.objects.select_related('tenant').all()
+    permission_classes = [IsAuthenticated, IsAccessTokenTenant, EstAdministrateurDuTenant]
+
+
+class TenantDocumentRequisCatalogueAPIView(APIView):
+    """
+    GET /tenants/v1/catalogue-documents-requis/ -- catalogue fixe des
+    documents demandés par la plateforme (voir `TypeDocumentRequis` /
+    `ContraintesDocumentRequis`, tenants/models.py), avec leurs
+    contraintes. Public (`AllowAny`) : ne révèle aucune donnée propre à
+    un tenant, uniquement les EXIGENCES de la plateforme -- utile dès
+    l'onboarding, avant même la création d'un compte.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        serializer = TypeDocumentRequisCatalogueSerializer(TenantDossierService.construire_catalogue(), many=True)
+        return Response(serializer.data)
+
+
+class TenantDossierAPIView(APIView):
+    """
+    GET /tenants/v1/dossier/ -- vue d'ensemble du dossier du TENANT
+    COURANT : fiche d'identité + checklist des documents requis (fournis
+    ou manquants, voir `TenantDossierService.construire_checklist_documents_requis`)
+    + documents génériques, en UN seul appel. Répond aux deux objectifs
+    de ce chantier : une vue plateforme complète ("nos études") et une
+    checklist claire pour le tenant lui-même de ce qu'il lui reste à
+    fournir ("utile pour elle").
+    """
+    permission_classes = [IsAuthenticated, IsAccessTokenTenant, EstAdministrateurDuTenant]
+
+    def get(self, request):
+        tenant = getattr(request, 'tenant', None)
+        if not tenant:
+            return Response({"detail": "Tenant non résolu pour cette requête."}, status=status.HTTP_400_BAD_REQUEST)
+
+        dossier = TenantDossierService.construire_dossier(tenant)
+        checklist = [
+            {
+                'type': entree['type'],
+                'libelle': entree['libelle'],
+                'extensions_autorisees': entree['extensions_autorisees'],
+                'taille_max_mo': entree['taille_max_mo'],
+                'periodicite': entree['periodicite'],
+                'periodicite_libelle': entree['periodicite_libelle'],
+                'fourni': entree['fourni'],
+                'soumissions': TenantDocumentRequisSerializer(
+                    entree['soumissions'], many=True, context={'request': request},
+                ).data,
+            }
+            for entree in dossier['documents_requis']
+        ]
+        return Response({
+            'tenant': TenantPublicSerializer(tenant).data,
+            'informations_primaires': TenantInformationsPrimairesSerializer(dossier['informations']).data,
+            'documents_requis': checklist,
+            'documents_generiques': TenantDocumentGeneriqueSerializer(
+                dossier['documents_generiques'], many=True, context={'request': request},
+            ).data,
+        })
 

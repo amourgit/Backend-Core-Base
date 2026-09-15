@@ -9,6 +9,15 @@ from django.utils.translation import gettext_lazy as _
 from django_tenants.utils import get_public_schema_name
 
 
+def est_schema_public():
+    """True si la connexion active est sur le schéma PUBLIC (admin
+    global de plateforme). Utilitaire partagé par `PublicSchemaOnlyAdminMixin`
+    et `TenantScopedAdminMixin` ci-dessous, ainsi que par
+    `tenants/api/v1/mixins.py` (SharedTenantScopedModelViewSet) côté API —
+    même vérification, un seul endroit."""
+    return connection.schema_name == get_public_schema_name()
+
+
 class PublicSchemaOnlyAdminMixin:
     """
     Restreint un ModelAdmin au schéma PUBLIC (admin global de plateforme).
@@ -28,7 +37,7 @@ class PublicSchemaOnlyAdminMixin:
     """
 
     def _is_public_schema(self):
-        return connection.schema_name == get_public_schema_name()
+        return est_schema_public()
 
     def has_view_permission(self, request, obj=None):
         return self._is_public_schema() and request.user.is_superuser
@@ -95,6 +104,122 @@ class TracabiliteAdminMixin(admin.ModelAdmin):
             obj.cree_par = request.user
         else:
             obj.modifie_par = request.user
+            if not obj.motif_derniere_modification:
+                obj.motif_derniere_modification = _('Modification via l’interface d’administration')
+        super().save_model(request, obj, form, change)
+
+
+class TenantScopedAdminMixin(admin.ModelAdmin):
+    """
+    Mixin d'admin pour un modèle SHARED_APPS (une seule copie en schéma
+    public) dont chaque ligne appartient à UN tenant précis (champ
+    `tenant`), et qui doit rester éditable en LIBRE-SERVICE depuis
+    l'admin de CE tenant — contrairement à `Tenant`/`Domain` eux-mêmes
+    (voir `PublicSchemaOnlyAdminMixin` ci-dessus, qui ferme complètement
+    l'accès tenant). Utilisé par `tenants.admin` pour
+    `TenantInformationsPrimaires`/`TenantDocumentRequis`/
+    `TenantDocumentGenerique`.
+
+    Comportement :
+      - Depuis le schéma PUBLIC (admin global, superuser) : aucune
+        restriction — toutes les lignes, tous tenants confondus,
+        visibles/éditables (utile à la vérification et à l'étude
+        transverse des données d'identité par la plateforme).
+      - Depuis un schéma TENANT : le queryset est filtré sur le tenant
+        courant (résolu via `connection.schema_name`, PAS via
+        `request.tenant` qui n'existe qu'en contexte DRF) — un
+        administrateur de tenant ne voit et ne modifie QUE les lignes de
+        SON PROPRE tenant, jamais celles d'un autre (fuite fermée,
+        contrairement à ce que le search_path django-tenants
+        permettrait par défaut sur un ModelAdmin non protégé). Le champ
+        `tenant` est alors automatiquement renseigné et lecture seule
+        (impossible de créer/modifier la fiche d'un AUTRE tenant en
+        trafiquant le formulaire).
+      - `cree_par`/`modifie_par` ne sont renseignés que depuis le schéma
+        public — voir la note détaillée en tête de
+        `tenants/models.py` (section "Informations d'identité...") sur
+        pourquoi cette FK est invalide pour un administrateur de tenant ;
+        on utilise alors `cree_par_systeme`/`modifie_par_systeme`.
+
+    Volontairement indépendant de `TracabiliteAdminMixin` (pas de
+    composition par héritage multiple) : ce dernier assigne
+    `cree_par`/`modifie_par` = `request.user` sans condition, ce qui est
+    précisément le comportement à éviter ici.
+    """
+
+    readonly_fields = SOCLE_READONLY_FIELDS
+
+    def get_list_filter(self, request):
+        return tuple(self.list_filter) + ('statut', 'origine_donnee')
+
+    def _tenant_courant(self, request):
+        if est_schema_public():
+            return None
+        from tenants.models import Tenant
+        return Tenant.objects.filter(schema_name=connection.schema_name).first()
+
+    def _identifiant_acteur(self, request):
+        utilisateur = request.user
+        nom = utilisateur.get_username() if hasattr(utilisateur, 'get_username') else str(utilisateur)
+        return f"tenant:{connection.schema_name}:{nom or utilisateur.pk}"
+
+    def has_module_permission(self, request):
+        return bool(request.user and request.user.is_authenticated and request.user.is_staff)
+
+    def _objet_visible(self, request, obj):
+        if est_schema_public():
+            return True
+        tenant = self._tenant_courant(request)
+        return tenant is not None and obj.tenant_id == tenant.id
+
+    def has_view_permission(self, request, obj=None):
+        if not (request.user and request.user.is_authenticated and request.user.is_staff):
+            return False
+        return True if obj is None else self._objet_visible(request, obj)
+
+    def has_add_permission(self, request):
+        return bool(request.user and request.user.is_authenticated and request.user.is_staff)
+
+    def has_change_permission(self, request, obj=None):
+        return self.has_view_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        # Jamais de suppression physique (Socle de Traçabilité) : le
+        # bouton "Supprimer" de l'admin est désactivé pour tout le monde,
+        # y compris l'admin global — utiliser `supprimer_logiquement()`.
+        return False
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if est_schema_public():
+            return qs
+        tenant = self._tenant_courant(request)
+        return qs.filter(tenant=tenant) if tenant else qs.none()
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        tenant = self._tenant_courant(request)
+        if tenant is not None and 'tenant' in form.base_fields:
+            form.base_fields['tenant'].disabled = True
+            form.base_fields['tenant'].initial = tenant.pk
+        return form
+
+    def save_model(self, request, obj, form, change):
+        tenant = self._tenant_courant(request)
+        if tenant is not None:
+            # Verrouille le tenant côté serveur, indépendamment de ce que
+            # le formulaire désactivé aurait pu recevoir côté client.
+            obj.tenant = tenant
+        if not change:
+            if est_schema_public():
+                obj.cree_par = request.user
+            else:
+                obj.cree_par_systeme = self._identifiant_acteur(request)
+        else:
+            if est_schema_public():
+                obj.modifie_par = request.user
+            else:
+                obj.modifie_par_systeme = self._identifiant_acteur(request)
             if not obj.motif_derniere_modification:
                 obj.motif_derniere_modification = _('Modification via l’interface d’administration')
         super().save_model(request, obj, form, change)
