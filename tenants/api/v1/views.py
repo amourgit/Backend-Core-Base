@@ -71,6 +71,7 @@ class TenantCreateAPIView(APIView):
                 'description': openapi.Schema(type=openapi.TYPE_STRING, description="Description publique (optionnelle)"),
                 'identifiant': openapi.Schema(type=openapi.TYPE_STRING, description="Email OU numéro de téléphone de l'administrateur"),
                 'password': openapi.Schema(type=openapi.TYPE_STRING, description="Mot de passe de l'administrateur"),
+                'logo': openapi.Schema(type=openapi.TYPE_FILE, description="Logo de l'organisation (optionnel, multipart/form-data)"),
             },
         ),
         responses={
@@ -107,6 +108,7 @@ class TenantCreateAPIView(APIView):
                     description=serializer.validated_data.get('description', ''),
                     identifiant=serializer.validated_data['identifiant'],
                     password=serializer.validated_data['password'],
+                    logo=serializer.validated_data.get('logo'),
                 )
             except ValidationError as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

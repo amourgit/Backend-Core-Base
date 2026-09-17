@@ -42,6 +42,13 @@ class TenantCreateSerializer(serializers.Serializer):
     description = serializers.CharField(required=False, allow_blank=True, default='')
     identifiant = serializers.CharField(required=True, write_only=True)
     password = serializers.CharField(required=True, write_only=True, validators=[validate_password])
+    # Optionnel -- transmis tel quel à `Tenant.create_with_domain(**kwargs)`,
+    # qui le passe au constructeur de `Tenant` (champ `logo`, déjà
+    # `null=True, blank=True`). Envoyé en `multipart/form-data` par le
+    # frontend quand un fichier est fourni (voir tenants.repository.ts::create) ;
+    # `TenantCreateSerializer(data=request.data)` accepte les deux formes
+    # (JSON sans logo, ou multipart avec) sans changement ici.
+    logo = serializers.ImageField(required=False, allow_null=True)
 
     def validate_sous_domaine(self, value):
         value = value.strip().lower()
