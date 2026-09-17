@@ -12,16 +12,29 @@ from .models import (
 
 @admin.register(Tenant)
 class TenantAdmin(PublicSchemaOnlyAdminMixin, admin.ModelAdmin):
-    list_display = ('name', 'schema_name', 'is_active', 'created_at')
-    list_filter = ('is_active', 'created_at')
+    list_display = ('name', 'schema_name', 'is_active', 'is_public', 'created_at')
+    list_filter = ('is_active', 'is_public', 'created_at')
+    list_editable = ('is_public',)
     search_fields = ('name', 'schema_name')
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         (None, {
             'fields': ('name', 'schema_name', 'is_active')
         }),
+        (_('Visibilité multi-tenant'), {
+            'fields': ('is_public',),
+            'description': _(
+                "Si activé, ce tenant est ajouté automatiquement à la liste "
+                "de tenants que le frontend inclut dans CHAQUE requête GET "
+                "(en plus du tenant courant de l'utilisateur) — voir "
+                "tenants.middleware.TenantMiddleware._fan_out_get. Réservé "
+                "aux organisations dont le contenu doit être visible par "
+                "tous les usagers, quel que soit leur tenant d'appartenance "
+                "(ex: Ministères, Mutuelles)."
+            ),
+        }),
         (_('Description'), {
-            'fields': ('description',)
+            'fields': ('description', 'logo')
         }),
     )
 
