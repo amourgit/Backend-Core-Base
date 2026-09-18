@@ -1,120 +1,120 @@
 """
-Signaux Django pour gérer l'invalidation automatique du cache de résolution des tenants
-À placer dans tenants/signals.py ou core/signals.py
+Signaux Django : invalidation du cache de résolution tenant
+(tenants/middleware.py::_resolve_tenant_with_cache) à chaque
+création/modification/suppression d'un Tenant ou d'un Domain.
+
+Câblé depuis TenantsConfig.ready() (tenants/apps.py) -- avant ce
+correctif, ce module existait déjà mais n'était importé nulle part
+(ready() commenté), ET le récepteur domaines utilisait
+`sender=Tenant.domains.through`, qui n'existe PAS : `Domain.tenant`
+est un ForeignKey classique (voir domain/models.py), pas un
+ManyToManyField -- `Tenant.domains` n'a donc jamais eu de `.through`,
+cette ligne aurait levé une AttributeError au chargement si jamais
+elle avait été importée. Double raison pour laquelle l'invalidation
+n'a jamais eu lieu en pratique : signal jamais câblé, ET l'aurait été
+cassé de toute façon. Remplacé ci-dessous par un récepteur direct sur
+le VRAI modèle Domain (domain.models.Domain).
+
+Conséquence concrète de cette absence : un Tenant recréé avec le même
+sous-domaine après suppression (fréquent en itérant sur la création
+self-service), ou un Domain modifié/ajouté après coup, restait résolu
+par le cache vers l'ancienne valeur (ou "introuvable") jusqu'à
+expiration du TTL -- un tenant qui semble "figé" côté frontend malgré
+un en-tête X-Tenant-Domain recalculé correctement à chaque requête
+(store/tenants.store.ts, déjà correct de ce côté).
 """
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
 from django.conf import settings
 from tenants.models import Tenant
+from domain.models import Domain
 import logging
 
 logger = logging.getLogger(__name__)
 
 
+def invalidate_tenant_resolution_cache(sous_domaine=None, domains=None):
+    """
+    Point d'entrée UNIQUE pour invalider tenants/middleware.py::
+    _resolve_tenant_with_cache -- utilisé par les récepteurs ci-dessous
+    ET par tout code qui mute un Tenant sans passer par `.save()`/
+    `.delete()` (donc sans déclencher post_save/post_delete), par ex.
+    un `.update()` sur queryset -- voir bulk_activate_tenants /
+    bulk_deactivate_tenants dans tenants/api/v1/services.py.
+
+    `sous_domaine` : sous-domaine COURT du tenant (pas le hostname
+    complet) -- reconstruit ici en `<sous_domaine>.<MAIN_DOMAIN>`,
+    seule forme sous laquelle ce hostname est jamais mis en cache
+    (voir _resolve_tenant / le hostname passé à _resolve_tenant_with_cache).
+    `domains` : liste de hostnames COMPLETS (Domain.domain), déjà sous
+    la forme exacte utilisée comme clé de cache.
+    """
+    cache_keys = []
+    if sous_domaine and settings.MAIN_DOMAIN:
+        cache_keys.append(f"tenant_resolution:{sous_domaine}.{settings.MAIN_DOMAIN}")
+    for domain_value in (domains or []):
+        cache_keys.append(f"tenant_resolution:{domain_value}")
+    if cache_keys:
+        cache.delete_many(cache_keys)
+    return cache_keys
+
+
 @receiver([post_save, post_delete], sender=Tenant)
-def clear_tenant_cache_on_change(sender, instance, **kwargs):
+def clear_tenant_cache_on_tenant_change(sender, instance, **kwargs):
     """
-    Invalide le cache de résolution tenant lors de modifications/suppressions
-    """
-    try:
-        # Construction des clés de cache à invalider
-        cache_keys_to_clear = []
-        
-        # Cache par sous-domaine
-        if instance.sous_domaine and settings.MAIN_DOMAIN:
-            subdomain_hostname = f"{instance.sous_domaine}.{settings.MAIN_DOMAIN}"
-            cache_keys_to_clear.append(f"tenant_resolution:{subdomain_hostname}")
-        
-        # Cache par domaines associés (si relations ManyToMany avec des domaines)
-        if hasattr(instance, 'domains'):
-            for domain_obj in instance.domains.all():
-                if hasattr(domain_obj, 'domain'):
-                    cache_keys_to_clear.append(f"tenant_resolution:{domain_obj.domain}")
-        
-        # Suppression des clés de cache
-        if cache_keys_to_clear:
-            cache.delete_many(cache_keys_to_clear)
-            logger.info(f"[TenantCache] Cache invalidé pour tenant '{instance.name}': {cache_keys_to_clear}")
-        
-    except Exception as e:
-        logger.error(f"[TenantCache] Erreur lors de l'invalidation du cache pour tenant '{instance.name}': {str(e)}")
-
-
-@receiver(m2m_changed, sender=Tenant.domains.through)
-def clear_tenant_cache_on_domain_change(sender, instance, action, pk_set, **kwargs):
-    """
-    Invalide le cache lors de modifications des domaines associés au tenant
-    Géré via signal m2m_changed pour les relations ManyToMany
-    """
-    if action in ['post_add', 'post_remove', 'post_clear']:
-        try:
-            cache_keys_to_clear = []
-            
-            # Si on a des PKs de domaines modifiés
-            if pk_set and hasattr(instance.domains, 'model'):
-                Domain = instance.domains.model
-                for domain_pk in pk_set:
-                    try:
-                        domain_obj = Domain.objects.get(pk=domain_pk)
-                        if hasattr(domain_obj, 'domain'):
-                            cache_keys_to_clear.append(f"tenant_resolution:{domain_obj.domain}")
-                    except Domain.DoesNotExist:
-                        continue
-            
-            # Cache par sous-domaine du tenant
-            if instance.sous_domaine and settings.MAIN_DOMAIN:
-                subdomain_hostname = f"{instance.sous_domaine}.{settings.MAIN_DOMAIN}"
-                cache_keys_to_clear.append(f"tenant_resolution:{subdomain_hostname}")
-            
-            if cache_keys_to_clear:
-                cache.delete_many(cache_keys_to_clear)
-                logger.info(f"[TenantCache] Cache invalidé après modification domaines pour tenant '{instance.name}': {cache_keys_to_clear}")
-                
-        except Exception as e:
-            logger.error(f"[TenantCache] Erreur lors de l'invalidation du cache domaines pour tenant '{instance.name}': {str(e)}")
-
-
-def invalidate_tenant_cache_manual(tenant_name_or_hostname):
-    """
-    Fonction utilitaire pour invalider manuellement le cache d'un tenant
-    Useful pour les tâches admin ou de maintenance
-    
-    Args:
-        tenant_name_or_hostname: Nom du tenant ou hostname complet
+    Invalide le cache par SOUS-DOMAINE à chaque sauvegarde/suppression
+    d'un Tenant. Ne touche PAS aux Domain associés ici : en cascade sur
+    une suppression, les lignes Domain sont déjà supprimées (et leur
+    propre signal post_delete déjà passé) avant que ce récepteur ne
+    s'exécute -- `instance.domains.all()` y renverrait un queryset vide,
+    donnant l'illusion à tort qu'il n'y a rien à invalider. Voir le
+    récepteur dédié ci-dessous, sur le modèle Domain lui-même.
     """
     try:
-        cache_key = f"tenant_resolution:{tenant_name_or_hostname}"
-        if cache.delete(cache_key):
-            logger.info(f"[TenantCache] Cache invalidé manuellement pour : {tenant_name_or_hostname}")
-            return True
-        else:
-            logger.warning(f"[TenantCache] Aucune clé de cache trouvée pour : {tenant_name_or_hostname}")
-            return False
-    except Exception as e:
-        logger.error(f"[TenantCache] Erreur lors de l'invalidation manuelle : {str(e)}")
-        return False
+        keys = invalidate_tenant_resolution_cache(sous_domaine=instance.sous_domaine)
+        if keys:
+            logger.info(f"[TenantCache] Invalidé pour tenant '{instance.name}': {keys}")
+    except Exception:
+        logger.error(f"[TenantCache] Échec invalidation pour tenant '{instance.name}'", exc_info=True)
+
+
+@receiver([post_save, post_delete], sender=Domain)
+def clear_tenant_cache_on_domain_change(sender, instance, **kwargs):
+    """
+    Invalide le cache pour LE domaine complet créé/modifié/supprimé.
+    `instance.domain` reste renseigné sur l'instance Python même en
+    post_delete (valeur lue avant suppression SQL) -- fonctionne donc
+    pour les 3 cas (création, édition, suppression), y compris en
+    cascade depuis la suppression d'un Tenant (ce récepteur s'exécute
+    AVANT le post_delete du Tenant parent, voir le Collector Django).
+    """
+    try:
+        keys = invalidate_tenant_resolution_cache(domains=[instance.domain])
+        if keys:
+            logger.info(f"[TenantCache] Invalidé pour domaine '{instance.domain}': {keys}")
+    except Exception:
+        logger.error(f"[TenantCache] Échec invalidation pour domaine '{instance.domain}'", exc_info=True)
 
 
 def clear_all_tenant_cache():
     """
-    Fonction pour vider tout le cache de résolution des tenants
-    Useful pour maintenance ou reset complet
+    Vide tout le cache de résolution tenant -- maintenance/reset manuel
+    uniquement (ex: shell Django). Ne dépend pas de `delete_pattern`
+    (absent de LocMemCache, présent avec django-redis) : reconstruit la
+    liste exacte des clés depuis la base plutôt que de scanner le cache.
     """
     try:
-        # Django ne permet pas de supprimer par pattern, donc on doit lister les clés
-        # Alternative : utiliser cache.clear() mais ça vide TOUT le cache
-        
-        # Version avec cache Redis/Memcached qui supporte les patterns
-        if hasattr(cache, 'delete_pattern'):
-            deleted = cache.delete_pattern("tenant_resolution:*")
-            logger.info(f"[TenantCache] {deleted} clés de cache tenant supprimées")
-            return True
-        else:
-            # Fallback : log l'action mais ne peut pas supprimer par pattern
-            logger.warning("[TenantCache] Cache backend ne supporte pas delete_pattern. Utilisez cache.clear() avec précaution.")
-            return False
-            
-    except Exception as e:
-        logger.error(f"[TenantCache] Erreur lors du nettoyage complet du cache : {str(e)}")
-        return False
+        cache_keys = []
+        for tenant in Tenant.objects.all():
+            if tenant.sous_domaine and settings.MAIN_DOMAIN:
+                cache_keys.append(f"tenant_resolution:{tenant.sous_domaine}.{settings.MAIN_DOMAIN}")
+        for domain_obj in Domain.objects.all():
+            cache_keys.append(f"tenant_resolution:{domain_obj.domain}")
+        if cache_keys:
+            cache.delete_many(cache_keys)
+        logger.info(f"[TenantCache] {len(cache_keys)} clés invalidées (reset complet).")
+        return len(cache_keys)
+    except Exception:
+        logger.error("[TenantCache] Échec du nettoyage complet du cache", exc_info=True)
+        return 0

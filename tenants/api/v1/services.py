@@ -17,6 +17,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from config.fonction import formatReponse
 from domain.api.v1.services import DomainService
+from tenants.signals import invalidate_tenant_resolution_cache
 from rest_framework import status
 
 
@@ -131,12 +132,31 @@ class TenantService:
     @staticmethod
     @transaction.atomic
     def bulk_deactivate_tenants(tenant_ids):
-        return Tenant.objects.filter(id__in=tenant_ids, is_active=True).update(is_active=False, updated_at=timezone.now())
+        # `.update()` sur un queryset ne déclenche JAMAIS post_save -> le
+        # signal d'invalidation (tenants/signals.py) ne se déclenche pas
+        # ici, contrairement à activate_tenant/deactivate_tenant
+        # ci-dessus (qui passent par `.save()`). Invalidation manuelle
+        # explicite pour ne pas laisser ces tenants "actifs" au sens du
+        # cache jusqu'à expiration du TTL.
+        sous_domaines = list(
+            Tenant.objects.filter(id__in=tenant_ids, is_active=True).values_list('sous_domaine', flat=True)
+        )
+        count = Tenant.objects.filter(id__in=tenant_ids, is_active=True).update(is_active=False, updated_at=timezone.now())
+        for sous_domaine in sous_domaines:
+            invalidate_tenant_resolution_cache(sous_domaine=sous_domaine)
+        return count
 
     @staticmethod
     @transaction.atomic
     def bulk_activate_tenants(tenant_ids):
-        return Tenant.objects.filter(id__in=tenant_ids, is_active=False).update(is_active=True, updated_at=timezone.now())
+        # Voir le commentaire de bulk_deactivate_tenants ci-dessus.
+        sous_domaines = list(
+            Tenant.objects.filter(id__in=tenant_ids, is_active=False).values_list('sous_domaine', flat=True)
+        )
+        count = Tenant.objects.filter(id__in=tenant_ids, is_active=False).update(is_active=True, updated_at=timezone.now())
+        for sous_domaine in sous_domaines:
+            invalidate_tenant_resolution_cache(sous_domaine=sous_domaine)
+        return count
 
 
 class TenantDossierService:

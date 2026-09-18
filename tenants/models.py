@@ -345,9 +345,10 @@ class TenantInformationsPrimaires(SocleTracabilite):
     (2) au tenant lui-même de disposer d'une fiche institutionnelle
     complète. Créée à la volée au premier accès (get_or_create) plutôt
     que par un signal — voir `TenantDossierService.get_or_create_informations`
-    (tenants/api/v1/services.py) : `tenants/signals.py` existe déjà dans
-    ce dépôt mais n'est câblé nulle part (aucun `ready()` ne l'importe),
-    autant ne pas ajouter une dépendance à un mécanisme déjà fragile.
+    (tenants/api/v1/services.py). `tenants/signals.py` est câblé (voir
+    TenantsConfig.ready()), mais pour un usage différent et sans rapport
+    (invalidation du cache de résolution tenant, tenants/middleware.py) :
+    pas de raison d'y coupler la création de cette fiche.
     """
     statut = models.CharField(
         _('Statut de vérification'), max_length=30,

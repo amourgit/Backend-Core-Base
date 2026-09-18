@@ -326,6 +326,51 @@ DATABASES = {
     )
 }
 
+# ============================================================
+# Cache Django (django.core.cache) -- consommé notamment par
+# tenants/middleware.py::_resolve_tenant_with_cache (résolution
+# hostname -> Tenant, TTL court).
+#
+# django-redis + redis sont déjà dans requirements.txt mais n'étaient
+# jusqu'ici JAMAIS câblés ici (CACHES absent -> LocMemCache implicite,
+# le défaut Django). Problème réel avec plusieurs workers gunicorn
+# (voir gunicorn.conf.py, workers=2) : LocMemCache est PAR PROCESSUS.
+# Un tenant recréé (même sous-domaine après suppression, cas fréquent
+# en itérant sur la création self-service) ou modifié (is_active,
+# domaine) sur le worker qui a traité cette requête n'était pas
+# forcément vu par l'AUTRE worker avant expiration du TTL -- un tenant
+# qui semble "figé" au sens propre, malgré un en-tête X-Tenant-Domain
+# recalculé correctement à chaque requête côté frontend (voir
+# store/tenants.store.ts, déjà correct). Redis, service à part, n'est
+# lui jamais affecté par le search_path Postgres -- contrairement à un
+# cache DB (django.core.cache.backends.db), écarté volontairement : il
+# casserait ce système multi-schema (table de cache absente des
+# schémas tenant si le search_path est basculé au moment de l'accès).
+#
+# Repli sûr sur LocMemCache si REDIS_URL n'est pas configuré (ex: avant
+# provisioning d'un service Redis sur Render) : comportement identique
+# à aujourd'hui tant que la variable est absente, jamais d'erreur au
+# démarrage faute de Redis join.
+# ============================================================
+REDIS_URL = os.environ.get("REDIS_URL")
+
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+
 LOG_DIR = BASE_DIR / "logs"
 LOG_DIR.mkdir(exist_ok=True)  # crée le dossier si inexistant
 

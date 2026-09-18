@@ -293,10 +293,21 @@ class TenantMiddleware(TenantMainMiddleware):
             'is_active': tenant.is_active
         }
 
+    # Invalidée activement à chaque création/modification/suppression de
+    # Tenant ou Domain (voir tenants/signals.py, câblé depuis
+    # TenantsConfig.ready()) -- ce TTL n'est donc plus qu'un FILET DE
+    # SÉCURITÉ pour les rares chemins qui contournent les signaux
+    # (ex: `.update()` sur un queryset, qui ne déclenche jamais
+    # post_save -- voir bulk_activate_tenants/bulk_deactivate_tenants
+    # dans tenants/api/v1/services.py, qui invalident explicitement pour
+    # cette raison). 30s (au lieu des 5 min précédentes) borne ce
+    # filet à une fenêtre courte plutôt que de masquer un signal
+    # manquant pendant 5 minutes entières.
+    TENANT_RESOLUTION_CACHE_TTL = 30
+
     def _resolve_tenant_with_cache(self, hostname):
         """
-        Résout le tenant avec mise en cache pour optimiser les performances
-        Cache TTL: 5 minutes
+        Résout le tenant avec mise en cache pour optimiser les performances.
         """
         cache_key = f"tenant_resolution:{hostname}"
         tenant = cache.get(cache_key)
@@ -311,7 +322,7 @@ class TenantMiddleware(TenantMainMiddleware):
         
         # Mettre en cache (tenant ou False si non trouvé)
         cache_value = tenant if tenant else False
-        cache.set(cache_key, cache_value, timeout=300)  # 5 minutes
+        cache.set(cache_key, cache_value, timeout=self.TENANT_RESOLUTION_CACHE_TTL)
         
         return tenant
 
