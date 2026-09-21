@@ -9,6 +9,8 @@ from .serializers import (
     TenantSerializer,
     TenantCreateSerializer,
     TenantPublicSerializer,
+    TenantIdentiteSerializer,
+    TenantProfilPublicSerializer,
     TenantInformationsPrimairesSerializer,
     TenantDocumentRequisSerializer,
     TenantDocumentGeneriqueSerializer,
@@ -33,6 +35,23 @@ from django.utils.text import slugify
 from django.conf import settings
 from django.utils import timezone
 from common.admin import est_schema_public
+
+
+class TenantCourantMixin:
+    """
+    Résolution du tenant COURANT d'une requête (`request.tenant`, posé par
+    `tenants.middleware.TenantMiddleware`) pour les vues singleton dont
+    la ressource EST le tenant (ou sa fiche) : renvoie `(tenant, None)` ou
+    `(None, Response 400)`. Le tenant n'est jamais lu depuis le corps ni
+    l'URL -- un client ne peut donc pas viser un autre tenant que celui de
+    son token (voir aussi `IsAccessTokenTenant`).
+    """
+
+    def _tenant_ou_erreur(self, request):
+        tenant = getattr(request, 'tenant', None)
+        if not isinstance(tenant, Tenant) or tenant.pk is None:
+            return None, Response({"detail": "Tenant non résolu pour cette requête."}, status=status.HTTP_400_BAD_REQUEST)
+        return tenant, None
 
 
 class TenantCreateAPIView(APIView):
@@ -123,6 +142,60 @@ class TenantCreateAPIView(APIView):
                 # jamais renvoyé en clair par l'API.
                 "admin": {"identifiant": admin_credentials['identifiant']},
             }, status=status.HTTP_201_CREATED)
+
+
+class TenantProfilPublicAPIView(APIView):
+    """
+    GET /tenants/v1/profil-public/<sous_domaine>/ -- profil PUBLIC d'UNE
+    organisation active : identité de l'annuaire + extrait public de sa
+    fiche (`fiche_publique`, liste blanche -- voir
+    `TenantFichePubliqueSerializer`). Alimente la page de détails d'une
+    organisation simplement CONSULTÉE (ni connectée dedans, ni
+    administrateur) côté frontend.
+
+    Même contrat d'accès que l'annuaire (`TenantCreateAPIView.get`) :
+    AllowAny, sans authentification -- rien de sensible n'y est exposé.
+    404 si le sous-domaine est inconnu OU si l'organisation est inactive
+    (indistinguables, comme pour l'annuaire qui ne liste que les actives).
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get(self, request, sous_domaine):
+        tenant = Tenant.objects.filter(is_active=True, sous_domaine=sous_domaine.lower()).first()
+        if tenant is None:
+            return Response({"detail": "Organisation introuvable."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(TenantProfilPublicSerializer(tenant, context={'request': request}).data)
+
+
+class TenantIdentiteAPIView(TenantCourantMixin, APIView):
+    """
+    GET/PATCH /tenants/v1/identite/ -- identité PUBLIQUE (nom,
+    description, logo) du TENANT COURANT : ressource singleton, sans
+    identifiant dans l'URL, exactement comme `informations-primaires/`.
+
+    Accès réservé à l'ADMINISTRATEUR du tenant (`EstAdministrateurDuTenant`)
+    dont le token appartient bien à CE tenant (`IsAccessTokenTenant`) :
+    un administrateur d'une autre organisation n'a aucun droit ici, même
+    en envoyant le sous-domaine d'un autre tenant. Modification PARTIELLE
+    uniquement (PATCH) ; JSON ou multipart (nécessaire pour le logo).
+    """
+    permission_classes = [IsAuthenticated, IsAccessTokenTenant, EstAdministrateurDuTenant]
+
+    def get(self, request):
+        tenant, erreur = self._tenant_ou_erreur(request)
+        if erreur:
+            return erreur
+        return Response(TenantIdentiteSerializer(tenant, context={'request': request}).data)
+
+    def patch(self, request):
+        tenant, erreur = self._tenant_ou_erreur(request)
+        if erreur:
+            return erreur
+        serializer = TenantIdentiteSerializer(tenant, data=request.data, partial=True, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        tenant = TenantService.mettre_a_jour_identite(tenant, serializer.validated_data)
+        return Response(TenantIdentiteSerializer(tenant, context={'request': request}).data)
 
 
 class TenantPublicsAPIView(APIView):
@@ -252,7 +325,7 @@ class TenantDisponibiliteAPIView(APIView):
             }, status=status.HTTP_201_CREATED)
 
 
-class TenantInformationsPrimairesAPIView(APIView):
+class TenantInformationsPrimairesAPIView(TenantCourantMixin, APIView):
     """
     GET/PUT/PATCH /tenants/v1/informations-primaires/ -- fiche d'identité
     primaire du TENANT COURANT (résolu via `request.tenant`, voir
@@ -268,12 +341,6 @@ class TenantInformationsPrimairesAPIView(APIView):
     pas une donnée à exposer à n'importe quel membre du tenant.
     """
     permission_classes = [IsAuthenticated, IsAccessTokenTenant, EstAdministrateurDuTenant]
-
-    def _tenant_ou_erreur(self, request):
-        tenant = getattr(request, 'tenant', None)
-        if not tenant:
-            return None, Response({"detail": "Tenant non résolu pour cette requête."}, status=status.HTTP_400_BAD_REQUEST)
-        return tenant, None
 
     def get(self, request):
         tenant, erreur = self._tenant_ou_erreur(request)

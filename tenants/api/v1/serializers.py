@@ -15,6 +15,7 @@ from tenants.models import (
     valider_fichier_selon_contraintes,
     TenantTutelle,
     TypeRelationTutelle,
+    StatutVerificationIdentite,
 )
 from common.admin import est_schema_public
 from domain.api.v1.serializers import DomainSerializer
@@ -109,6 +110,111 @@ class TenantPublicSerializer(serializers.ModelSerializer):
         from domain.models import Domain
         primaire = Domain.get_primary_domain(tenant)
         return primaire.domain if primaire else None
+
+
+# Taille maximale d'un logo d'organisation (l'image est de toute façon
+# validée comme telle par `serializers.ImageField`, via Pillow).
+LOGO_TAILLE_MAX_MO = 5
+DESCRIPTION_TAILLE_MAX = 2000
+
+
+class TenantIdentiteSerializer(serializers.ModelSerializer):
+    """
+    ÉCRITURE de l'identité PUBLIQUE du tenant courant -- nom, description
+    et logo, tels qu'affichés dans l'annuaire (voir
+    `TenantPublicSerializer`). Volontairement limité à ces 3 champs :
+    `sous_domaine`/`schema_name` (identité technique, jamais modifiable
+    après création), `is_active`/`is_public` (décisions de PLATEFORME) et
+    `settings` (interne) ne sont pas du ressort d'un administrateur de
+    tenant.
+
+    Envoyer `logo: null` (JSON) ou `logo=` vide (multipart) SUPPRIME le
+    logo actuel ; omettre la clé le laisse inchangé.
+
+    La représentation renvoyée est celle de l'annuaire
+    (`TenantPublicSerializer`) : le frontend obtient exactement la forme
+    qu'il connaît déjà (`Tenant`), quel que soit l'endpoint.
+    """
+    logo = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = Tenant
+        fields = ['name', 'description', 'logo']
+        extra_kwargs = {
+            'description': {'required': False, 'allow_blank': True, 'max_length': DESCRIPTION_TAILLE_MAX},
+        }
+
+    def validate_name(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("Le nom de l'organisation est requis.")
+        return value
+
+    def validate_description(self, value):
+        return value.strip()
+
+    def validate_logo(self, value):
+        if value and value.size > LOGO_TAILLE_MAX_MO * 1024 * 1024:
+            raise serializers.ValidationError(f"Le logo ne doit pas dépasser {LOGO_TAILLE_MAX_MO} Mo.")
+        return value
+
+    def to_representation(self, instance):
+        return TenantPublicSerializer(instance, context=self.context).data
+
+
+class TenantFichePubliqueSerializer(serializers.ModelSerializer):
+    """
+    Extrait PUBLIC de la fiche d'identité (`TenantInformationsPrimaires`),
+    exposé à n'importe quel visiteur pour une organisation qu'il ne fait
+    que CONSULTER.
+
+    LISTE BLANCHE explicite (jamais `exclude`, jamais `__all__`) : tout
+    nouveau champ ajouté au modèle reste privé tant qu'on ne l'ajoute pas
+    ICI. Sont volontairement absents : numéros légaux (RCCM, NIF,
+    agrément), adresse du siège, téléphones et e-mails (organisation,
+    responsable légal, contact opérationnel), noms/fonctions des
+    responsables, effectif, et tout le suivi de vérification interne
+    (commentaire, dates, vérificateur) -- ceux-là restent réservés à
+    l'administrateur du tenant via `TenantInformationsPrimairesSerializer`.
+
+    `identite_verifiee` ne révèle que le RÉSULTAT de la vérification
+    plateforme (booléen), pas son détail.
+    """
+    identite_verifiee = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TenantInformationsPrimaires
+        fields = [
+            'raison_sociale', 'sigle', 'forme_juridique', 'secteur_activite',
+            'ville', 'province', 'pays',
+            'site_web', 'reseaux_sociaux',
+            'zone_couverture', 'description_activites',
+            'identite_verifiee',
+        ]
+        read_only_fields = fields
+
+    def get_identite_verifiee(self, fiche):
+        return fiche.statut == StatutVerificationIdentite.VERIFIEE
+
+
+class TenantProfilPublicSerializer(TenantPublicSerializer):
+    """
+    Profil PUBLIC complet d'UNE organisation : identité de l'annuaire
+    (`TenantPublicSerializer`) + `fiche_publique` (extrait public de la
+    fiche, voir `TenantFichePubliqueSerializer`), `null` tant que
+    l'organisation n'a jamais renseigné sa fiche. Ne CRÉE jamais la
+    fiche à la volée (contrairement à l'endpoint administrateur) : une
+    lecture publique ne doit pas provoquer d'écriture en base.
+    """
+    fiche_publique = serializers.SerializerMethodField()
+
+    class Meta(TenantPublicSerializer.Meta):
+        fields = TenantPublicSerializer.Meta.fields + ['fiche_publique']
+        read_only_fields = fields
+
+    def get_fiche_publique(self, tenant):
+        fiche = TenantInformationsPrimaires.objects.filter(tenant=tenant).first()
+        return TenantFichePubliqueSerializer(fiche).data if fiche else None
 
 
 def _valider_periode(valide_du, valide_au):

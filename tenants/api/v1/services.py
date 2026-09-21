@@ -19,9 +19,11 @@ from config.fonction import formatReponse
 from domain.api.v1.services import DomainService
 from tenants.signals import invalidate_tenant_resolution_cache
 from rest_framework import status
+import logging
 
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 class TenantService:
     """
@@ -39,6 +41,45 @@ class TenantService:
             updated_at=timezone.now(),
             **extra_fields
         )
+        return tenant
+
+    @staticmethod
+    def mettre_a_jour_identite(tenant, donnees):
+        """
+        Applique une mise à jour PARTIELLE de l'identité publique d'un
+        tenant (`name`, `description`, `logo` -- voir
+        `TenantIdentiteSerializer`) : n'écrit que les champs présents dans
+        `donnees` (`update_fields`), donc jamais de course avec une autre
+        modification (ex : `is_public` basculé par la plateforme).
+
+        Le `post_save` de `Tenant` invalide le cache de résolution
+        (tenants/signals.py). Un logo REMPLACÉ ou SUPPRIMÉ n'est pas
+        nettoyé par Django : l'ancien fichier est supprimé du stockage
+        ici, en best-effort (un échec de nettoyage ne doit jamais faire
+        échouer une mise à jour déjà enregistrée).
+        """
+        champs = [champ for champ in ('name', 'description', 'logo') if champ in donnees]
+        if not champs:
+            return tenant
+
+        with transaction.atomic():
+            # Instance relue ET verrouillée : `request.tenant` peut venir du
+            # cache de résolution (donc être périmée) -- sans ça, le nom de
+            # l'ancien logo ci-dessous pourrait ne plus être le bon.
+            tenant = Tenant.objects.select_for_update().get(pk=tenant.pk)
+            storage = tenant.logo.storage
+            ancien_logo = tenant.logo.name if tenant.logo else None
+
+            for champ in champs:
+                setattr(tenant, champ, donnees[champ])
+            tenant.save(update_fields=[*champs, 'updated_at'])
+
+        nouveau_logo = tenant.logo.name if tenant.logo else None
+        if ancien_logo and ancien_logo != nouveau_logo:
+            try:
+                storage.delete(ancien_logo)
+            except Exception:
+                logger.warning("Suppression de l'ancien logo impossible : %s", ancien_logo, exc_info=True)
         return tenant
 
     @staticmethod

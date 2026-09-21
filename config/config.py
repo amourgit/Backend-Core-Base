@@ -170,6 +170,10 @@ BASE_VERSIONED_AUTHENTICATED_ROUTES = [
     # 4 sous-routes exposent des données légales/administratives privées
     # du tenant courant -- IsAuthenticated + IsAccessTokenTenant +
     # EstAdministrateurDuTenant sur chaque vue (tenants/api/v1/views.py).
+    # 'identite' (nom/description/logo du tenant courant, réservé à son
+    # administrateur) suit la même règle. À l'inverse, 'profil-public/<sd>'
+    # reste volontairement SOUS le préfixe public ('tenants', None) : c'est
+    # un extrait public, comme l'annuaire.
     # Plus SPÉCIFIQUE que l'entrée ('tenants', None) juste au-dessus
     # (/api/tenants/vX) : la résolution de route de
     # TenantMiddleware.get_route_type() retient le chemin classé le plus
@@ -177,7 +181,7 @@ BASE_VERSIONED_AUTHENTICATED_ROUTES = [
     # 4 sous-chemins l'emportent donc bien sur le préfixe TENANT_PUBLIC
     # générique, sans avoir à en changer la classification pour les 3
     # endpoints publics existants (création, annuaire, disponibilité).
-    ('tenants', ['informations-primaires', 'dossier', 'documents-requis', 'documents-generiques', 'tutelles']),
+    ('tenants', ['identite', 'informations-primaires', 'dossier', 'documents-requis', 'documents-generiques', 'tutelles']),
 
     # --- Domaines métier CIVITAS NEWS 100% privés ---------------------------
     # Contrairement au groupe TENANT_PUBLIC ci-dessus, ces 3 apps n'ont
